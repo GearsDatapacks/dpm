@@ -1,4 +1,3 @@
-from numpy import isin
 import requests as r
 import json
 from src.projects import Project
