@@ -1,10 +1,11 @@
 import requests as r
 import json
+from pyrinth.models import ProjectModel
 from pyrinth.projects import Project
 
 
 class User:
-    def __init__(self, username, authorization='', ignore_warning=False) -> None:
+    def __init__(self, username: str, authorization: str = '', ignore_warning: bool = False) -> None:
         self.auth = authorization
         if self.auth != '':
             self.raw_response = r.get(
@@ -76,7 +77,7 @@ class User:
 
         return [self.Notification(notification) for notification in response]
 
-    def get_projects(self):
+    def get_projects(self) -> list[Project]:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
@@ -91,7 +92,36 @@ class User:
         """
         return len(self.get_projects_by_ids())
 
-    def from_auth(auth):
+    def create_project(self, project_model: ProjectModel, icon: str = ''):
+        print(project_model.to_bytes())
+        raw_response = r.post(
+            'https://api.modrinth.com/v2/project',
+            files={
+                "data": project_model.to_bytes()
+            },
+            headers={
+                'Authorization': self.auth
+            }
+        )
+        print(raw_response.json())
+
+    def follow_project(self, id: str) -> None:
+        r.post(
+            f'https://api.modrinth.com/v2/project/{id}/follow',
+            headers={
+                'authorization': self.auth
+            }
+        )
+
+    def unfollow_project(self, id: str) -> None:
+        r.delete(
+            f'https://api.modrinth.com/v2/project/{id}/follow',
+            headers={
+                'authorization': self.auth
+            }
+        )
+
+    def from_auth(auth: str):  # Returns user
         """This function finds a user with the specified auth token
 
         Args:
@@ -107,9 +137,9 @@ class User:
             }
         )
         response = json.loads(raw_response.content)
-        return User(response['username'], auth)
+        return User(response['username'], auth, ignore_warning=True)
 
-    def from_id(id):
+    def from_id(id: str):  # Returns User
         """This function gets a user from their id
 
         Args:
@@ -118,12 +148,13 @@ class User:
         Returns:
             User: The user that was found
         """
-        response = r.get(
+        raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
-        ).json()
-        return User(response['username'])
+        )
+        response = json.loads(raw_response.content)
+        return User(response['username'], ignore_warning=True)
 
-    def from_ids(ids):
+    def from_ids(ids: list[str]) -> list:  # Returns list[User]
         """This function finds users with the specified ids
 
         Args:
@@ -143,31 +174,33 @@ class User:
 
     class Notification:
 
-        def __init__(self, notification):
-            self.id = notification['id']
-            self.user_id = notification['user_id']
-            self.type = notification['type']
-            self.title = notification['title']
-            self.text = notification['text']
-            self.link = notification['link']
-            self.read = notification['read']
-            self.created = notification['created']
-            self.actions = notification['actions']
+        def __init__(self, notification_json: dict) -> None:
+            self.id = notification_json['id']
+            self.user_id = notification_json['user_id']
+            self.type = notification_json['type']
+            self.title = notification_json['title']
+            self.text = notification_json['text']
+            self.link = notification_json['link']
+            self.read = notification_json['read']
+            self.created = notification_json['created']
+            self.actions = notification_json['actions']
             self.project_title = self.title.split('**')[1]
 
         def __repr__(self) -> str:
             return f"Notification: {self.text}"
 
     class TeamMember:
-        def __init__(self, team_member):
-            self.team_id = team_member['team_id']
-            self.user = User(team_member['user']
-                             ['username'], ignore_warning=True)
-            self.role = team_member['role']
-            self.permissions = team_member['permissions']
-            self.accepted = team_member['accepted']
-            self.payouts_split = team_member['payouts_split']
-            self.ordering = team_member['ordering']
+        def __init__(self, team_member_json: dict) -> None:
+            self.team_id = team_member_json['team_id']
+            self.user = User(
+                team_member_json['user']['username'],
+                ignore_warning=True
+            )
+            self.role = team_member_json['role']
+            self.permissions = team_member_json['permissions']
+            self.accepted = team_member_json['accepted']
+            self.payouts_split = team_member_json['payouts_split']
+            self.ordering = team_member_json['ordering']
 
         def __repr__(self) -> str:
             return f"TeamMember: {self.user.username}"

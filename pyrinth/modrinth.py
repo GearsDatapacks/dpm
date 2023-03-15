@@ -1,11 +1,12 @@
 import requests as r
 import json
 from pyrinth.projects import Project
+from pyrinth.users import User
 
 
 class Modrinth:
     @staticmethod
-    def get_project(id):
+    def get_project(id: str) -> Project:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{id}'
         )
@@ -13,7 +14,7 @@ class Modrinth:
         return Project(response)
 
     @staticmethod
-    def get_projects_by_ids(ids=[]) -> list[Project]:
+    def get_projects_by_ids(ids: list[str] = []) -> list[Project]:
         """This function finds multiple projects by IDs, then returns them
 
         Args:
@@ -38,14 +39,16 @@ class Modrinth:
                 response['description'] + " Did you supply a project slug instead of a ID?")
         return [Project(project) for project in response]
 
-    def get_version_by_id(id) -> Project.Version:
+    @staticmethod
+    def get_version_by_id(id: str) -> Project.Version:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
         response = json.loads(raw_response.content)
         return Project.Version(response)
 
-    def get_random_project(count=1) -> list:
+    @staticmethod
+    def get_random_project(count: int = 1) -> list:
         """This function returns a random project
 
         Args:
@@ -63,8 +66,16 @@ class Modrinth:
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
 
+    @staticmethod
+    def get_user_from_id(id: str) -> User:
+        return User.from_id(id)
+
+    @staticmethod
+    def get_user_from_auth(auth: str) -> User:
+        return User.from_id(auth)
+
     class Statistics:
-        def __init__(self):
+        def __init__(self) -> None:
             raw_response = r.get(
                 f'https://api.modrinth.com/v2/statistics'
             )

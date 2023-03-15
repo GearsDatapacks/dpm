@@ -1,4 +1,5 @@
 main.py
 test.py
-pyrinth/__pycache__
 .vscode
+pyrinth/__pycache__
+references/
