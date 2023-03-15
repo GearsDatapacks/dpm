@@ -90,7 +90,7 @@ class User:
         Returns:
             int: How many projects the user has
         """
-        return len(self.get_projects_by_ids())
+        return len(self.get_projects())
 
     def create_project(self, project_model: ProjectModel, icon: str = ''):
         print(project_model.to_bytes())
