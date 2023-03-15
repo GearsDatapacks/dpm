@@ -1,6 +1,6 @@
 import requests as r
 import json
-from src.projects import Project
+from pyrinth.projects import Project
 
 
 class Modrinth:
