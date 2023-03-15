@@ -2,27 +2,6 @@ import requests as r
 import json
 
 
-class Version:
-    def __init__(self, version):
-        self.id = version['id']
-        self.project_id = version['project_id']
-        self.author_id = version['author_id']
-        self.featured = version['featured']
-        self.name = version['name']
-        self.version_number = version['version_number']
-        self.changelog = version['changelog']
-        self.changelog_url = version['changelog_url']
-        self.date_published = version['date_published']
-        self.downloads = version['downloads']
-        self.version_type = version['version_type']
-        self.status = version['status']
-        self.requested_status = version['requested_status']
-        self.files = version['files']
-        self.dependencies = version['dependencies']
-        self.game_versions = version['game_versions']
-        self.loaders = version['loaders']
-
-
 class Project:
     def __init__(self, project_data):
         self.data = project_data
@@ -66,82 +45,137 @@ class Project:
             f'https://api.modrinth.com/v2/project/{self.id}/version'
         )
         response = json.loads(raw_response.content)
-        print(response)
+        return [self.Version(version) for version in response]
 
+    class Version:
 
-def get_project_dependencies(id) -> list[Project]:
-    """This function gets project dependencies
+        def __init__(
+            self, version={}, version_model=None
+        ):
+            if version:
+                self.id = version['id']
+                self.project_id = version['project_id']
+                self.author_id = version['author_id']
+                self.featured = version['featured']
+                self.name = version['name']
+                self.version_number = version['version_number']
+                self.changelog = version['changelog']
+                self.changelog_url = version['changelog_url']
+                self.date_published = version['date_published']
+                self.downloads = version['downloads']
+                self.version_type = version['version_type']
+                self.status = version['status']
+                self.requested_status = version['requested_status']
+                self.files = version['files']
+                self.dependencies = version['dependencies']
+                self.game_versions = version['game_versions']
+                self.loaders = version['loaders']
 
-    Args:
-        id (str): The ID of the project
+        # def from_args(
+        #         name, version_number, dependencies,
+        #         game_versions, version_type, loaders,
+        #         featured, requested_status, project_id,
+        #         file_parts, primary_file="primary_file", changelog="",
+        #         status="unknown"
+        # ):
+        #     return Version(json.dumps({
+        #         'name': name,
+        #         'version_number': version_number,
+        #         'changelog': changelog,
+        #         'dependencies': dependencies,
+        #         'game_versions': game_versions,
+        #         'version_type': version_type,
+        #         'loaders': loaders,
+        #         'featured': featured,
+        #         'status': status,
+        #         'requested_status': requested_status,
+        #         'project_id': project_id,
+        #         'file_parts': file_parts,
+        #         'primary_file': primary_file
+        #     }))
 
-    Returns:
-        list: The project dependencies
-    """
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/project/{id}/dependencies'
-    )
-    response = json.loads(raw_response.content)
-    return [Project(project) for project in response['projects']]
+    def get_dependencies(self=None, id=''):
+        """This function gets project dependencies
 
+        Args:
+            id (str): The ID of the project
 
-def check_project_validity(id) -> bool:
-    """
-    This function checks if a project exists
+        Returns:
+            list: The project dependencies
+        """
+        if id == '' and self == None:
+            raise Exception(
+                "Please specify a project ID to find dependencies. Or use this method on an instanced class"
+            )
+        id = self.id if not id else id
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/project/{id}/dependencies'
+        )
+        response = json.loads(raw_response.content)
+        return [Project(project) for project in response['projects']]
 
-    Args:
-        id (str): The id of the project
+    def check_validity(self=None, id='') -> bool:
+        """
+        This function checks if a project exists
 
-    Returns:
-        bool: If the project exists
-    """
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/project/{id}/check'
-    )
-    return raw_response.ok
+        Args:
+            id (str): The id of the project
 
+        Returns:
+            bool: If the project exists
+        """
+        if id == '' and self == None:
+            raise Exception(
+                "Please specify a project ID to check validity. Or use this method on an instanced class"
+            )
+        id = self.id if not id else id
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/project/{id}/check'
+        )
+        response = json.loads(raw_response.content)
+        return (True if response['id'] else False)
 
-def get_random_project(count=1) -> list[Project]:
-    """This function returns a random project
+    def get_random_project(count=1) -> list:
+        """This function returns a random project
 
-    Args:
-        count (int, optional): Amount of random projects to return. Defaults to 1.
+        Args:
+            count (int, optional): Amount of random projects to return. Defaults to 1.
 
-    Returns:
-        list[Project]: The random projects
-    """
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/projects_random',
-        params={
-            'count': count
-        }
-    )
-    response = json.loads(raw_response.content)
-    return [Project(project) for project in response]
+        Returns:
+            list[Project]: The random projects
+        """
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/projects_random',
+            params={
+                'count': count
+            }
+        )
+        response = json.loads(raw_response.content)
+        return [Project(project) for project in response]
 
+    def get_versions(self=None, id='') -> list:
+        """This function gets a projects versions by ID
 
-def get_project_versions(id) -> list[Version]:
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/project/{id}/version'
-    )
-    response = json.loads(raw_response.content)
-    return [Version(version) for version in response]
+        Args:
+            id (str, required if not using a instanced class): The ID of the project.
 
+        Returns:
+            list: The versions for the project
+        """
+        if id == '' and self == None:
+            raise Exception(
+                "Please specify a project ID to get project versions. Or use this method on an instanced class"
+            )
+        id = self.id if not id else id
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/project/{id}/version'
+        )
+        response = json.loads(raw_response.content)
+        return [self.Version(version) for version in response]
 
-def get_version(id) -> Version:
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/version/{id}'
-    )
-    response = json.loads(raw_response.content)
-    return Version(response)
-
-
-def get_versions(ids) -> list[Version]:
-    raw_response = r.get(
-        f'https://api.modrinth.com/v2/versions',
-        params={
-            'ids': json.dumps(ids)
-        }
-    )
-    response = json.loads(raw_response.content)
-    return [Version(version) for version in response]
+    def get_version(id) -> Version:
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/version/{id}'
+        )
+        response = json.loads(raw_response.content)
+        return Project.Version(response)
