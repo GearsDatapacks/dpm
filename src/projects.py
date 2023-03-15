@@ -40,6 +40,9 @@ class Project:
         self.flame_anvil_user = self.data['flame_anvil_user']
         self.color = self.data['color']
 
+    def __repr__(self) -> str:
+        return f"Project: {self.title}"
+
     def get_versions(self):
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.id}/version'
@@ -47,74 +50,7 @@ class Project:
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
 
-    class Version:
-
-        def __init__(
-            self, version={}, version_model=None
-        ):
-            if version:
-                self.id = version['id']
-                self.project_id = version['project_id']
-                self.author_id = version['author_id']
-                self.featured = version['featured']
-                self.name = version['name']
-                self.version_number = version['version_number']
-                self.changelog = version['changelog']
-                self.changelog_url = version['changelog_url']
-                self.date_published = version['date_published']
-                self.downloads = version['downloads']
-                self.version_type = version['version_type']
-                self.status = version['status']
-                self.requested_status = version['requested_status']
-                self.files = version['files']
-                self.dependencies = version['dependencies']
-                self.game_versions = version['game_versions']
-                self.loaders = version['loaders']
-
-        # def from_args(
-        #         name, version_number, dependencies,
-        #         game_versions, version_type, loaders,
-        #         featured, requested_status, project_id,
-        #         file_parts, primary_file="primary_file", changelog="",
-        #         status="unknown"
-        # ):
-        #     return Version(json.dumps({
-        #         'name': name,
-        #         'version_number': version_number,
-        #         'changelog': changelog,
-        #         'dependencies': dependencies,
-        #         'game_versions': game_versions,
-        #         'version_type': version_type,
-        #         'loaders': loaders,
-        #         'featured': featured,
-        #         'status': status,
-        #         'requested_status': requested_status,
-        #         'project_id': project_id,
-        #         'file_parts': file_parts,
-        #         'primary_file': primary_file
-        #     }))
-
-    def get_dependencies(self=None, id=''):
-        """This function gets project dependencies
-
-        Args:
-            id (str): The ID of the project
-
-        Returns:
-            list: The project dependencies
-        """
-        if id == '' and self == None:
-            raise Exception(
-                "Please specify a project ID to find dependencies. Or use this method on an instanced class"
-            )
-        id = self.id if not id else id
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{id}/dependencies'
-        )
-        response = json.loads(raw_response.content)
-        return [Project(project) for project in response['projects']]
-
-    def check_validity(self=None, id='') -> bool:
+    def check_validity(self) -> bool:
         """
         This function checks if a project exists
 
@@ -124,36 +60,13 @@ class Project:
         Returns:
             bool: If the project exists
         """
-        if id == '' and self == None:
-            raise Exception(
-                "Please specify a project ID to check validity. Or use this method on an instanced class"
-            )
-        id = self.id if not id else id
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{id}/check'
+            f'https://api.modrinth.com/v2/project/{self.id}/check'
         )
         response = json.loads(raw_response.content)
         return (True if response['id'] else False)
 
-    def get_random_project(count=1) -> list:
-        """This function returns a random project
-
-        Args:
-            count (int, optional): Amount of random projects to return. Defaults to 1.
-
-        Returns:
-            list[Project]: The random projects
-        """
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/projects_random',
-            params={
-                'count': count
-            }
-        )
-        response = json.loads(raw_response.content)
-        return [Project(project) for project in response]
-
-    def get_versions(self=None, id='') -> list:
+    def get_versions(self) -> list:
         """This function gets a projects versions by ID
 
         Args:
@@ -162,20 +75,54 @@ class Project:
         Returns:
             list: The versions for the project
         """
-        if id == '' and self == None:
-            raise Exception(
-                "Please specify a project ID to get project versions. Or use this method on an instanced class"
-            )
-        id = self.id if not id else id
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{id}/version'
+            f'https://api.modrinth.com/v2/project/{self.id}/version'
         )
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
 
-    def get_version(id) -> Version:
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/version/{id}'
-        )
-        response = json.loads(raw_response.content)
-        return Project.Version(response)
+    class Version:
+        def __init__(self, version_model=None, version_dict=None):
+            if not version_model and not version_dict:
+                raise Exception(
+                    "Please specify a version_model or a version_dict"
+                )
+            if version_dict:
+                self.id = version_dict['id']
+                self.project_id = version_dict['project_id']
+                self.author_id = version_dict['author_id']
+                self.featured = version_dict['featured']
+                self.name = version_dict['name']
+                self.version_number = version_dict['version_number']
+                self.changelog = version_dict['changelog']
+                self.changelog_url = version_dict['changelog_url']
+                self.date_published = version_dict['date_published']
+                self.downloads = version_dict['downloads']
+                self.version_type = version_dict['version_type']
+                self.status = version_dict['status']
+                self.requested_status = version_dict['requested_status']
+                self.files = version_dict['files']
+                self.dependencies = version_dict['dependencies']
+                self.game_versions = version_dict['game_versions']
+                self.loaders = version_dict['loaders']
+            if version_model:
+                self.id = version_model.id
+                self.project_id = version_model.project_id
+                self.author_id = version_model.author_id
+                self.featured = version_model.featured
+                self.name = version_model.name
+                self.version_number = version_model.version_number
+                self.changelog = version_model.changelog
+                self.changelog_url = version_model.changelog_url
+                self.date_published = version_model.date_published
+                self.downloads = version_model.downloads
+                self.version_type = version_model.version_type
+                self.status = version_model.status
+                self.requested_status = version_model.requested_status
+                self.files = version_model.files
+                self.dependencies = version_model.dependencies
+                self.game_versions = version_model.game_versions
+                self.loaders = version_model.loaders
+
+        def __repr__(self) -> str:
+            return f"Version: {self.name}"

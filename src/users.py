@@ -1,3 +1,4 @@
+from numpy import isin
 import requests as r
 import json
 from src.projects import Project
@@ -76,60 +77,7 @@ class User:
 
         return [self.Notification(notification) for notification in response]
 
-    def get_project(self, id):
-        """This function finds a project by ID, then returns it
-
-        Args:
-            id (str): The ID of the project
-
-        Returns:
-            Project: The project that was searched using the id
-        """
-        if self.auth == '':
-            raise Exception("get_project needs an auth token.")
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{id}',
-            headers={
-                'authorization': self.auth
-            }
-        )
-        response = json.loads(raw_response.content)
-        return Project(response)
-
-    def get_projects_by_ids(self, ids) -> list[Project]:
-        """This function finds multiple projects by IDs, then returns them
-
-        Args:
-            ids (list[str]): the IDs of the projects
-
-        Returns:
-            list[Project]: The projects that were searched using ids
-        """
-        if self.auth == '':
-            raise Exception("get_projects needs an auth token.")
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/projects',
-            headers={
-                'authorization': self.auth
-            },
-            params={
-                'ids': json.dumps(ids)
-            }
-        )
-        response = json.loads(raw_response.content)
-        return [Project(project) for project in response]
-
-    def get_projects(self) -> list[Project]:
-        """This function finds multiple projects by IDs, then returns them
-
-        Args:
-            ids (list[str]): the IDs of the projects
-
-        Returns:
-            list[Project]: The projects that were searched using ids
-        """
-        if self.auth == '':
-            raise Exception("get_projects needs an auth token.")
+    def get_projects(self):
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
@@ -142,7 +90,7 @@ class User:
         Returns:
             int: How many projects the user has
         """
-        return len(self.get_projects())
+        return len(self.get_projects_by_ids())
 
     def from_auth(auth):
         """This function finds a user with the specified auth token
@@ -208,6 +156,9 @@ class User:
             self.actions = notification['actions']
             self.project_title = self.title.split('**')[1]
 
+        def __repr__(self) -> str:
+            return f"Notification: {self.text}"
+
     class TeamMember:
         def __init__(self, team_member):
             self.team_id = team_member['team_id']
@@ -218,3 +169,6 @@ class User:
             self.accepted = team_member['accepted']
             self.payouts_split = team_member['payouts_split']
             self.ordering = team_member['ordering']
+
+        def __repr__(self) -> str:
+            return f"TeamMember: {self.user.username}"
