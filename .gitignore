@@ -1,5 +1,6 @@
-main.py
+main*.py
 test.py
 .vscode
-pyrinth/__pycache__
+**/__pycache__
 references/
+imgs/

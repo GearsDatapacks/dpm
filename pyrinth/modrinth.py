@@ -1,20 +1,40 @@
 import requests as r
 import json
+from pyrinth.models import SearchResultModel
 from pyrinth.projects import Project
 from pyrinth.users import User
 
 
+class SearchResult:
+    def __init__(self, search_result_model) -> None:
+        if type(search_result_model) == dict:
+            search_result_model = SearchResultModel.from_json(
+                search_result_model
+            )
+        self.search_result_model = search_result_model
+
+    def __repr__(self) -> str:
+        return f"Search Result: {self.search_result_model.title}"
+
+
 class Modrinth:
     @staticmethod
-    def get_project(id: str) -> Project:
+    def get_project(id: str, auth: str = '') -> Project:
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{id}'
+            f'https://api.modrinth.com/v2/project/{id}',
+            headers={
+                'authorization': auth
+            }
         )
+        if raw_response.status_code == 404:
+            raise Exception(
+                "The requested project was not found or no authorization to see this project."
+            )
         response = json.loads(raw_response.content)
         return Project(response)
 
     @staticmethod
-    def get_projects_by_ids(ids: list[str] = []) -> list[Project]:
+    def get_projects(ids: list[str] = []) -> list[Project]:
         """This function finds multiple projects by IDs, then returns them
 
         Args:
@@ -48,7 +68,7 @@ class Modrinth:
         return Project.Version(response)
 
     @staticmethod
-    def get_random_project(count: int = 1) -> list:
+    def get_random_projects(count: int = 1) -> list:
         """This function returns a random project
 
         Args:
@@ -73,6 +93,22 @@ class Modrinth:
     @staticmethod
     def get_user_from_auth(auth: str) -> User:
         return User.from_id(auth)
+
+    def search_projects(query='', facets=[], index="relevance", offset=0, limit=10, filters=[]) -> list[SearchResult]:
+        print("[INFO] SEARCH PROJECTS IS NOT FULLY IMPLEMENTED YET")
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/search',
+            params={
+                'query': query,
+                # 'facets': facets,
+                'index': index,
+                'offset': offset,
+                'limit': limit,
+                # 'filters': filters
+            }
+        )
+        response = json.loads(raw_response.content)
+        return [SearchResult(project) for project in response['hits']]
 
     class Statistics:
         def __init__(self) -> None:

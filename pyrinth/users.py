@@ -77,13 +77,6 @@ class User:
 
         return [self.Notification(notification) for notification in response]
 
-    def get_projects(self) -> list[Project]:
-        raw_response = r.get(
-            f'https://api.modrinth.com/v2/user/{self.id}/projects'
-        )
-        response = json.loads(raw_response.content)
-        return [Project(project) for project in response]
-
     def get_amount_of_projects(self) -> int:
         """This function finds how many projects a user has
 
@@ -93,7 +86,6 @@ class User:
         return len(self.get_projects())
 
     def create_project(self, project_model: ProjectModel, icon: str = ''):
-        print(project_model.to_bytes())
         raw_response = r.post(
             'https://api.modrinth.com/v2/project',
             files={
@@ -103,7 +95,13 @@ class User:
                 'Authorization': self.auth
             }
         )
-        print(raw_response.json())
+
+    def get_projects(self) -> list[Project]:
+        raw_response = r.get(
+            f'https://api.modrinth.com/v2/user/{self.id}/projects'
+        )
+        response = json.loads(raw_response.content)
+        return [Project(project) for project in response]
 
     def follow_project(self, id: str) -> None:
         r.post(
