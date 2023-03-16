@@ -6,3 +6,4 @@ imgs/
 **/__pycache__
 *.zip
 test*.*
+PRIVATE/

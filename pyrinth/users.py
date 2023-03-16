@@ -71,15 +71,17 @@ class User:
         return len(self.get_projects())
 
     def create_project(self, project_model: ProjectModel, icon: str = ''):
-        r.post(
+        raw_res = r.post(
             'https://api.modrinth.com/v2/project',
             files={
-                "data": project_model.to_bytes()
+                "data": project_model.to_bytes(),
+                "icon": "imgs/a.png".encode()
             },
             headers={
                 'Authorization': self.auth
             }
         )
+        print(raw_res.content)
 
     def get_projects(self) -> list[Project]:
         raw_response = r.get(

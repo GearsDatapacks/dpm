@@ -250,13 +250,19 @@ class VersionModel:
         self.primary_file = main_file
         self.project_id = project_id
 
-    def from_json(json):
+    def from_json(json_):
+        primary_files = []
+        for primary_files_ in json_['files']:
+            if primary_files_['primary']:
+                primary_files.append(primary_files_)
         result = VersionModel(
-            json['name'], json['version_number'], json['changelog'],
-            json['dependencies'], json['game_versions'], json['version_type'],
-            json['loaders'], json['featured'], json['status'],
-            json['requested_status'], json['file_parts'], json['primary_file'],
-            json['project_id']
+            json_['name'], json_['version_number'], json_['changelog'],
+            json_['dependencies'], json_[
+                'game_versions'], json_['version_type'],
+            json_['loaders'], json_['featured'], json_['status'],
+            json_['requested_status'], json_[
+                'files'], primary_files,
+            json_['project_id']
         )
         return result
 
@@ -272,7 +278,7 @@ class VersionModel:
             'featured': self.featured,
             'status': self.status,
             'requested_status': self.requested_status,
-            'file_parts': self.file_parts,
+            'file_parts': self.files,
             'primary_file': self.primary_file,
             'project_id': self.project_id
         }
