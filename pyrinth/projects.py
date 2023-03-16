@@ -1,12 +1,12 @@
 import requests as r
 import json
-from pyrinth.util import *
+from util import *
 
 
 class Project:
     def __init__(self, project_model) -> None:
         if type(project_model) == dict:
-            from pyrinth.models import ProjectModel
+            from models import ProjectModel
             project_model = ProjectModel.from_json(project_model)
         self.project_model = project_model
 
@@ -174,25 +174,33 @@ class Project:
             }
         )
         response = json.loads(raw_response.content)
-        from pyrinth.projects import Project
+        from projects import Project
         return [Project.Dependency(dependency) for dependency in response['projects']]
+
+    def download_latest(self):
+        versions = self.get_versions()
+        latest = versions[0]
+
+        for file in latest.version_model.primary_file:
+          url = file['url']
+          myfile = r.get(url)
+          open(f"./{file['filename']}", 'wb').write(myfile.content)
+
+    def download_dependencies(self):
+      for dependency in self.get_dependencies():
+          dependency.download_latest()
+
+    def install(self):
+        self.download_latest()
+        self.download_dependencies()
 
     class Version:
         def __init__(self, version_model=None) -> None:
             if type(version_model) == dict:
-                from pyrinth.models import VersionModel
+                from models import VersionModel
                 version_model = VersionModel.from_json(version_model)
                 self.version_model = version_model
             self.version_model = version_model
-
-        def get_files(self):
-            files = []
-            for file in self.version_model.primary_file:
-                files.append(Project.File(
-                    file['hashes'], file['url'], file['filename'],
-                    file['primary'], file['size'], file['file_type']
-                ))
-            return files
 
         def __repr__(self) -> str:
             return f"Version: {self.version_model.title}"
@@ -216,7 +224,7 @@ class Project:
 
     class Dependency:
         def __init__(self, dependency_model) -> None:
-            from pyrinth.models import DependencyModel
+            from models import DependencyModel
             if type(dependency_model) == dict:
                 dependency_model = DependencyModel.from_json(
                     dependency_model
@@ -228,16 +236,26 @@ class Project:
 
         def get_gallery(self):
             return self.dependency_model.gallery
+        
+        def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
+          filters = {
+              'loaders': loaders,
+              'game_versions': game_versions,
+              'featured': featured
+          }
+          filters = remove_null_values(filters)
+          raw_response = r.get(
+              f'https://api.modrinth.com/v2/project/{self.dependency_model.slug}/version',
+              params=json_to_query_params(filters)
+          )
+          response = json.loads(raw_response.content)
+          return [Project.Version(version) for version in response]
 
-    class File:
-        def __init__(self, hashes, url, filename, primary, size, file_type):
-            self.hashes = hashes
-            self.url = url
-            self.filename = filename
-            self.primary = primary
-            self.size = size
-            self.file_type = file_type
-            self.extension = filename.split('.')[-1]
+        def download_latest(self):
+          versions = self.get_versions()
+          latest = versions[0]
 
-        def __repr__(self) -> str:
-            return f"File: {self.filename}"
+          for file in latest.version_model.primary_file:
+            url = file['url']
+            myfile = r.get(url)
+            open(f"./{file['filename']}", 'wb').write(myfile.content)

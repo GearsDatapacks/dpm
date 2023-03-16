@@ -1,4 +1,4 @@
-from pyrinth.models import ProjectModel
+from models import ProjectModel
 
 
 empty_project = ProjectModel(

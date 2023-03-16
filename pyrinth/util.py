@@ -11,7 +11,7 @@ def remove_null_values(json: dict):
 
 
 def to_image_from_json(json: dict):
-    from pyrinth.projects import Project
+    from projects import Project
     return [Project.GalleryImage.from_json(image) for image in json]
 
 

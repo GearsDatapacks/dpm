@@ -1,8 +1,8 @@
 import requests as r
 import json
-from pyrinth.models import SearchResultModel
-from pyrinth.projects import Project
-from pyrinth.users import User
+from models import SearchResultModel
+from projects import Project
+from users import User
 
 
 class SearchResult:
@@ -94,6 +94,11 @@ class Modrinth:
         )
         response = json.loads(raw_response.content)
         return [SearchResult(project) for project in response['hits']]
+    
+    @staticmethod
+    def install_project(id: str, auth: str = ''):
+        project = Modrinth.get_project(id)
+        project.install()
 
     class Statistics:
         def __init__(self) -> None:
