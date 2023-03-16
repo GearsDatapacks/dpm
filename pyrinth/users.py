@@ -74,8 +74,7 @@ class User:
         raw_res = r.post(
             'https://api.modrinth.com/v2/project',
             files={
-                "data": project_model.to_bytes(),
-                "icon": "imgs/a.png".encode()
+                "data": project_model.to_bytes()
             },
             headers={
                 'Authorization': self.auth
