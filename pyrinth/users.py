@@ -104,6 +104,7 @@ class User:
             }
         )
 
+    @staticmethod
     def from_auth(auth: str):  # Returns user
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user',
@@ -114,6 +115,7 @@ class User:
         response = json.loads(raw_response.content)
         return User(response['username'], auth, ignore_warning=True)
 
+    @staticmethod
     def from_id(id: str):  # Returns User
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
@@ -121,6 +123,7 @@ class User:
         response = json.loads(raw_response.content)
         return User(response['username'], ignore_warning=True)
 
+    @staticmethod
     def from_ids(ids: list[str]) -> list:  # Returns list[User]
         raw_response = r.get(
             'https://api.modrinth.com/v2/users',

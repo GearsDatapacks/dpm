@@ -78,6 +78,7 @@ class Modrinth:
     def get_user_from_auth(auth: str) -> User:
         return User.from_id(auth)
 
+    @staticmethod
     def search_projects(query='', facets=[], index="relevance", offset=0, limit=10, filters=[]) -> list[SearchResult]:
         print("[INFO] SEARCH PROJECTS IS NOT FULLY IMPLEMENTED YET")
         raw_response = r.get(
