@@ -24,7 +24,6 @@ class Project:
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/version',
             params=json_to_query_params(filters)
         )
-        print(raw_response.url)
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
 
@@ -84,7 +83,7 @@ class Project:
             raise Exception(
                 "Please use cdn.modrinth.com instead of cdn-raw.modrinth.com"
             )
-        raw_response = r.delete(
+        r.delete(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             headers={
                 "authorization": auth
@@ -93,8 +92,6 @@ class Project:
                 "url": url
             }
         )
-
-        print(raw_response.content)
 
     def exists(self) -> bool:
         raw_response = r.get(
@@ -189,16 +186,24 @@ class Project:
             self.version_model = version_model
 
         def __repr__(self) -> str:
-            return f"Version: {self.version_model.name}"
+            return f"Version: {self.version_model.title}"
 
     class GalleryImage:
-        def __init__(self, file_path: str, extension: str, featured: bool, title: str = '', description: str = '', ordering: int = 0) -> None:
+        def __init__(self, file_path: str, featured: bool, title: str = '', description: str = '', ordering: int = 0) -> None:
             self.file_path = file_path
-            self.ext = extension
+            self.ext = file_path.split(".")[-1]
             self.featured = str(featured).lower()
             self.title = title
             self.description = description
             self.ordering = ordering
+
+        def from_json(json):
+            result = Project.GalleryImage(
+                json['url'], json['featured'], json['title'],
+                json['description'], json['ordering']
+            )
+
+            return result
 
     class Dependency:
         def __init__(self, dependency_model) -> None:
@@ -211,3 +216,6 @@ class Project:
 
         def __repr__(self) -> str:
             return f"Dependency: {self.dependency_model.title}"
+
+        def get_gallery(self):
+            return self.dependency_model.gallery

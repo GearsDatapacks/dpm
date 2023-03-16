@@ -234,9 +234,9 @@ class SearchResultModel:
 
 class VersionModel:
     def __init__(
-        self, name, version_number, dependencies, game_versions, version_type, loaders, featured, files, changelog=None, status=None, requested_status=None, main_file=None, project_id=None
+        self, title, version_number, dependencies, game_versions, version_type, loaders, featured, files, changelog=None, status=None, requested_status=None, main_file=None, project_id=None
     ):
-        self.name = name
+        self.title = title
         self.version_number = version_number
         self.changelog = changelog
         self.dependencies = dependencies
@@ -262,7 +262,7 @@ class VersionModel:
 
     def to_json(self):
         result = {
-            'name': self.name,
+            'name': self.title,
             'version_number': self.version_number,
             'changelog': self.changelog,
             'dependencies': self.dependencies,
@@ -280,7 +280,6 @@ class VersionModel:
         return result
 
     def to_bytes(self):
-        print(json.dumps(self.to_json()).encode())
         return json.dumps(self.to_json()).encode()
 
 

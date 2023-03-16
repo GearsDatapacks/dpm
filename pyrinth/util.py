@@ -11,7 +11,8 @@ def remove_null_values(json):
 
 
 def to_image_from_json(json):
-    ...
+    from pyrinth.projects import Project
+    return [Project.GalleryImage.from_json(image) for image in json]
 
 
 def json_to_query_params(json_):
