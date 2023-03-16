@@ -13,6 +13,17 @@ class Project:
     def __repr__(self) -> str:
         return f"Project: {self.project_model.title}"
 
+    def get_latest_version(self):
+        return self.get_versions()[0]
+
+    def get_specific_version(self, schematic_versioning):
+        for version in self.get_versions():
+            if version.version_model.version_number == schematic_versioning:
+                return version
+
+    def get_oldest_version(self):
+        return self.get_versions()[-1]
+
     def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
         filters = {
             'loaders': loaders,
@@ -243,7 +254,7 @@ class Project:
             return result
 
         def __repr__(self):
-            return f"License: {self.name}"
+            return f"License: {self.name if self.name else self.id}"
 
     class Donation:
         def __init__(self, id, platform, url):
