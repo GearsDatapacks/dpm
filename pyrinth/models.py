@@ -1,5 +1,5 @@
-from projects import *
-from util import *
+from pyrinth.projects import *
+from pyrinth.util import *
 import json
 
 
@@ -10,7 +10,7 @@ class ProjectModel:
         server_side: str, body: str, license_id: str,
         project_type: str, additional_categories=None, issues_url=None,
         source_url=None, wiki_url=None, discord_url=None,
-        donation_urls=None, license_url=None, id=None
+        donation_urls=None, license_url=None
     ) -> None:
         self.slug = slug
         self.title = title
@@ -19,16 +19,23 @@ class ProjectModel:
         self.client_side = client_side
         self.server_side = server_side
         self.body = body
-        self.license_id = license_id
+        self.license_id = Project.License(
+            license_id['id'], license_id['name'], license_id['url']
+        )
         self.project_type = project_type
         self.additional_categories = additional_categories
         self.issues_url = issues_url
         self.source_url = source_url
         self.wiki_url = wiki_url
         self.discord_url = discord_url
-        self.donation_urls = donation_urls
+        self.donation_urls = [Project.Donation(
+            donation_url['id'],
+            donation_url['platform'],
+            donation_url['url']
+        ) for donation_url in donation_urls]
         self.license_url = license_url
-        self.id = id
+        self.id = None
+        self.downloads = None
 
     def from_json(json):
         result = ProjectModel(
@@ -37,8 +44,10 @@ class ProjectModel:
             json['body'], json['license'], json['project_type'],
             json['additional_categories'], json['issues_url'], json['source_url'],
             json['wiki_url'], json['discord_url'], json['donation_urls'],
-            json['license']['url'], json['id']
+            json['license']['url']
         )
+        result.id = json['id']
+        result.downloads = json['downloads']
         return result
 
     def to_json(self):
@@ -68,102 +77,6 @@ class ProjectModel:
 
     def to_bytes(self):
         return json.dumps(self.to_json()).encode()
-
-
-class DependencyModel:
-    def __init__(self, id, slug, project_type, team, title, description, body, body_url, published, updated, approved, status, requested_status, moderator_message, license, client_side, server_side, downloads, followers, categories, additional_categories, game_versions, loaders, versions, icon_url, issues_url, source_url, wiki_url, discord_url, donation_urls, gallery, flame_anvil_project, flame_anvil_user, color):
-        self.id = id
-        self.slug = slug
-        self.project_type = project_type
-        self.team = team
-        self.title = title
-        self.description = description
-        self.body = body
-        self.body_url = body_url
-        self.published = published
-        self.updated = updated
-        self.approved = approved
-        self.status = status
-        self.requested_status = requested_status
-        self.moderator_message = moderator_message
-        self.license = license
-        self.client_side = client_side
-        self.server_side = server_side
-        self.downloads = downloads
-        self.followers = followers
-        self.categories = categories
-        self.additional_categories = additional_categories
-        self.game_versions = game_versions
-        self.loaders = loaders
-        self.versions = versions
-        self.icon_url = icon_url
-        self.issues_url = issues_url
-        self.source_url = source_url
-        self.wiki_url = wiki_url
-        self.discord_url = discord_url
-        self.donation_urls = donation_urls
-        self.gallery = to_image_from_json(gallery)
-        self.flame_anvil_project = flame_anvil_project
-        self.flame_anvil_user = flame_anvil_user
-        self.color = color
-
-    def from_json(json):
-        result = DependencyModel(
-            json['id'], json['slug'], json['project_type'],
-            json['team'], json['title'], json['description'],
-            json['body'], json['body_url'], json['published'],
-            json['updated'], json['approved'], json['status'],
-            json['requested_status'], json['moderator_message'], json['license'],
-            json['client_side'], json['server_side'], json['downloads'],
-            json['followers'], json['categories'], json['additional_categories'],
-            json['game_versions'], json['loaders'], json['versions'],
-            json['icon_url'], json['issues_url'], json['source_url'],
-            json['wiki_url'], json['discord_url'], json['donation_urls'],
-            json['gallery'], json['flame_anvil_project'], json['flame_anvil_user'],
-            json['color']
-        )
-        return result
-
-    def to_json(self):
-        result = {
-            'id': self.id,
-            'slug': self.slug,
-            'project_type': self.project_type,
-            'team': self.team,
-            'title': self.title,
-            'description': self.description,
-            'body': self.body,
-            'body_url': self.body_url,
-            'published': self.published,
-            'updated': self.updated,
-            'approved': self.approved,
-            'status': self.status,
-            'requested_status': self.requested_status,
-            'moderator_message': self.moderator_message,
-            'license': self.license,
-            'client_side': self.client_side,
-            'server_side': self.server_side,
-            'downloads': self.downloads,
-            'followers': self.followers,
-            'categories': self.categories,
-            'additional_categories': self.additional_categories,
-            'game_versions': self.game_versions,
-            'loaders': self.loaders,
-            'versions': self.versions,
-            'icon_url': self.icon_url,
-            'issues_url': self.issues_url,
-            'source_url': self.source_url,
-            'wiki_url': self.wiki_url,
-            'discord_url': self.discord_url,
-            'donation_urls': self.donation_urls,
-            'gallery': self.gallery,
-            'flame_anvil_project': self.flame_anvil_project,
-            'flame_anvil_user': self.flame_anvil_user,
-            'color': self.color
-        }
-        result = remove_null_values(result)
-
-        return result
 
 
 class SearchResultModel:

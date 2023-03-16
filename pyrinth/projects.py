@@ -1,6 +1,6 @@
 import requests as r
 import json
-from util import *
+from pyrinth.util import *
 
 
 class Project:
@@ -175,7 +175,7 @@ class Project:
         )
         response = json.loads(raw_response.content)
         from pyrinth.projects import Project
-        return [Project.Dependency(dependency) for dependency in response['projects']]
+        return [Project(dependency) for dependency in response['projects']]
 
     class Version:
         def __init__(self, version_model=None) -> None:
@@ -214,21 +214,6 @@ class Project:
 
             return result
 
-    class Dependency:
-        def __init__(self, dependency_model) -> None:
-            from pyrinth.models import DependencyModel
-            if type(dependency_model) == dict:
-                dependency_model = DependencyModel.from_json(
-                    dependency_model
-                )
-            self.dependency_model = dependency_model
-
-        def __repr__(self) -> str:
-            return f"Dependency: {self.dependency_model.title}"
-
-        def get_gallery(self):
-            return self.dependency_model.gallery
-
     class File:
         def __init__(self, hashes, url, filename, primary, size, file_type):
             self.hashes = hashes
@@ -241,3 +226,39 @@ class Project:
 
         def __repr__(self) -> str:
             return f"File: {self.filename}"
+
+    class License:
+        def __init__(self, id, name, url):
+            self.id = id
+            self.name = name
+            self.url = url
+
+        def from_json(json):
+            result = Project.License(
+                json['id'],
+                json['name'],
+                json['url']
+            )
+
+            return result
+
+        def __repr__(self):
+            return f"License: {self.name}"
+
+    class Donation:
+        def __init__(self, id, platform, url):
+            self.id = id
+            self.platform = platform
+            self.url = url
+
+        def from_json(json):
+            result = Project.Donation(
+                json['id'],
+                json['platform'],
+                json['url']
+            )
+
+            return result
+
+        def __repr__(self) -> str:
+            return f"Donation: {self.platform}"

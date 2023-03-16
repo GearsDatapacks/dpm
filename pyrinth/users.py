@@ -1,7 +1,7 @@
 import requests as r
 import json
-from models import ProjectModel
-from projects import Project
+from pyrinth.models import ProjectModel
+from pyrinth.projects import Project
 
 
 class User:
