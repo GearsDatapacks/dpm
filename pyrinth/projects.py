@@ -13,10 +13,18 @@ class Project:
     def __repr__(self) -> str:
         return f"Project: {self.project_model.title}"
 
-    def get_versions(self) -> list:
+    def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
+        filters = {
+            'loaders': loaders,
+            'game_versions': game_versions,
+            'featured': featured
+        }
+        filters = remove_null_values(filters)
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/version'
+            f'https://api.modrinth.com/v2/project/{self.project_model.id}/version',
+            params=json_to_query_params(filters)
         )
+        print(raw_response.url)
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
 

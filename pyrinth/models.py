@@ -100,7 +100,7 @@ class DependencyModel:
         self.wiki_url = wiki_url
         self.discord_url = discord_url
         self.donation_urls = donation_urls
-        self.gallery = gallery
+        self.gallery = to_image_from_json(gallery)
         self.flame_anvil_project = flame_anvil_project
         self.flame_anvil_user = flame_anvil_user
         self.color = color
