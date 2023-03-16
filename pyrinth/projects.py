@@ -185,6 +185,15 @@ class Project:
                 self.version_model = version_model
             self.version_model = version_model
 
+        def get_files(self):
+            files = []
+            for file in self.version_model.primary_file:
+                files.append(Project.File(
+                    file['hashes'], file['url'], file['filename'],
+                    file['primary'], file['size'], file['file_type']
+                ))
+            return files
+
         def __repr__(self) -> str:
             return f"Version: {self.version_model.title}"
 
@@ -219,3 +228,16 @@ class Project:
 
         def get_gallery(self):
             return self.dependency_model.gallery
+
+    class File:
+        def __init__(self, hashes, url, filename, primary, size, file_type):
+            self.hashes = hashes
+            self.url = url
+            self.filename = filename
+            self.primary = primary
+            self.size = size
+            self.file_type = file_type
+            self.extension = filename.split('.')[-1]
+
+        def __repr__(self) -> str:
+            return f"File: {self.filename}"
