@@ -35,14 +35,6 @@ class Modrinth:
 
     @staticmethod
     def get_projects(ids: list[str] = []) -> list[Project]:
-        """This function finds multiple projects by IDs, then returns them
-
-        Args:
-            ids (list[str]): the IDs of the projects
-
-        Returns:
-            list[Project]: The projects that were searched using ids
-        """
         if ids == []:
             raise Exception(
                 "Please specify project IDs to get project details. Or use this method on an instanced class"
@@ -69,14 +61,6 @@ class Modrinth:
 
     @staticmethod
     def get_random_projects(count: int = 1) -> list:
-        """This function returns a random project
-
-        Args:
-            count (int, optional): Amount of random projects to return. Defaults to 1.
-
-        Returns:
-            list[Project]: The random projects
-        """
         raw_response = r.get(
             f'https://api.modrinth.com/v2/projects_random',
             params={

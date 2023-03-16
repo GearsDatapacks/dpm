@@ -5,10 +5,6 @@ from pyrinth.util import *
 
 class Project:
     def __init__(self, project_model) -> None:
-        """
-        Args:
-            project_model (ProjectModel): The ProjectModel to use for creating the project
-        """
         if type(project_model) == dict:
             from pyrinth.models import ProjectModel
             project_model = ProjectModel.from_json(project_model)
@@ -18,11 +14,6 @@ class Project:
         return f"Project: {self.project_model.title}"
 
     def get_versions(self) -> list:
-        """This function gets the project versions
-
-        Returns:
-            list[Project.Version]: The versions that were found on the project
-        """
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.id}/version'
         )
@@ -83,15 +74,6 @@ class Project:
         print(raw_response.content)
 
     def exists(self) -> bool:
-        """
-        This function checks if a project exists
-
-        Args:
-            id (str): The id of the project
-
-        Returns:
-            bool: If the project exists
-        """
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.id}/check'
         )

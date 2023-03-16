@@ -38,11 +38,6 @@ class User:
         self.payout_data = self.response['payout_data']
 
     def get_followed_projects(self) -> list[Project]:
-        """This function gets a users followed projects
-
-        Returns:
-            list[Project]: The list of projects that the user follows
-        """
         if self.auth == '':
             raise Exception("get_followed_projects needs an auth token.")
         raw_response = r.get(
@@ -60,11 +55,6 @@ class User:
         return followed_projects
 
     def get_notifications(self) -> list:
-        """This function gets a users notifications
-
-        Returns:
-            list[Notification]: The list of notifications that was found on the user
-        """
         if self.auth == '':
             raise Exception("get_notifications needs an auth token.")
         raw_response = r.get(
@@ -78,11 +68,6 @@ class User:
         return [self.Notification(notification) for notification in response]
 
     def get_amount_of_projects(self) -> int:
-        """This function finds how many projects a user has
-
-        Returns:
-            int: How many projects the user has
-        """
         return len(self.get_projects())
 
     def create_project(self, project_model: ProjectModel, icon: str = ''):
@@ -120,14 +105,6 @@ class User:
         )
 
     def from_auth(auth: str):  # Returns user
-        """This function finds a user with the specified auth token
-
-        Args:
-            auth (str): The auth token to use for searching
-
-        Returns:
-            User: The user that was found using the auth token
-        """
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user',
             headers={
@@ -138,14 +115,6 @@ class User:
         return User(response['username'], auth, ignore_warning=True)
 
     def from_id(id: str):  # Returns User
-        """This function gets a user from their id
-
-        Args:
-            id (str): The ID of the user
-
-        Returns:
-            User: The user that was found
-        """
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
@@ -153,14 +122,6 @@ class User:
         return User(response['username'], ignore_warning=True)
 
     def from_ids(ids: list[str]) -> list:  # Returns list[User]
-        """This function finds users with the specified ids
-
-        Args:
-            ids (list[str]): The IDs of the users
-
-        Returns:
-            list[User]: The users that were searched using the IDs
-        """
         raw_response = r.get(
             'https://api.modrinth.com/v2/users',
             params={
