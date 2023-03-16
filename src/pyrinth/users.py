@@ -1,5 +1,6 @@
 import requests as r
 import json
+from pyrinth.models import ProjectModel
 from pyrinth.projects import Project
 
 

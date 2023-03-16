@@ -1,7 +1,20 @@
 import requests as r
 import json
+from pyrinth.models import SearchResultModel
 from pyrinth.projects import Project
 from pyrinth.users import User
+
+
+class SearchResult:
+    def __init__(self, search_result_model) -> None:
+        if type(search_result_model) == dict:
+            search_result_model = SearchResultModel.from_json(
+                search_result_model
+            )
+        self.search_result_model = search_result_model
+
+    def __repr__(self) -> str:
+        return f"Search Result: {self.search_result_model.title}"
 
 
 class Modrinth:

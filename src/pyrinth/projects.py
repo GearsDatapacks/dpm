@@ -1,12 +1,13 @@
 import requests as r
 import json
-from pyrinth.util import remove_null_values, json_to_query_params
+from pyrinth.util import *
 
 
 class Project:
     def __init__(self, project_model) -> None:
         from pyrinth.models import ProjectModel
         if type(project_model) == dict:
+            from pyrinth.models import ProjectModel
             project_model = ProjectModel.from_json(project_model)
         self.project_model = project_model
 
