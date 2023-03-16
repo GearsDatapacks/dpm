@@ -1,8 +1,8 @@
 import requests as r
 import json
-from pyrinth.models import SearchResultModel
-from pyrinth.projects import Project
-from pyrinth.users import User
+from models import SearchResultModel
+from projects import Project
+from users import User
 
 
 class SearchResult:

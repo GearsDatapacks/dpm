@@ -1,6 +1,6 @@
 import requests as r
 import json
-from pyrinth.util import *
+from util import *
 
 
 class Project:

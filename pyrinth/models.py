@@ -1,5 +1,5 @@
-from pyrinth.projects import *
-from pyrinth.util import *
+from projects import *
+from util import *
 import json
 
 
