@@ -189,6 +189,25 @@ class Project:
         from pyrinth.projects import Project
         return [Project(dependency) for dependency in response['projects']]
 
+    def download_latest(self):
+        versions = self.get_versions()
+        latest = versions[0]
+
+        for file in latest.version_model.primary_file:
+          print(f"Downloading {file['filename']}")
+          url = file['url']
+          myfile = r.get(url)
+          open(f"./{file['filename']}", 'wb').write(myfile.content)
+          print('done')
+
+    def download_dependencies(self):
+      for dependency in self.get_dependencies():
+          dependency.download_latest()
+
+    def install(self):
+        self.download_latest()
+        self.download_dependencies()
+
     class Version:
         def __init__(self, version_model=None) -> None:
             if type(version_model) == dict:
