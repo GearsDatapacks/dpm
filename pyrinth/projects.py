@@ -175,7 +175,7 @@ class Project:
         )
         response = json.loads(raw_response.content)
         from projects import Project
-        return [Project.Dependency(dependency) for dependency in response['projects']]
+        return [Project(dependency) for dependency in response['projects']]
 
     def download_latest(self):
         versions = self.get_versions()
@@ -221,41 +221,3 @@ class Project:
             )
 
             return result
-
-    class Dependency:
-        def __init__(self, dependency_model) -> None:
-            from models import DependencyModel
-            if type(dependency_model) == dict:
-                dependency_model = DependencyModel.from_json(
-                    dependency_model
-                )
-            self.dependency_model = dependency_model
-
-        def __repr__(self) -> str:
-            return f"Dependency: {self.dependency_model.title}"
-
-        def get_gallery(self):
-            return self.dependency_model.gallery
-        
-        def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
-          filters = {
-              'loaders': loaders,
-              'game_versions': game_versions,
-              'featured': featured
-          }
-          filters = remove_null_values(filters)
-          raw_response = r.get(
-              f'https://api.modrinth.com/v2/project/{self.dependency_model.slug}/version',
-              params=json_to_query_params(filters)
-          )
-          response = json.loads(raw_response.content)
-          return [Project.Version(version) for version in response]
-
-        def download_latest(self):
-          versions = self.get_versions()
-          latest = versions[0]
-
-          for file in latest.version_model.primary_file:
-            url = file['url']
-            myfile = r.get(url)
-            open(f"./{file['filename']}", 'wb').write(myfile.content)
