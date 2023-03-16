@@ -1,6 +1,8 @@
 main*.py
 test.py
 .vscode
-**/__pycache__
 references/
 imgs/
+**/__pycache__
+*.zip
+test*.*

@@ -71,7 +71,7 @@ class User:
         return len(self.get_projects())
 
     def create_project(self, project_model: ProjectModel, icon: str = ''):
-        raw_response = r.post(
+        r.post(
             'https://api.modrinth.com/v2/project',
             files={
                 "data": project_model.to_bytes()

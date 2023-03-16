@@ -19,7 +19,7 @@ class SearchResult:
 
 class Modrinth:
     @staticmethod
-    def get_project(id: str, auth: str = '') -> Project:
+    def get_project(auth: str, id: str) -> Project:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{id}',
             headers={

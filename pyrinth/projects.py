@@ -21,16 +21,31 @@ class Project:
         }
         filters = remove_null_values(filters)
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/version',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/version',
             params=json_to_query_params(filters)
         )
         print(raw_response.url)
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
 
+    def create_version(self, auth: str, version_model):
+        version_model.project_id = self.project_model.id
+        files = {
+            "data": version_model.to_bytes()
+        }
+        for file in version_model.file_parts:
+            files.update({file: open(file, "rb").read()})
+        r.post(
+            f'https://api.modrinth.com/v2/version',
+            headers={
+                "Authorization": auth
+            },
+            files=files
+        )
+
     def change_icon(self, file_path: str, auth: str) -> None:
         r.patch(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/icon',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/icon',
             params={
                 "ext": file_path.split(".")[-1]
             },
@@ -42,7 +57,7 @@ class Project:
 
     def delete_icon(self, auth: str):
         r.delete(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/icon',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/icon',
             headers={
                 "authorization": auth
             }
@@ -50,7 +65,7 @@ class Project:
 
     def add_gallery_image(self, auth: str, image):
         r.post(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/gallery',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             headers={
                 "authorization": auth
             },
@@ -70,7 +85,7 @@ class Project:
                 "Please use cdn.modrinth.com instead of cdn-raw.modrinth.com"
             )
         raw_response = r.delete(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/gallery',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             headers={
                 "authorization": auth
             },
@@ -83,7 +98,7 @@ class Project:
 
     def exists(self) -> bool:
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/check'
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/check'
         )
         response = json.loads(raw_response.content)
         return (True if response['id'] else False)
@@ -115,7 +130,7 @@ class Project:
         if not modified_json:
             raise Exception("Please specify at least 1 optional argument.")
         r.patch(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}',
             data=json.dumps(modified_json),
             headers={
                 'Content-Type': 'application/json',
@@ -135,7 +150,7 @@ class Project:
         if not modified_json:
             raise Exception("Please specify at least 1 optional argument.")
         r.patch(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/gallery',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             params=modified_json,
             headers={
                 'authorization': auth
@@ -144,7 +159,7 @@ class Project:
 
     def delete(self, auth: str) -> None:
         raw_response = r.delete(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}',
             headers={
                 'authorization': auth
             }
@@ -156,7 +171,7 @@ class Project:
 
     def get_dependencies(self, auth: str = ''):
         raw_response = r.get(
-            f'https://api.modrinth.com/v2/project/{self.project_model.id}/dependencies',
+            f'https://api.modrinth.com/v2/project/{self.project_model.slug}/dependencies',
             headers={
                 'authorization': auth
             }
@@ -175,15 +190,6 @@ class Project:
 
         def __repr__(self) -> str:
             return f"Version: {self.version_model.name}"
-
-    class VersionNumber:
-        def __init__(self, major: int, minor: int, patch: int) -> None:
-            self.major = major
-            self.minor = minor
-            self.patch = patch
-
-        def __repr__(self) -> str:
-            return f"v{self.major}.{self.minor}.{self.patch}"
 
     class GalleryImage:
         def __init__(self, file_path: str, extension: str, featured: bool, title: str = '', description: str = '', ordering: int = 0) -> None:

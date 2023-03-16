@@ -10,9 +10,9 @@ class ProjectModel:
         server_side: str, body: str, license_id: str,
         project_type: str, additional_categories=None, issues_url=None,
         source_url=None, wiki_url=None, discord_url=None,
-        donation_urls=None, license_url=None
+        donation_urls=None, license_url=None, id=None
     ) -> None:
-        self.id = slug
+        self.slug = slug
         self.title = title
         self.description = description
         self.categories = categories
@@ -28,6 +28,7 @@ class ProjectModel:
         self.discord_url = discord_url
         self.donation_urls = donation_urls
         self.license_url = license_url
+        self.id = id
 
     def from_json(json):
         result = ProjectModel(
@@ -36,13 +37,13 @@ class ProjectModel:
             json['body'], json['license'], json['project_type'],
             json['additional_categories'], json['issues_url'], json['source_url'],
             json['wiki_url'], json['discord_url'], json['donation_urls'],
-            json['license']['url']
+            json['license']['url'], json['id']
         )
         return result
 
     def to_json(self):
         result = {
-            'slug': self.id,
+            'slug': self.slug,
             'title': self.title,
             'description': self.description,
             'categories': self.categories,
@@ -58,6 +59,7 @@ class ProjectModel:
             'discord_url': self.discord_url,
             'donation_urls': self.donation_urls,
             'license_url': self.license_url,
+            'id': self.id,
             'is_draft': True,
             'initial_versions': []
         }
@@ -232,34 +234,29 @@ class SearchResultModel:
 
 class VersionModel:
     def __init__(
-        self, name: str, version_number: Project.VersionNumber, game_versions: list[str], version_type: str, loaders: list[str], featured: bool, id: str, project_id: str, author_id: str, date_published: str, downloads: int, files,
-        changelog: str = None, dependencies: list = None, status: str = None, requested_status: str = None
+        self, name, version_number, dependencies, game_versions, version_type, loaders, featured, files, changelog=None, status=None, requested_status=None, main_file=None, project_id=None
     ):
         self.name = name
         self.version_number = version_number
+        self.changelog = changelog
+        self.dependencies = dependencies
         self.game_versions = game_versions
         self.version_type = version_type
         self.loaders = loaders
         self.featured = featured
-        self.id = id
-        self.project_id = project_id
-        self.author_id = author_id
-        self.date_published = date_published
-        self.downloads = downloads
-        self.files = files
-        self.changelog = changelog
-        self.dependencies = dependencies
         self.status = status
         self.requested_status = requested_status
+        self.file_parts = files
+        self.primary_file = main_file
+        self.project_id = project_id
 
     def from_json(json):
         result = VersionModel(
-            json['name'], json['version_number'], json['game_versions'],
-            json['version_type'], json['loaders'], json['featured'],
-            json['id'], json['project_id'], json['author_id'],
-            json['date_published'], json['downloads'], json['files'],
-            json['changelog'], json['dependencies'], json['status'],
-            json['requested_status']
+            json['name'], json['version_number'], json['changelog'],
+            json['dependencies'], json['game_versions'], json['version_type'],
+            json['loaders'], json['featured'], json['status'],
+            json['requested_status'], json['file_parts'], json['primary_file'],
+            json['project_id']
         )
         return result
 
@@ -267,23 +264,24 @@ class VersionModel:
         result = {
             'name': self.name,
             'version_number': self.version_number,
+            'changelog': self.changelog,
+            'dependencies': self.dependencies,
             'game_versions': self.game_versions,
             'version_type': self.version_type,
             'loaders': self.loaders,
             'featured': self.featured,
-            'id': self.id,
-            'project_id': self.project_id,
-            'author_id': self.author_id,
-            'date_published': self.date_published,
-            'downloads': self.downloads,
-            'files': self.files,
-            'changelog': self.changelog,
-            'dependencies': self.dependencies,
             'status': self.status,
-            'requested_status': self.requested_status
+            'requested_status': self.requested_status,
+            'file_parts': self.file_parts,
+            'primary_file': self.primary_file,
+            'project_id': self.project_id
         }
         result = remove_null_values(result)
         return result
+
+    def to_bytes(self):
+        print(json.dumps(self.to_json()).encode())
+        return json.dumps(self.to_json()).encode()
 
 
 class UserModel:
