@@ -18,6 +18,9 @@ class SearchResult:
 
 
 class Modrinth:
+    def __init__(self):
+        raise Exception("This class cannot be initalized!")
+
     @staticmethod
     def get_project(id: str, auth: str = '') -> Project:
         raw_response = r.get(
@@ -52,7 +55,7 @@ class Modrinth:
         return [Project(project) for project in response]
 
     @staticmethod
-    def get_version_by_id(id: str) -> Project.Version:
+    def get_version(id: str) -> Project.Version:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
