@@ -165,8 +165,8 @@ class SearchResultModel:
     #     result = remove_null_values(result)
     #     return result
 
-    # def to_bytes(self):
-    #     return json.dumps(self.to_json()).encode()
+    def to_bytes(self):
+        return json.dumps(self.to_json()).encode()
 
 
 class VersionModel:
@@ -270,7 +270,3 @@ class UserModel:
 
     def to_bytes(self) -> bytes:
         return json.dumps(self.to_json()).encode()
-
-
-class TeamMemberModel:
-    ...
