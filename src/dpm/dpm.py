@@ -1,7 +1,11 @@
 import fire
 import requests as r
-from pyrinth import *
 import os
+import sys
+# TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
+sys.path.append("..")
+from pyrinth import *
+# -------------------
 
 
 def toSentenceCase(sentence):
@@ -50,23 +54,26 @@ def download_file(file, longest_file_name):
             # moving the cursor back to the beginning of the line using '\r'
             filename = file.filename.ljust(longest_file_name, ' ')
             print(
-                f'Downloading {filename}: [{bar}] / {percent}',
+                f'Downloading: {filename} [{bar}] / {percent}',
                 end='\r'
             )
     print("\n", end='')
 
 
-def download_project(download):
+def download_project(download, auth=''):
     # Get information about the specified project from Modrinth
-    project = Modrinth.get_project(download)
+    project = Modrinth.get_project(download, auth)
     # If no project is found, print an error message and return None
     if not project:
-        print(f"Project {toSentenceCase(download)} was not found")
         return None
     print(f"Project {toSentenceCase(download)} found")
 
     # Get the latest version of the project and its files
-    project_files = project.get_latest_version().get_files()
+    latest = project.get_latest_version()
+    if latest == []:
+        print(f"{toSentenceCase(download)} has no versions")
+        return None
+    project_files = latest.get_files()
     # Get the dependencies of the project
     dependencies = project.get_dependencies()
     # Initialize an empty list to keep track of all files that need to be downloaded
@@ -89,14 +96,10 @@ def download_project(download):
         if len(file.filename) > longest_file_name:
             longest_file_name = len(file.filename)
 
-    # For each file in downloading_files,
     for file in downloading_files:
-        # If it is not already present in the current directory,
         if file.filename not in os.listdir():
-            # Download it using a separate function named download_file
             download_file(file, longest_file_name)
         else:
-            # Otherwise, print a message indicating that it has already been downloaded and will be skipped
             print(
                 f"{file.filename.ljust(longest_file_name, ' ')} already downloaded... skipping"
             )
