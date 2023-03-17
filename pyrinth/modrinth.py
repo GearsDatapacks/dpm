@@ -48,7 +48,9 @@ class Modrinth:
         response = json.loads(raw_response.content)
         if not raw_response.ok:
             raise Exception(
-                response['description'] + " Did you supply a project slug instead of a ID?")
+                response['description'] +
+                " Did you supply a project slug instead of a ID?"
+            )
         return [Project(project) for project in response]
 
     @staticmethod
@@ -94,7 +96,7 @@ class Modrinth:
         )
         response = json.loads(raw_response.content)
         return [SearchResult(project) for project in response['hits']]
-    
+
     @staticmethod
     def install_project(id: str, auth: str = ''):
         project = Modrinth.get_project(id)
