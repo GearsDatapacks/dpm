@@ -10,23 +10,24 @@ class Modrinth:
 
     # Returns Project
     @staticmethod
-    def get_project(id: str, auth: str = ''):
+    def get_project(id: str, auth: str = '') -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{id}',
             headers={
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 404:
-            raise Exception(
+        if not raw_response.ok:
+            print(
                 "The requested project was not found or no authorization to see this project."
             )
+            return None
         response = json.loads(raw_response.content)
         return Project(response)
 
     # Returns list[Project]
     @staticmethod
-    def get_projects(ids: list[str]) -> list:
+    def get_projects(ids: list[str]) -> list[object]:
         if ids == []:
             raise Exception(
                 "Please specify project IDs to get project details. Or use this method on an instanced class"
@@ -39,7 +40,7 @@ class Modrinth:
         )
         response = json.loads(raw_response.content)
         if not raw_response.ok:
-            raise Exception(
+            print(
                 response['description'] +
                 " Did you supply a project slug instead of a ID?"
             )
@@ -47,7 +48,7 @@ class Modrinth:
 
     # Returns Project.Version
     @staticmethod
-    def get_version(id: str):
+    def get_version(id: str) -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
@@ -67,17 +68,17 @@ class Modrinth:
 
     # Returns User
     @staticmethod
-    def get_user_from_id(id: str):
+    def get_user_from_id(id: str) -> object:
         return User.from_id(id)
 
     # Returns User
     @staticmethod
-    def get_user_from_auth(auth: str):
+    def get_user_from_auth(auth: str) -> object:
         return User.from_id(auth)
 
     @staticmethod
     # Returns list[Modrinth.SearchResult]
-    def search_projects(query: str = '', facets: list[str] = [], index: str = "relevance", offset: int = 0, limit: int = 10, filters: int = []) -> list:
+    def search_projects(query: str = '', facets: list[str] = [], index: str = "relevance", offset: int = 0, limit: int = 10, filters: int = []) -> list[object]:
         print("[INFO / PYRINTH] SEARCH PROJECTS IS NOT FULLY IMPLEMENTED YET")
         raw_response = r.get(
             f'https://api.modrinth.com/v2/search',

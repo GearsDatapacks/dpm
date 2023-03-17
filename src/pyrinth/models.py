@@ -41,7 +41,7 @@ class ProjectModel:
         self.downloads = None
 
     # Returns ProjectModel
-    def from_json(json: dict):
+    def from_json(json: dict) -> object:
         result = ProjectModel(
             json['slug'], json['title'], json['description'],
             json['categories'], json['client_side'], json['server_side'],
@@ -112,7 +112,7 @@ class SearchResultModel:
         raise Exception("This class cannot be initialized.")
 
     # Returns SearchResultModel
-    def from_json(json: dict):
+    def from_json(json: dict) -> object:
         result = SearchResultModel()
         result.slug = json['slug']
         result.title = json['title']
@@ -188,7 +188,7 @@ class VersionModel:
         self.project_id = project_id
 
     # Returns VersionModel
-    def from_json(json: dict):
+    def from_json(json: dict) -> object:
         primary_files = []
         for primary_files_ in json['files']:
             if primary_files_['primary']:
@@ -242,7 +242,7 @@ class UserModel:
         self.badges = badges
 
     # Returns VersionModel
-    def from_json(json: dict):
+    def from_json(json: dict) -> object:
         result = VersionModel(
             json['username'], json['id'], json['avatar_url'],
             json['created'], json['role'], json['name'],
