@@ -40,7 +40,8 @@ class ProjectModel:
         self.id = None
         self.downloads = None
 
-    def from_json(json):
+    # Returns ProjectModel
+    def from_json(json: dict):
         result = ProjectModel(
             json['slug'], json['title'], json['description'],
             json['categories'], json['client_side'], json['server_side'],
@@ -53,7 +54,7 @@ class ProjectModel:
         result.downloads = json['downloads']
         return result
 
-    def to_json(self):
+    def to_json(self) -> dict:
         result = {
             'slug': self.slug,
             'title': self.title,
@@ -78,7 +79,7 @@ class ProjectModel:
         result = remove_null_values(result)
         return result
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         return json.dumps(self.to_json()).encode()
 
 
@@ -86,7 +87,6 @@ class SearchResultModel:
     # Commented out because I figure that you dont need to initalize this class. But I might be wrong...
 
     # def __init__(self, slug: str, title: str, description: str, client_side: str, server_side: str, project_type: str, downloads: int, project_id: str, author: str, versions: list[str], follows: int, date_created, date_modified, license, categories: list[str], icon_url: None, color: None, display_categories: list[str], latest_version: str, gallery: list[str], featured_gallery: None) -> None:
-    # def __init__(self) -> None:
     #     self.slug = slug
     #     self.title = title
     #     self.description = description
@@ -108,8 +108,11 @@ class SearchResultModel:
     #     self.latest_version = latest_version
     #     self.gallery = gallery
     #     self.featured_gallery = featured_gallery
+    def __init__(self) -> None:
+        raise Exception("This class cannot be initialized.")
 
-    def from_json(json):
+    # Returns SearchResultModel
+    def from_json(json: dict):
         result = SearchResultModel()
         result.slug = json['slug']
         result.title = json['title']
@@ -168,8 +171,8 @@ class SearchResultModel:
 
 class VersionModel:
     def __init__(
-        self, title, version_number, dependencies, game_versions, version_type, loaders, featured, files, changelog=None, status=None, requested_status=None, main_file=None, project_id=None
-    ):
+        self, title: str, version_number: str, dependencies: list, game_versions: list[str], version_type: str, loaders: list[str], featured: bool, files: list[str], changelog: str = None, status: str = None, requested_status: str = None, main_file: str = None, project_id: str = None
+    ) -> None:
         self.title = title
         self.version_number = version_number
         self.changelog = changelog
@@ -184,23 +187,22 @@ class VersionModel:
         self.primary_file = main_file
         self.project_id = project_id
 
-    def from_json(json_):
+    # Returns VersionModel
+    def from_json(json: dict):
         primary_files = []
-        for primary_files_ in json_['files']:
+        for primary_files_ in json['files']:
             if primary_files_['primary']:
                 primary_files.append(primary_files_)
         result = VersionModel(
-            json_['name'], json_['version_number'], json_['changelog'],
-            json_['dependencies'], json_[
-                'game_versions'], json_['version_type'],
-            json_['loaders'], json_['featured'], json_['status'],
-            json_['requested_status'], json_[
-                'files'], primary_files,
-            json_['project_id']
+            json['name'], json['version_number'], json['changelog'],
+            json['dependencies'], json['game_versions'],
+            json['version_type'], json['loaders'], json['featured'],
+            json['status'], json['requested_status'], json['files'],
+            primary_files, json['project_id']
         )
         return result
 
-    def to_json(self):
+    def to_json(self) -> dict:
         result = {
             'name': self.title,
             'version_number': self.version_number,
@@ -219,14 +221,14 @@ class VersionModel:
         result = remove_null_values(result)
         return result
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         return json.dumps(self.to_json()).encode()
 
 
 class UserModel:
     def __init__(
-        self, username, id, avatar_url, created, role, name=None, email=None, bio=None, payout_data=None, github_id=None, badges=None
-    ):
+        self, username: str, id: str, avatar_url: str, created, role: str, name: str = None, email: str = None, bio: str = None, payout_data=None, github_id: str = None, badges: int = None
+    ) -> None:
         self.username = username
         self.id = id
         self.avatar_url = avatar_url
@@ -239,7 +241,8 @@ class UserModel:
         self.github_id = github_id
         self.badges = badges
 
-    def from_json(json):
+    # Returns VersionModel
+    def from_json(json: dict):
         result = VersionModel(
             json['username'], json['id'], json['avatar_url'],
             json['created'], json['role'], json['name'],
@@ -248,7 +251,7 @@ class UserModel:
         )
         return result
 
-    def to_json(self):
+    def to_json(self) -> dict:
         result = {
             'username': self.username,
             'id': self.id,
@@ -265,7 +268,7 @@ class UserModel:
         result = remove_null_values(result)
         return result
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         return json.dumps(self.to_json()).encode()
 
 

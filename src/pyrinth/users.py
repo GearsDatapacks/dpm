@@ -1,6 +1,5 @@
 import requests as r
 import json
-from pyrinth.models import ProjectModel
 from pyrinth.projects import Project
 
 
@@ -37,7 +36,8 @@ class User:
         self.badges = self.response['badges']
         self.payout_data = self.response['payout_data']
 
-    def get_followed_projects(self) -> list[Project]:
+    # Returns list[Project]
+    def get_followed_projects(self) -> list:
         if self.auth == '':
             raise Exception("get_followed_projects needs an auth token.")
         raw_response = r.get(
@@ -54,9 +54,8 @@ class User:
 
         return followed_projects
 
+    # Returns list[User.Notification]
     def get_notifications(self) -> list:
-        if self.auth == '':
-            raise Exception("get_notifications needs an auth token.")
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.username}/notifications',
             headers={
@@ -64,13 +63,12 @@ class User:
             }
         )
         response = json.loads(raw_response.content)
-
-        return [self.Notification(notification) for notification in response]
+        return [User.Notification(notification) for notification in response]
 
     def get_amount_of_projects(self) -> int:
         return len(self.get_projects())
 
-    def create_project(self, project_model: ProjectModel, icon: str = ''):
+    def create_project(self, project_model, icon: str = '') -> None:
         raw_res = r.post(
             'https://api.modrinth.com/v2/project',
             files={
@@ -82,7 +80,8 @@ class User:
         )
         print(raw_res.content)
 
-    def get_projects(self) -> list[Project]:
+    # Returns list[Project]
+    def get_projects(self) -> list:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
@@ -105,8 +104,9 @@ class User:
             }
         )
 
+    # Returns User
     @staticmethod
-    def from_auth(auth: str):  # Returns user
+    def from_auth(auth: str):
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user',
             headers={
@@ -116,16 +116,18 @@ class User:
         response = json.loads(raw_response.content)
         return User(response['username'], auth, ignore_warning=True)
 
+    # Returns User
     @staticmethod
-    def from_id(id: str):  # Returns User
+    def from_id(id: str):
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
         response = json.loads(raw_response.content)
         return User(response['username'], ignore_warning=True)
 
+    # Returns list[User]
     @staticmethod
-    def from_ids(ids: list[str]) -> list:  # Returns list[User]
+    def from_ids(ids: list[str]) -> list:
         raw_response = r.get(
             'https://api.modrinth.com/v2/users',
             params={
