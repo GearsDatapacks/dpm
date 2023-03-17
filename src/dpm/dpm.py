@@ -32,7 +32,11 @@ def download_file(file, longest_file_name):
     progress = 0
 
     # Open a file for writing in binary mode
-    with open(file.filename, 'wb') as f:
+    if not os.path.exists('../../downloaded'):
+      os.mkdir('../../downloaded')
+
+
+    with open(f"../../downloaded/{file.filename}", 'wb') as f:
         start_time = time.perf_counter()
 
         # Iterate over the response data in chunks
@@ -112,7 +116,7 @@ def download_project(download, auth=''):
             download_file(file, longest_file_name)
         else:
             print(
-                f"{file.filename.ljust(longest_file_name, ' ')} already downloaded... skipping"
+                f"{file.filename.ljust('../../downloaded/{longest_file_name}', ' ')} already downloaded... skipping"
             )
 
 

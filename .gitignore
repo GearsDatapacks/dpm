@@ -19,12 +19,6 @@ private*/
 # Any folder that ends with 'egg-info'
 **/*.egg-info
 
-# Installation generators
-install.js
-dpm.sh
-
 # Test stuff
 package.json
 PRIVATE/
-install.js
-dpm.sh
