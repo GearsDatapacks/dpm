@@ -6,11 +6,14 @@ import json
 class ProjectModel:
     def __init__(
         self, slug: str, title: str,
-        description: str, categories: list[str], client_side: str,
-        server_side: str, body: str, license_id: str,
-        project_type: str, additional_categories=None, issues_url=None,
-        source_url=None, wiki_url=None, discord_url=None,
-        donation_urls=None, license_url=None
+        description: str, categories: list[str],
+        client_side: str, server_side: str, body: str,
+        license_id: str, project_type: str,
+        additional_categories: list[str] = None,
+        issues_url: str = None, source_url: str = None,
+        wiki_url: str = None, discord_url: str = None,
+        donation_urls: list[Project.Donation] = None,
+        license_url: str = None
     ) -> None:
         self.slug = slug
         self.title = title
@@ -21,7 +24,7 @@ class ProjectModel:
         self.body = body
         self.license_id = Project.License(
             license_id['id'], license_id['name'], license_id['url']
-        )
+        ) if type(license_id) == dict else license_id
         self.project_type = project_type
         self.additional_categories = additional_categories
         self.issues_url = issues_url
@@ -80,69 +83,87 @@ class ProjectModel:
 
 
 class SearchResultModel:
-    def __init__(self, slug: str, title: str, description: str, client_side: str, server_side: str, project_type: str, downloads: int, project_id: str, author: str, versions: list[str], follows: int, date_created, date_modified, license, categories: list[str], icon_url: None, color: None, display_categories: list[str], latest_version: str, gallery: list[str], featured_gallery: None) -> None:
-        ...
-        self.slug = slug
-        self.title = title
-        self.description = description
-        self.client_side = client_side
-        self.server_side = server_side
-        self.project_type = project_type
-        self.downloads = downloads
-        self.project_id = project_id
-        self.author = author
-        self.versions = versions
-        self.follows = follows
-        self.date_created = date_created
-        self.date_modified = date_modified
-        self.license = license
-        self.categories = categories
-        self.icon_url = icon_url
-        self.color = color
-        self.display_categories = display_categories
-        self.latest_version = latest_version
-        self.gallery = gallery
-        self.featured_gallery = featured_gallery
+    # Commented out because I figure that you dont need to initalize this class. But I might be wrong...
+
+    # def __init__(self, slug: str, title: str, description: str, client_side: str, server_side: str, project_type: str, downloads: int, project_id: str, author: str, versions: list[str], follows: int, date_created, date_modified, license, categories: list[str], icon_url: None, color: None, display_categories: list[str], latest_version: str, gallery: list[str], featured_gallery: None) -> None:
+    # def __init__(self) -> None:
+    #     self.slug = slug
+    #     self.title = title
+    #     self.description = description
+    #     self.client_side = client_side
+    #     self.server_side = server_side
+    #     self.project_type = project_type
+    #     self.downloads = downloads
+    #     self.project_id = project_id
+    #     self.author = author
+    #     self.versions = versions
+    #     self.follows = follows
+    #     self.date_created = date_created
+    #     self.date_modified = date_modified
+    #     self.license = license
+    #     self.categories = categories
+    #     self.icon_url = icon_url
+    #     self.color = color
+    #     self.display_categories = display_categories
+    #     self.latest_version = latest_version
+    #     self.gallery = gallery
+    #     self.featured_gallery = featured_gallery
 
     def from_json(json):
-        result = SearchResultModel(
-            json["slug"], json["title"], json["description"],
-            json["client_side"], json["server_side"], json["project_type"],
-            json["downloads"], json["project_id"], json["author"],
-            json["versions"], json["follows"], json["date_created"],
-            json["date_modified"], json["license"], json["categories"],
-            json["icon_url"], json["color"], json["display_categories"],
-            json["latest_version"], json["gallery"], json["featured_gallery"]
-        )
+        result = SearchResultModel()
+        result.slug = json['slug']
+        result.title = json['title']
+        result.description = json['description']
+        result.client_side = json['client_side']
+        result.server_side = json['server_side']
+        result.project_type = json['project_type']
+        result.downloads = json['downloads']
+        result.project_id = json['project_id']
+        result.author = json['author']
+        result.versions = json['versions']
+        result.follows = json['follows']
+        result.date_created = json['date_created']
+        result.date_modified = json['date_modified']
+        result.license = json['license']
+        result.categories = json['categories']
+        result.icon_url = json['icon_url']
+        result.color = json['color']
+        result.display_categories = json['display_categories']
+        result.latest_version = json['latest_version']
+        result.gallery = json['gallery']
+        result.featured_gallery = json['featured_gallery']
 
         return result
 
-    def to_json(self):
-        result = {
-            'slug': self.slug,
-            'title': self.title,
-            'description': self.description,
-            'client_side': self.client_side,
-            'server_side': self.server_side,
-            'project_type': self.project_type,
-            'downloads': self.downloads,
-            'project_id': self.project_id,
-            'author': self.author,
-            'versions': self.versions,
-            'follows': self.follows,
-            'date_created': self.date_created,
-            'date_modified': self.date_modified,
-            'license': self.license,
-            'categories': self.categories,
-            'icon_url': self.icon_url,
-            'color': self.color,
-            'display_categories': self.display_categories,
-            'latest_version': self.latest_version,
-            'gallery': self.gallery,
-            'featured_gallery': self.featured_gallery
-        }
-        result = remove_null_values(result)
-        return result
+    # def to_json(self):
+    #     result = {
+    #         'slug': self.slug,
+    #         'title': self.title,
+    #         'description': self.description,
+    #         'client_side': self.client_side,
+    #         'server_side': self.server_side,
+    #         'project_type': self.project_type,
+    #         'downloads': self.downloads,
+    #         'project_id': self.project_id,
+    #         'author': self.author,
+    #         'versions': self.versions,
+    #         'follows': self.follows,
+    #         'date_created': self.date_created,
+    #         'date_modified': self.date_modified,
+    #         'license': self.license,
+    #         'categories': self.categories,
+    #         'icon_url': self.icon_url,
+    #         'color': self.color,
+    #         'display_categories': self.display_categories,
+    #         'latest_version': self.latest_version,
+    #         'gallery': self.gallery,
+    #         'featured_gallery': self.featured_gallery
+    #     }
+    #     result = remove_null_values(result)
+    #     return result
+
+    # def to_bytes(self):
+    #     return json.dumps(self.to_json()).encode()
 
 
 class VersionModel:
@@ -243,6 +264,9 @@ class UserModel:
         }
         result = remove_null_values(result)
         return result
+
+    def to_bytes(self):
+        return json.dumps(self.to_json()).encode()
 
 
 class TeamMemberModel:

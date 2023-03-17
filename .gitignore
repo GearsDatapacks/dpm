@@ -1,9 +1,20 @@
+# Files
 main*.py
 test.py
-.vscode
-references/
-imgs/
-**/__pycache__
 *.zip
 test*.*
-PRIVATE/
+
+# Folders
+.vscode/
+references/
+imgs/
+dist/
+
+# Any folder that starts with 'private'
+private*/
+
+# Every '__pycache__' folder
+**/__pycache__
+
+# Any folder that ends with 'egg-info'
+**/*.egg-info
