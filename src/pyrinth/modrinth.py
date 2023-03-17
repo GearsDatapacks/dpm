@@ -10,25 +10,22 @@ class Modrinth:
 
     # Returns Project
     @staticmethod
-    def get_project(id: str, auth: str = '', ignore_error: bool = False) -> object:
+    def get_project(id: str, auth: str = '') -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{id}',
             headers={
                 'authorization': auth
             }
         )
-        if not raw_response.ok:
-            if not ignore_error:
-                print(
-                    "The requested project was not found or no authorization to see this project."
-                )
+        if raw_response.status_code == 404:
+            print("The requested project was not found or no authorization to see this project")
             return None
         response = json.loads(raw_response.content)
         return Project(response)
 
     # Returns list[Project]
     @staticmethod
-    def get_projects(ids: list[str], ignore_error: bool = False) -> list[object]:
+    def get_projects(ids: list[str]) -> list[object]:
         if ids == []:
             raise Exception(
                 "Please specify project IDs to get project details. Or use this method on an instanced class"
@@ -40,12 +37,6 @@ class Modrinth:
             }
         )
         response = json.loads(raw_response.content)
-        if not raw_response.ok:
-            if not ignore_error:
-                print(
-                    response['description'] +
-                    " Did you supply a project slug instead of a ID?"
-                )
         return [Project(project) for project in response]
 
     # Returns Project.Version
@@ -54,6 +45,9 @@ class Modrinth:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
+        if raw_response.status_code == 404:
+            print("The requested version was not found or no authorization to see this version")
+            return None
         response = json.loads(raw_response.content)
         return Project.Version(response)
 
@@ -65,6 +59,9 @@ class Modrinth:
                 'count': count
             }
         )
+        if raw_response.status_code == 400:
+            print("Invalid request")
+            return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
 
@@ -93,6 +90,9 @@ class Modrinth:
                 # 'filters': filters
             }
         )
+        if raw_response.status_code == 400:
+            print("Invalid request")
+            return None
         response = json.loads(raw_response.content)
         return [Modrinth.SearchResult(project) for project in response['hits']]
 
