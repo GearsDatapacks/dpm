@@ -17,10 +17,11 @@ class Modrinth:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 404:
-            raise Exception(
+        if not raw_response.ok:
+            print(
                 "The requested project was not found or no authorization to see this project."
             )
+            return None
         response = json.loads(raw_response.content)
         return Project(response)
 
@@ -39,8 +40,10 @@ class Modrinth:
         )
         response = json.loads(raw_response.content)
         if not raw_response.ok:
-            raise Exception(
-                response['description'] + " Did you supply a project slug instead of a ID?")
+            print(
+                response['description'] +
+                " Did you supply a project slug instead of a ID?"
+            )
         return [Project(project) for project in response]
 
     # Returns Project.Version
