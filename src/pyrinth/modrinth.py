@@ -17,10 +17,11 @@ class Modrinth:
                 'authorization': auth
             }
         )
-        if not raw_response.ok and not ignore_error:
-            print(
-                "The requested project was not found or no authorization to see this project."
-            )
+        if not raw_response.ok:
+            if not ignore_error:
+                print(
+                    "The requested project was not found or no authorization to see this project."
+                )
             return None
         response = json.loads(raw_response.content)
         return Project(response)
@@ -39,11 +40,12 @@ class Modrinth:
             }
         )
         response = json.loads(raw_response.content)
-        if not raw_response.ok and not ignore_error:
-            print(
-                response['description'] +
-                " Did you supply a project slug instead of a ID?"
-            )
+        if not raw_response.ok:
+            if not ignore_error:
+                print(
+                    response['description'] +
+                    " Did you supply a project slug instead of a ID?"
+                )
         return [Project(project) for project in response]
 
     # Returns Project.Version
