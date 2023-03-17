@@ -2,6 +2,7 @@ import fire
 import requests as r
 import os
 import sys
+import time
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
 sys.path.append("..")
 from pyrinth import *
@@ -32,6 +33,7 @@ def download_file(file, longest_file_name):
 
     # Open a file for writing in binary mode
     with open(file.filename, 'wb') as f:
+        start_time = time.perf_counter()
 
         # Iterate over the response data in chunks
         for data in response.iter_content(block_size):
@@ -54,10 +56,19 @@ def download_file(file, longest_file_name):
             # moving the cursor back to the beginning of the line using '\r'
             filename = file.filename.ljust(longest_file_name, ' ')
             print(
-                f'Downloading: {filename} [{bar}] / {percent}',
+                f'Downloading {filename} [{bar}] / {percent}',
                 end='\r'
             )
-    print("\n", end='')
+
+    end_time = time.perf_counter()
+    time_taken = '{:.2f}'.format(end_time - start_time)
+
+    print(
+      f'Downloading {filename} [{bar}] / Done in {time_taken}s',
+      end='\r'
+    )
+
+    print(f"\n", end='')
 
 
 def download_project(download, auth=''):
