@@ -1,7 +1,7 @@
 import requests as r
 import json
 from pyrinth.util import *
-
+import os
 
 class Project:
     def __init__(self, project_model) -> None:
@@ -197,7 +197,11 @@ class Project:
           print(f"Downloading {file['filename']}")
           url = file['url']
           myfile = r.get(url)
-          open(f"./{file['filename']}", 'wb').write(myfile.content)
+
+          if not os.path.exists('downloaded'):
+            os.makedirs('downloaded')
+
+          open(f"./downloaded/{file['filename']}", 'wb').write(myfile.content)
           print('done')
 
     def download_dependencies(self):

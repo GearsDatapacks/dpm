@@ -25,3 +25,6 @@ dpm.sh
 
 # Test stuff
 package.json
+PRIVATE/
+install.js
+dpm.sh
