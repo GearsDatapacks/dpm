@@ -105,11 +105,6 @@ class Modrinth:
         def __repr__(self) -> str:
             return f"Search Result: {self.search_result_model.title}"
 
-    @staticmethod
-    def install_project(id: str, auth: str = ''):
-        project = Modrinth.get_project(id)
-        project.install()
-
     class Statistics:
         def __init__(self) -> None:
             raw_response = r.get(
