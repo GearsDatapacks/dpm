@@ -37,7 +37,7 @@ class User:
         self.payout_data = self.response['payout_data']
 
     # Returns list[Project]
-    def get_followed_projects(self) -> list:
+    def get_followed_projects(self) -> list[object]:
         if self.auth == '':
             raise Exception("get_followed_projects needs an auth token.")
         raw_response = r.get(
@@ -55,7 +55,7 @@ class User:
         return followed_projects
 
     # Returns list[User.Notification]
-    def get_notifications(self) -> list:
+    def get_notifications(self) -> list[object]:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.username}/notifications',
             headers={
@@ -81,7 +81,7 @@ class User:
         print(raw_res.content)
 
     # Returns list[Project]
-    def get_projects(self) -> list:
+    def get_projects(self) -> list[object]:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
@@ -106,7 +106,7 @@ class User:
 
     # Returns User
     @staticmethod
-    def from_auth(auth: str):
+    def from_auth(auth: str) -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user',
             headers={
@@ -118,7 +118,7 @@ class User:
 
     # Returns User
     @staticmethod
-    def from_id(id: str):
+    def from_id(id: str) -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
@@ -127,7 +127,7 @@ class User:
 
     # Returns list[User]
     @staticmethod
-    def from_ids(ids: list[str]) -> list:
+    def from_ids(ids: list[str]) -> list[object]:
         raw_response = r.get(
             'https://api.modrinth.com/v2/users',
             params={
