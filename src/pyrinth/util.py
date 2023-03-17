@@ -1,7 +1,7 @@
 import json
 
 
-def remove_null_values(json: dict):
+def remove_null_values(json: dict) -> dict:
     result = {}
     for key, value in json.items():
         if value is not None:
@@ -10,12 +10,13 @@ def remove_null_values(json: dict):
     return result
 
 
-def to_image_from_json(json: dict):
-    from projects import Project
+# Returns list[Project.GalleryImage]
+def to_image_from_json(json: dict) -> list:
+    from pyrinth.projects import Project
     return [Project.GalleryImage.from_json(image) for image in json]
 
 
-def json_to_query_params(json_: dict):
+def json_to_query_params(json_: dict) -> str:
     result = ''
     for key, value in json_.items():
         result += f'{key}={json.dumps(value)}&'
