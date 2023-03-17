@@ -1,6 +1,9 @@
 # Pyrinth
 This is a python library that interacts with the Modrinth API
 
+
+When you are using the source code and NOT the package, put your main file in the `src` directory
+
 ### Basic Example
 
 ```py
