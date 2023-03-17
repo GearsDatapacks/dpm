@@ -4,6 +4,10 @@ from pyrinth import *
 import os
 
 
+def toSentenceCase(sentence):
+    return sentence.title().replace('-', ' ')
+
+
 def download_file(file, longest_file_name):
     # Send a GET request to the specified file URL and stream the response
     response = r.get(file.url, stream=True)
@@ -57,8 +61,9 @@ def download_project(download):
     project = Modrinth.get_project(download)
     # If no project is found, print an error message and return None
     if not project:
-        print(f"Project {download} was not found")
+        print(f"Project {toSentenceCase(download)} was not found")
         return None
+    print(f"Project {toSentenceCase(download)} found")
 
     # Get the latest version of the project and its files
     project_files = project.get_latest_version().get_files()
