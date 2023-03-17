@@ -1,4 +1,4 @@
-from modrinth import Modrinth
+from pyrinth.modrinth import Modrinth
 import sys
 
 Modrinth.install_project(sys.argv[1])
