@@ -10,14 +10,14 @@ class Modrinth:
 
     # Returns Project
     @staticmethod
-    def get_project(id: str, auth: str = '') -> object:
+    def get_project(id: str, auth: str = '', ignore_error: bool = False) -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{id}',
             headers={
                 'authorization': auth
             }
         )
-        if not raw_response.ok:
+        if not raw_response.ok and not ignore_error:
             print(
                 "The requested project was not found or no authorization to see this project."
             )
@@ -27,7 +27,7 @@ class Modrinth:
 
     # Returns list[Project]
     @staticmethod
-    def get_projects(ids: list[str]) -> list[object]:
+    def get_projects(ids: list[str], ignore_error: bool = False) -> list[object]:
         if ids == []:
             raise Exception(
                 "Please specify project IDs to get project details. Or use this method on an instanced class"
@@ -39,7 +39,7 @@ class Modrinth:
             }
         )
         response = json.loads(raw_response.content)
-        if not raw_response.ok:
+        if not raw_response.ok and not ignore_error:
             print(
                 response['description'] +
                 " Did you supply a project slug instead of a ID?"
