@@ -78,17 +78,24 @@ class Modrinth:
     @staticmethod
     # Returns list[Modrinth.SearchResult]
     def search_projects(query: str = '', facets: list[str] = [], index: str = "relevance", offset: int = 0, limit: int = 10, filters: int = []) -> list[object]:
-        print("[INFO / PYRINTH] SEARCH PROJECTS IS NOT FULLY IMPLEMENTED YET")
+        if query == '' and facets == [] and index == 'relevance' and offset == 0 and limit == 10 and filters == []:
+            raise Exception("Please specify a parameter to search")
+        params = {}
+        if query != '':
+            params.update({'query': query})
+        if facets != []:
+            params.update({'facets': json.dumps(facets)})
+        if index != 'relevance':
+            params.update({'index': index})
+        if offset != 0:
+            params.update({'offset': offset})
+        if limit != 10:
+            params.update({'limit': limit})
+        if filters != []:
+            params.update({'filters': json.dumps(filters)})
         raw_response = r.get(
             f'https://api.modrinth.com/v2/search',
-            params={
-                'query': query,
-                # 'facets': facets,
-                'index': index,
-                'offset': offset,
-                'limit': limit,
-                # 'filters': filters
-            }
+            params=params
         )
         if raw_response.status_code == 400:
             print("Invalid request")

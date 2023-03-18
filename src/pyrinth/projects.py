@@ -13,16 +13,25 @@ class Project:
     def __repr__(self) -> str:
         return f"Project: {self.project_model.title}"
 
-    def get_latest_version(self):
-        return self.get_versions()[0]
+    def get_latest_version(self, loaders=None, game_versions=None, featured=None):
+        versions = self.get_versions(loaders, game_versions, featured)
+        if versions:
+            return versions[0]
+        return None
 
     def get_specific_version(self, schematic_versioning):
-        for version in self.get_versions():
-            if version.version_model.version_number == schematic_versioning:
-                return version
+        versions = self.get_versions()
+        if versions:
+            for version in versions:
+                if version.version_model.version_number == schematic_versioning:
+                    return version
+        return None
 
-    def get_oldest_version(self):
-        return self.get_versions()[-1]
+    def get_oldest_version(self, loaders=None, game_versions=None, featured=None):
+        versions = self.get_versions(loaders, game_versions, featured)
+        if versions:
+            return versions[-1]
+        return None
 
     def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
         filters = {
@@ -36,7 +45,8 @@ class Project:
             params=json_to_query_params(filters)
         )
         if raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+            print("Project has no versions")
+            # print("The requested project was not found or no authorization to see this project")
             return None
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
@@ -260,16 +270,10 @@ class Project:
             self.version_model = version_model
 
         def get_files(self):
-            files = []
-            for file in self.version_model.primary_file:
-                files.append(Project.File(
-                    file['hashes'], file['url'], file['filename'],
-                    file['primary'], file['size'], file['file_type']
-                ))
-            return files
+            return self.version_model.files
 
         def __repr__(self) -> str:
-            return f"Version: {self.version_model.title}"
+            return f"Version: {self.version_model.name}"
 
     class GalleryImage:
         def __init__(self, file_path: str, featured: bool, title: str = '', description: str = '', ordering: int = 0) -> None:
