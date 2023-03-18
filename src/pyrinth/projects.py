@@ -44,9 +44,8 @@ class Project:
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/version',
             params=json_to_query_params(filters)
         )
-        if raw_response.status_code == 404:
-            print("Project has no versions")
-            # print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return [self.Version(version) for version in response]
@@ -55,8 +54,8 @@ class Project:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
-        if raw_response.status_code == 404:
-            print("The requested version was not found or no authorization to see this version")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return Project.Version(response)
@@ -75,11 +74,8 @@ class Project:
             },
             files=files
         )
-        if raw_response.status_code == 400:
-            print("Invalid request")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to create this version")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def change_icon(self, file_path: str, auth: str) -> None:
@@ -93,8 +89,8 @@ class Project:
             },
             data=open(file_path, "rb")
         )
-        if raw_response.status_code == 400:
-            print("Invalid input for new icon")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def delete_icon(self, auth: str):
@@ -104,11 +100,8 @@ class Project:
                 "authorization": auth
             }
         )
-        if raw_response.status_code == 400:
-            print("Invalid input")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to edit this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def add_gallery_image(self, auth: str, image):
@@ -126,14 +119,8 @@ class Project:
             },
             data=open(image.file_path, "rb")
         )
-        if raw_response.status_code == 400:
-            print("Invalid request")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to create a gallery image")
-            return None
-        elif raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def delete_gallery_image(self, url: str, auth: str):
@@ -150,19 +137,16 @@ class Project:
                 "url": url
             }
         )
-        if raw_response.status_code == 400:
-            print("Invalid URL or project specified")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to delete this gallery image")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def exists(self) -> bool:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/check'
         )
-        if raw_response.status_code == 404:
-            print("The requested project was not found")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return (True if response['id'] else False)
@@ -201,11 +185,8 @@ class Project:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 401:
-            print("No authorization to edit this project")
-            return None
-        elif raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def modify_gallery_image(self, auth, url, featured=None, title=None, description=None, ordering=None):
@@ -226,11 +207,8 @@ class Project:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 401:
-            print("No authorization to edit this gallery image")
-            return None
-        elif raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def delete(self, auth: str) -> None:
@@ -240,11 +218,8 @@ class Project:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 400:
-            print("The requested project was not found.")
-            return None
-        elif raw_response.status_code == 401:
-            print("Invalid authorization token.")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def get_dependencies(self, auth: str = ''):
@@ -254,8 +229,8 @@ class Project:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         from pyrinth.projects import Project

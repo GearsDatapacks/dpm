@@ -31,11 +31,10 @@ class ProjectModel:
         self.source_url = source_url
         self.wiki_url = wiki_url
         self.discord_url = discord_url
-        self.donation_urls = [Project.Donation(
-            donation_url['id'],
-            donation_url['platform'],
-            donation_url['url']
-        ) for donation_url in donation_urls]
+        self.donation_urls = []
+        if donation_urls:
+            for donation_url in donation_urls:
+                donation_urls.append(Project.Donation(donation_url['id'], donation_url['platform'], donation_url['url']))
         self.license_url = license_url
         self.id = None
         self.downloads = None

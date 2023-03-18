@@ -17,8 +17,8 @@ class Modrinth:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 404:
-            print("The requested project was not found or no authorization to see this project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return Project(response)
@@ -45,8 +45,8 @@ class Modrinth:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
-        if raw_response.status_code == 404:
-            print("The requested version was not found or no authorization to see this version")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return Project.Version(response)
@@ -59,8 +59,8 @@ class Modrinth:
                 'count': count
             }
         )
-        if raw_response.status_code == 400:
-            print("Invalid request")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
@@ -77,7 +77,7 @@ class Modrinth:
 
     @staticmethod
     # Returns list[Modrinth.SearchResult]
-    def search_projects(query: str = '', facets: list[str] = [], index: str = "relevance", offset: int = 0, limit: int = 10, filters: int = []) -> list[object]:
+    def search_projects(query: str = '', facets: list[list[str]] = [], index: str = "relevance", offset: int = 0, limit: int = 10, filters: int = []) -> list[object]:
         if query == '' and facets == [] and index == 'relevance' and offset == 0 and limit == 10 and filters == []:
             raise Exception("Please specify a parameter to search")
         params = {}
@@ -97,8 +97,8 @@ class Modrinth:
             f'https://api.modrinth.com/v2/search',
             params=params
         )
-        if raw_response.status_code == 400:
-            print("Invalid request")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return [Modrinth.SearchResult(project) for project in response['hits']]

@@ -46,11 +46,8 @@ class User:
                 'authorization': self.auth
             }
         )
-        if raw_response.status_code == 401:
-            print("No authorization to get this user's followed projects")
-            return None
-        elif raw_response.status_code == 404:
-            print("The requested user was not found")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
         followed_projects = []
@@ -68,11 +65,8 @@ class User:
                 'authorization': self.auth
             }
         )
-        if raw_response.status_code == 401:
-            print("No authorization to get this user's notifications")
-            return None
-        elif raw_response.status_code == 404:
-            print("The requested user was not found")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return [User.Notification(notification) for notification in response]
@@ -92,11 +86,8 @@ class User:
                 'Authorization': self.auth
             }
         )
-        if raw_response.status_code == 400:
-            print("Invalid request")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to create a project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     # Returns list[Project]
@@ -104,8 +95,8 @@ class User:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
-        if raw_response.status_code == 404:
-            print("The requested user was not found")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
@@ -117,11 +108,8 @@ class User:
                 'authorization': self.auth
             }
         )
-        if raw_response.status_code == 400:
-            print("You are already following the specified project or the requested project was not found")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to follow a project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     def unfollow_project(self, id: str) -> None:
@@ -131,11 +119,8 @@ class User:
                 'authorization': self.auth
             }
         )
-        if raw_response.status_code == 400:
-            print("You are not following the specified project or the requested project was not found")
-            return None
-        elif raw_response.status_code == 401:
-            print("No authorization to unfollow a project")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
 
     # Returns User
@@ -147,8 +132,8 @@ class User:
                 'authorization': auth
             }
         )
-        if raw_response.status_code == 401:
-            print("No authorization token given")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return User(response['username'], auth, ignore_warning=True)
@@ -159,8 +144,8 @@ class User:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
-        if raw_response.status_code == 404:
-            print("The requested user was not found")
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
         response = json.loads(raw_response.content)
         return User(response['username'], ignore_warning=True)
