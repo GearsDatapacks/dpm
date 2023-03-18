@@ -31,11 +31,10 @@ class ProjectModel:
         self.source_url = source_url
         self.wiki_url = wiki_url
         self.discord_url = discord_url
-        self.donation_urls = [Project.Donation(
-            donation_url['id'],
-            donation_url['platform'],
-            donation_url['url']
-        ) for donation_url in donation_urls]
+        self.donation_urls = []
+        if donation_urls:
+            for donation_url in donation_urls:
+                donation_urls.append(Project.Donation(donation_url['id'], donation_url['platform'], donation_url['url']))
         self.license_url = license_url
         self.id = None
         self.downloads = None
@@ -108,8 +107,6 @@ class SearchResultModel:
     #     self.latest_version = latest_version
     #     self.gallery = gallery
     #     self.featured_gallery = featured_gallery
-    def __init__(self) -> None:
-        raise Exception("This class cannot be initialized.")
 
     # Returns SearchResultModel
     def from_json(json: dict) -> object:
@@ -171,52 +168,55 @@ class SearchResultModel:
 
 class VersionModel:
     def __init__(
-        self, title: str, version_number: str, dependencies: list, game_versions: list[str], version_type: str, loaders: list[str], featured: bool, files: list[str], changelog: str = None, status: str = None, requested_status: str = None, main_file: str = None, project_id: str = None
+        self, name: str, version_number: str,
+        game_versions: list[str],
+        version_type: str, loaders, featured, id, project_id, author_id, date_published, downloads, files, changelog, dependencies, status, requested_status
     ) -> None:
-        self.title = title
+        self.name = name
         self.version_number = version_number
-        self.changelog = changelog
-        self.dependencies = dependencies
         self.game_versions = game_versions
         self.version_type = version_type
         self.loaders = loaders
         self.featured = featured
+        self.id = id
+        self.project_id = project_id
+        self.author_id = author_id
+        self.date_published = date_published
+        self.downloads = downloads
+        self.files = [Project.File(file['hashes'], file['url'], file['filename'], file['primary'], file['size'], file['file_type']) for file in files]
+        self.changelog = changelog
+        self.dependencies = dependencies
         self.status = status
         self.requested_status = requested_status
-        self.file_parts = files
-        self.primary_file = main_file
-        self.project_id = project_id
 
-    # Returns VersionModel
     def from_json(json: dict) -> object:
         primary_files = []
         for primary_files_ in json['files']:
             if primary_files_['primary']:
                 primary_files.append(primary_files_)
         result = VersionModel(
-            json['name'], json['version_number'], json['changelog'],
-            json['dependencies'], json['game_versions'],
-            json['version_type'], json['loaders'], json['featured'],
-            json['status'], json['requested_status'], json['files'],
-            primary_files, json['project_id']
+            json['name'],json['version_number'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['id'],json['project_id'],json['author_id'],json['date_published'],json['downloads'],json['files'],json['changelog'],json['dependencies'],json['status'],json['requested_status']
         )
         return result
 
     def to_json(self) -> dict:
         result = {
-            'name': self.title,
+            'name': self.name,
             'version_number': self.version_number,
-            'changelog': self.changelog,
-            'dependencies': self.dependencies,
             'game_versions': self.game_versions,
             'version_type': self.version_type,
             'loaders': self.loaders,
             'featured': self.featured,
+            'id': self.id,
+            'project_id': self.project_id,
+            'author_id': self.author_id,
+            'date_published': self.date_published,
+            'downloads': self.downloads,
+            'files': self.files,
+            'changelog': self.changelog,
+            'dependencies': self.dependencies,
             'status': self.status,
-            'requested_status': self.requested_status,
-            'file_parts': self.files,
-            'primary_file': self.primary_file,
-            'project_id': self.project_id
+            'requested_status': self.requested_status
         }
         result = remove_null_values(result)
         return result

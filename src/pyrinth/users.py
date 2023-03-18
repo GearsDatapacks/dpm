@@ -47,6 +47,9 @@ class User:
                 'authorization': self.auth
             }
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
 
         followed_projects = []
         projects = json.loads(raw_response.content)
@@ -63,14 +66,19 @@ class User:
                 'authorization': self.auth
             }
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
         response = json.loads(raw_response.content)
         return [User.Notification(notification) for notification in response]
 
     def get_amount_of_projects(self) -> int:
-        return len(self.get_projects())
-
+        projs = self.get_projects()
+        if not projs:
+            return 0
+        return projs
     def create_project(self, project_model, icon: str = '') -> None:
-        raw_res = r.post(
+        raw_response = r.post(
             'https://api.modrinth.com/v2/project',
             files={
                 "data": project_model.to_bytes()
@@ -79,31 +87,42 @@ class User:
                 'Authorization': self.auth
             }
         )
-        print(raw_res.content)
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
 
     # Returns list[Project]
     def get_projects(self) -> list[object]:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
 
     def follow_project(self, id: str) -> None:
-        r.post(
+        raw_response = r.post(
             f'https://api.modrinth.com/v2/project/{id}/follow',
             headers={
                 'authorization': self.auth
             }
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
 
     def unfollow_project(self, id: str) -> None:
-        r.delete(
+        raw_response = r.delete(
             f'https://api.modrinth.com/v2/project/{id}/follow',
             headers={
                 'authorization': self.auth
             }
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
 
     # Returns User
     @staticmethod
@@ -114,6 +133,9 @@ class User:
                 'authorization': auth
             }
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
         response = json.loads(raw_response.content)
         return User(response['username'], auth, ignore_warning=True)
 
@@ -123,6 +145,9 @@ class User:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
+        if not raw_response.ok:
+            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            return None
         response = json.loads(raw_response.content)
         return User(response['username'], ignore_warning=True)
 
