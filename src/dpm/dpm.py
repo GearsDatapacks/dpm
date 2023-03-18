@@ -1,26 +1,38 @@
-import fire
+from argparse import ArgumentParser
+import webbrowser
 import requests as r
 import os
 import sys
 import time
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
-sys.path.append("..")
+import sys
+# sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
+sys.path.append(f"path/to/pyrinth/src") # Testing - Other OS's
 from pyrinth import *
 # -------------------
 
 
-def toSentenceCase(sentence):
-    return sentence.title().replace('-', ' ')
+def to_sentence_case(sentence):
+    return sentence.title().replace('-', ' ').replace('_', ' ')
 
+def remove_file_extension(file_name):
+    return '.'.join(file_name.split('.')[:-1])
 
-def download_file(file, longest_file_name):
+def download_file(file, folder_path, longest_file_name):
+    # Create the full file path by joining the folder path and file name
+    file_path = folder_path + '/' + file.filename
+
+    # Check if the specified folder exists
+    if not os.path.exists(folder_path):
+        # If it doesn't exist, create it
+        os.mkdir(folder_path)
+    else:
+        if os.path.exists(file_path):
+            print(f"{file.filename.ljust(longest_file_name, ' ')} already exists... skipping")
+            return
+
     # Send a GET request to the specified file URL and stream the response
     response = r.get(file.url, stream=True)
-
-    # Check if the request was successful
-    if response.status_code != 200:
-        print(f'Error: Failed to download {file.filename}')
-        return
 
     # Get the total size of the file from the response headers
     total_progress = int(response.headers.get('content-length', 0))
@@ -55,7 +67,6 @@ def download_file(file, longest_file_name):
             bar_filled = '='*int(bar_length)
             bar_empty = ' '*(20-len(bar_filled))
             bar = bar_filled + bar_empty
-
             # Print the progress bar and percentage on the same line,
             # moving the cursor back to the beginning of the line using '\r'
             filename = file.filename.ljust(longest_file_name, ' ')
@@ -74,21 +85,20 @@ def download_file(file, longest_file_name):
 
     print(f"\n", end='')
 
-
-def download_project(download, auth=''):
+def download_project(project_id, auth=''):
     # Get information about the specified project from Modrinth
-    project = Modrinth.get_project(download, auth)
+    project = Modrinth.get_project(project_id, auth)
     # If no project is found, print an error message and return None
     if not project:
         return None
-    print(f"Project {toSentenceCase(download)} found")
+    print(f"Project '{to_sentence_case(project.project_model.title)}' found")
 
     # Get the latest version of the project and its files
-    latest = project.get_latest_version()
-    if latest == []:
-        print(f"{toSentenceCase(download)} has no versions")
+    latest = project.get_latest_version(loaders=["datapack"])
+    if not latest:
         return None
     project_files = latest.get_files()
+    main_file = project_files[0]
     # Get the dependencies of the project
     dependencies = project.get_dependencies()
     # Initialize an empty list to keep track of all files that need to be downloaded
@@ -119,7 +129,101 @@ def download_project(download, auth=''):
                 f"{file.filename.ljust('../../downloaded/{longest_file_name}', ' ')} already downloaded... skipping"
             )
 
+    option = input("Would you like to open the projects modrinth page (y/n)? ")
+    if 'y' in option:
+        webbrowser.open(f"https://modrinth.com/datapack/{project.project_model.id}")
 
-# Usage python dpm.py --download project-id-or-slug
+def to_tags_json(namespace, type):
+    return f'''{{
+    "values": [
+        "{namespace}:{type}"
+    ]
+}}'''
+
+def to_mcmeta_json(description):
+    return f'''{{
+	"pack": {{
+		"pack_format": 13,
+		"description": "{description}"
+	}}
+}}'''
+
+def to_project_json(name, description):
+    return f'''{{
+    "name": "{name}",
+    "version": "1.0.0",
+    "description": "{description}",
+    "dependencies": {{
+        
+    }}
+}}'''
+
+def create_project(namespace):
+    if ' ' in namespace:
+        print("Namespace cannot contain spaces")
+        return
+    name = to_sentence_case(namespace)
+    description = input("Enter the description of the datapack: ")
+    if name == '':
+        print("Name cannot be blank")
+        return
+    tags_functions = f"{name}/data/minecraft/tags/functions"
+    functions = f"{name}/data/{namespace}/functions"
+    if not os.path.exists(tags_functions):
+        os.makedirs(tags_functions)
+
+    if not os.path.exists(functions):
+        os.makedirs(functions)
+
+    if not os.path.exists(f"{functions}/tick.mcfunction"):
+        open(f"{functions}/tick.mcfunction", "x").close()
+
+    if not os.path.exists(f"{tags_functions}/tick.json"):
+        open(f"{tags_functions}/tick.json", "x").write(to_tags_json(namespace, "tick"))
+
+    if not os.path.exists(f"{functions}/load.mcfunction"):
+        open(f"{functions}/load.mcfunction", "x").close()
+
+    if not os.path.exists(f"{tags_functions}/load.json"):
+        open(f"{tags_functions}/load.json", "x").write(to_tags_json(namespace, "load"))
+
+    if not os.path.exists(f"{name}/pack.mcmeta"):
+        open(f"{name}/pack.mcmeta", "x").write(to_mcmeta_json(description))
+
+    if not os.path.exists(f"{name}/project.json"):
+        open(f"{name}/project.json", "x").write(to_project_json(name, description))
+
+def search_project(query):
+    projects = Modrinth.search_projects(query, facets=[["categories:datapack"]])
+    for i, project in enumerate(projects):
+        index = str(i+1).ljust(2, ' ')
+        print(f'{index} | ' + project.search_result_model.title)
+    print("If your project is not in this list, please try being more specific with your search query")
+    option = input("Select a project: ")
+    if option == '': return
+    option = int(option)
+    if option > len(projects) or option <= 0:
+        print("Invalid project number.")
+        return
+    project = Modrinth.get_project(projects[option-1].search_result_model.project_id)
+    print(f"Selected project: {project.project_model.title}")
+    download_project(project.project_model.id)
+
 if __name__ == "__main__":
-    fire.Fire(download_project)
+    parser = ArgumentParser()
+    
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument('-d',  '--download', metavar="Project ID",          help="Download a project")
+    group.add_argument('-s',  '--search',   metavar="Search Query",        help="Search for a project")
+    group.add_argument('-c',  '--create',   metavar="Datapack Namespace",  help="Create a datapack")
+    parser.add_argument('-a', '--auth',     metavar="Authorization Token", help="Specify a authorizaton token to use", default='')
+ 
+    args = parser.parse_args()
+    
+    if args.download:
+        download_project(args.download, args.auth)
+    if args.search:
+        search_project(args.search)
+    if args.create:
+        create_project(args.create)
