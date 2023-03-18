@@ -7,8 +7,8 @@ import sys
 import time
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
 import sys
-# sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
-sys.path.append(f"path/to/pyrinth/src") # Testing - Other OS's
+sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
+# sys.path.append(f"path/to/pyrinth/src") # Testing - Other OS's
 from pyrinth import *
 # -------------------
 
@@ -312,8 +312,8 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group()
 
     group.add_argument('-d',  '--download', metavar="Project ID", help="Download a project")
-    group.add_argument('-p', '--publish', metavar="Authorization Token", help="Specify an authorizaton token to use")
-    group.add_argument('-pv', '--publish-version', metavar="Authorization Token", help="Specify an authorizaton token to use")
+    group.add_argument('-p', '--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
+    group.add_argument('-pv', '--publish-version', metavar="Datapack Folder Name", help="Create a project version on Modrinth")
     group.add_argument('-s',  '--search', metavar="Search Query", help="Search for a project")
     group.add_argument('-c',  '--create', metavar="Datapack Namespace", help="Create a datapack")
     parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
