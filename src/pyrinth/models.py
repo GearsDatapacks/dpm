@@ -1,6 +1,7 @@
+from pyrinth.modrinth import Modrinth
 from pyrinth.projects import *
 from pyrinth.util import *
-import json
+import json, re
 
 
 class ProjectModel:
@@ -41,10 +42,11 @@ class ProjectModel:
 
     # Returns ProjectModel
     def from_json(json: dict) -> object:
+        
         result = ProjectModel(
             json['slug'], json['title'], json['description'],
             json['categories'], json['client_side'], json['server_side'],
-            json['body'], json['license'], json['project_type'],
+            json['body'], json['license']['id'], json['project_type'],
             json['additional_categories'], json['issues_url'], json['source_url'],
             json['wiki_url'], json['discord_url'], json['donation_urls'],
             json['license']['url']
@@ -162,40 +164,36 @@ class SearchResultModel:
     #     result = remove_null_values(result)
     #     return result
 
-    def to_bytes(self):
-        return json.dumps(self.to_json()).encode()
+    # def to_bytes(self):
+    #     return json.dumps(self.to_json()).encode()
 
 
 class VersionModel:
     def __init__(
-        self, name: str, version_number: str,
-        game_versions: list[str],
-        version_type: str, loaders, featured, id, project_id, author_id, date_published, downloads, files, changelog, dependencies, status, requested_status
+        self, name: str, version_number: str, dependencies: list[dict], game_versions: list[str], version_type: str, loaders: list[str], featured: bool, file_parts: list[str], changelog:str=None, status:str=None, requested_status:str=None
     ) -> None:
         self.name = name
         self.version_number = version_number
+        self.changelog = changelog
+
+        self.dependencies = dependencies
+
         self.game_versions = game_versions
         self.version_type = version_type
         self.loaders = loaders
         self.featured = featured
-        self.id = id
-        self.project_id = project_id
-        self.author_id = author_id
-        self.date_published = date_published
-        self.downloads = downloads
-        self.files = [Project.File(file['hashes'], file['url'], file['filename'], file['primary'], file['size'], file['file_type']) for file in files]
-        self.changelog = changelog
-        self.dependencies = dependencies
         self.status = status
         self.requested_status = requested_status
-
+        self.files = file_parts
+        self.project_id = None
+        self.id = None
+        self.author_id = None
+        self.date_published = None
+        self.downloads = None
+    
     def from_json(json: dict) -> object:
-        primary_files = []
-        for primary_files_ in json['files']:
-            if primary_files_['primary']:
-                primary_files.append(primary_files_)
         result = VersionModel(
-            json['name'],json['version_number'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['id'],json['project_id'],json['author_id'],json['date_published'],json['downloads'],json['files'],json['changelog'],json['dependencies'],json['status'],json['requested_status']
+            json['name'],json['version_number'],json['dependencies'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['files'],json['changelog'],json['status'],json['requested_status']
         )
         return result
 
@@ -203,20 +201,20 @@ class VersionModel:
         result = {
             'name': self.name,
             'version_number': self.version_number,
+            'changelog': self.changelog,
+            'dependencies': self.dependencies,
             'game_versions': self.game_versions,
             'version_type': self.version_type,
             'loaders': self.loaders,
             'featured': self.featured,
-            'id': self.id,
+            'status': self.status,
+            'requested_status': self.requested_status,
+            'file_parts': self.files,
             'project_id': self.project_id,
+            'id': self.id,
             'author_id': self.author_id,
             'date_published': self.date_published,
-            'downloads': self.downloads,
-            'files': self.files,
-            'changelog': self.changelog,
-            'dependencies': self.dependencies,
-            'status': self.status,
-            'requested_status': self.requested_status
+            'downloads': self.downloads
         }
         result = remove_null_values(result)
         return result
@@ -264,6 +262,40 @@ class UserModel:
             'payout_data': self.payout_data,
             'github_id': self.github_id,
             'badges': self.badges
+        }
+        result = remove_null_values(result)
+        return result
+
+    def to_bytes(self) -> bytes:
+        return json.dumps(self.to_json()).encode()
+
+class Dependency:
+    def __init__(self, project_slug, type, version: str = '', operator: str = ''):
+        self.version_id = None
+        self.project_id = Modrinth.get_project(project_slug).project_model.id
+        self.project_slug = project_slug
+        self.version = version
+        self.operator = operator
+        self.file_name = None
+        self.dependency_type = type
+
+    def __repr__(self) -> str:
+        return f"Dependency: {self.project_slug}"
+
+    # Returns DependencyModel
+    def from_json(json):
+        result = Dependency(
+            json['version_id'], json['project_id'],
+            json['file_name'], json['dependency_type']
+        )
+        return result
+
+    def to_json(self) -> dict:
+        result = {
+            'version_id': self.version_id,
+            'project_id': self.project_id,
+            'file_name': self.file_name,
+            'dependency_type': self.dependency_type
         }
         result = remove_null_values(result)
         return result

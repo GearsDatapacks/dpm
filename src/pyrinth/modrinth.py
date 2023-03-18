@@ -18,10 +18,10 @@ class Modrinth:
             }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request")
             return None
         response = json.loads(raw_response.content)
-        return Project(response)
+        return Project(response, auth)
 
     # Returns list[Project]
     @staticmethod

@@ -4,11 +4,12 @@ from pyrinth.util import remove_null_values, json_to_query_params
 
 
 class Project:
-    def __init__(self, project_model) -> None:
+    def __init__(self, project_model, auth: str = '') -> None:
         from pyrinth.models import ProjectModel
         if type(project_model) == dict:
             project_model = ProjectModel.from_json(project_model)
         self.project_model = project_model
+        self.auth = auth
 
     def __repr__(self) -> str:
         return f"Project: {self.project_model.title}"
@@ -32,6 +33,9 @@ class Project:
         if versions:
             return versions[-1]
         return None
+    
+    def get_id(self):
+        return self.project_model.id
 
     def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
         filters = {
@@ -42,12 +46,18 @@ class Project:
         filters = remove_null_values(filters)
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/version',
-            params=json_to_query_params(filters)
+            params=json_to_query_params(filters),
+            headers={
+                'authorization': self.auth
+            }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request")
             return None
         response = json.loads(raw_response.content)
+        if response == []:
+            print("Project has no versions")
+            return None
         return [self.Version(version) for version in response]
 
     def get_version(id: str) -> object:
@@ -60,12 +70,14 @@ class Project:
         response = json.loads(raw_response.content)
         return Project.Version(response)
 
-    def create_version(self, auth: str, version_model):
+    def create_version(self, auth: str, version_model: object):
         version_model.project_id = self.project_model.id
         files = {
             "data": version_model.to_bytes()
         }
-        for file in version_model.file_parts:
+        # key = name
+        # value = path
+        for file in version_model.files:
             files.update({file: open(file, "rb").read()})
         raw_response = r.post(
             f'https://api.modrinth.com/v2/version',
@@ -77,6 +89,7 @@ class Project:
         if not raw_response.ok:
             print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
             return None
+        return 1
 
     def change_icon(self, file_path: str, auth: str) -> None:
         raw_response = r.patch(
@@ -230,10 +243,9 @@ class Project:
             }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request")
             return None
         response = json.loads(raw_response.content)
-        from pyrinth.projects import Project
         return [Project(dependency) for dependency in response['projects']]
 
     class Version:
@@ -244,8 +256,14 @@ class Project:
                 self.version_model = version_model
             self.version_model = version_model
 
+        def get_dependencies(self):
+            return self.version_model.dependencies
+        
         def get_files(self):
-            return self.version_model.files
+            result = []
+            for file in self.version_model.files:
+                result.append(Project.File.from_json(file))
+            return result
 
         def __repr__(self) -> str:
             return f"Version: {self.version_model.name}"
@@ -276,6 +294,17 @@ class Project:
             self.size = size
             self.file_type = file_type
             self.extension = filename.split('.')[-1]
+
+        def from_json(json):
+            result = Project.File(
+                json['hashes'],
+                json['url'],
+                json['filename'],
+                json['primary'],
+                json['size'],
+                json['file_type']
+            )
+            return result
 
         def __repr__(self) -> str:
             return f"File: {self.filename}"
