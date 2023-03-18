@@ -46,6 +46,12 @@ class User:
                 'authorization': self.auth
             }
         )
+        if raw_response.status_code == 401:
+            print("No authorization to get this user's followed projects")
+            return None
+        elif raw_response.status_code == 404:
+            print("The requested user was not found")
+            return None
 
         followed_projects = []
         projects = json.loads(raw_response.content)
@@ -62,14 +68,22 @@ class User:
                 'authorization': self.auth
             }
         )
+        if raw_response.status_code == 401:
+            print("No authorization to get this user's notifications")
+            return None
+        elif raw_response.status_code == 404:
+            print("The requested user was not found")
+            return None
         response = json.loads(raw_response.content)
         return [User.Notification(notification) for notification in response]
 
     def get_amount_of_projects(self) -> int:
-        return len(self.get_projects())
-
+        projs = self.get_projects()
+        if not projs:
+            return 0
+        return projs
     def create_project(self, project_model, icon: str = '') -> None:
-        raw_res = r.post(
+        raw_response = r.post(
             'https://api.modrinth.com/v2/project',
             files={
                 "data": project_model.to_bytes()
@@ -78,31 +92,51 @@ class User:
                 'Authorization': self.auth
             }
         )
-        print(raw_res.content)
+        if raw_response.status_code == 400:
+            print("Invalid request")
+            return None
+        elif raw_response.status_code == 401:
+            print("No authorization to create a project")
+            return None
 
     # Returns list[Project]
     def get_projects(self) -> list[object]:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{self.id}/projects'
         )
+        if raw_response.status_code == 404:
+            print("The requested user was not found")
+            return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
 
     def follow_project(self, id: str) -> None:
-        r.post(
+        raw_response = r.post(
             f'https://api.modrinth.com/v2/project/{id}/follow',
             headers={
                 'authorization': self.auth
             }
         )
+        if raw_response.status_code == 400:
+            print("You are already following the specified project or the requested project was not found")
+            return None
+        elif raw_response.status_code == 401:
+            print("No authorization to follow a project")
+            return None
 
     def unfollow_project(self, id: str) -> None:
-        r.delete(
+        raw_response = r.delete(
             f'https://api.modrinth.com/v2/project/{id}/follow',
             headers={
                 'authorization': self.auth
             }
         )
+        if raw_response.status_code == 400:
+            print("You are not following the specified project or the requested project was not found")
+            return None
+        elif raw_response.status_code == 401:
+            print("No authorization to unfollow a project")
+            return None
 
     # Returns User
     @staticmethod
@@ -113,6 +147,9 @@ class User:
                 'authorization': auth
             }
         )
+        if raw_response.status_code == 401:
+            print("No authorization token given")
+            return None
         response = json.loads(raw_response.content)
         return User(response['username'], auth, ignore_warning=True)
 
@@ -122,6 +159,9 @@ class User:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/user/{id}'
         )
+        if raw_response.status_code == 404:
+            print("The requested user was not found")
+            return None
         response = json.loads(raw_response.content)
         return User(response['username'], ignore_warning=True)
 
