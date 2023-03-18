@@ -56,7 +56,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (get_versions)")
+            print(f"Invalid Request : {raw_response.content} (get_versions)")
             return None
         
         response = json.loads(raw_response.content)
@@ -72,7 +72,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (get_version): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (get_version)")
             return None
         
         response = json.loads(raw_response.content)
@@ -99,7 +99,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (create_version): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (create_version)")
             return None
         
         return 1
@@ -120,7 +120,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (change_icon): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (change_icon)")
             return None
         
         return 1
@@ -134,7 +134,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (delete_icon): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (delete_icon)")
             return None
         
         return 1
@@ -156,7 +156,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (add_gallery_image): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (add_gallery_image)")
             return None
         
         return 1
@@ -178,7 +178,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (delete_gallery_image): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (delete_gallery_image)")
             return None
         
         return 1
@@ -229,7 +229,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (modify): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (modify)")
             return None
         
         return 1
@@ -256,7 +256,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (modify_gallery_image): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (modify_gallery_image)")
             return None
         
         return 1
@@ -270,7 +270,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (delete): {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content} (delete)")
             return None
         
         return 1
@@ -284,7 +284,7 @@ class Project:
         )
 
         if not raw_response.ok:
-            print(f"Invalid Request (get_dependencies)")
+            print(f"Invalid Request : {raw_response.content} (get_dependencies)")
             return None
         
         response = json.loads(raw_response.content)
