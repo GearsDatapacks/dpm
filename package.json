@@ -1,0 +1,10 @@
+{
+  "name": "dpm",
+  "version": "1.0.0",
+  "gameVersions": ["1.19.4","1.19.3"],
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}

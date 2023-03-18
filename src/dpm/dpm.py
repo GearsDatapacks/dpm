@@ -3,6 +3,8 @@ import shutil
 import webbrowser
 import requests as r
 import os
+import sys
+import time
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
 import sys
 # sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
@@ -46,7 +48,12 @@ def download_file(file, folder_path, longest_file_name):
     progress = 0
 
     # Open a file for writing in binary mode
-    with open(file_path, 'wb') as f:
+    if not os.path.exists('../../downloaded'):
+      os.mkdir('../../downloaded')
+
+
+    with open(f"../../downloaded/{file.filename}", 'wb') as f:
+        start_time = time.perf_counter()
 
         # Iterate over the response data in chunks
         for data in response.iter_content(block_size):
@@ -68,11 +75,19 @@ def download_file(file, folder_path, longest_file_name):
             # moving the cursor back to the beginning of the line using '\r'
             filename = file.filename.ljust(longest_file_name, ' ')
             print(
-                f'Downloading: {filename} [{bar}] / {percent}',
+                f'Downloading {filename} [{bar}] / {percent}',
                 end='\r'
             )
-    # Print a newline character to move to the next line
-    print("\n", end='')
+
+    end_time = time.perf_counter()
+    time_taken = '{:.2f}'.format(end_time - start_time)
+
+    print(
+      f'Downloading {filename} [{bar}] / Done in {time_taken}s',
+      end='\r'
+    )
+
+    print(f"\n", end='')
 
 
 def download_project(project_id, auth=''):
@@ -114,7 +129,12 @@ def download_project(project_id, auth=''):
             longest_file_name = len(file.filename)
 
     for file in downloading_files:
-        download_file(file, remove_file_extension(main_file.filename), longest_file_name)
+        if file.filename not in os.listdir():
+            download_file(file, longest_file_name)
+        else:
+            print(
+                f"{file.filename.ljust('../../downloaded/{longest_file_name}', ' ')} already downloaded... skipping"
+            )
 
     option = input("Would you like to open the projects modrinth page (y/n)? ")
     if 'y' in option:

@@ -21,3 +21,7 @@ private*/
 
 # Any folder that ends with 'egg-info'
 **/*.egg-info
+
+# Test stuff
+package.json
+PRIVATE/
