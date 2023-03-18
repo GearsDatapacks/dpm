@@ -98,6 +98,8 @@ class User:
         elif raw_response.status_code == 401:
             print("No authorization to create a project")
             return None
+        else:
+            return 0
 
     # Returns list[Project]
     def get_projects(self) -> list[object]:
