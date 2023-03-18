@@ -22,8 +22,5 @@ def json_to_query_params(json_: dict) -> str:
         result += f'{key}={json.dumps(value)}&'
     return result
 
-def file_parser(files):
-    result = {}
-    for file in files:
-        result.update({file.split('/')[-1]: file})
-    return result
+def remove_file_path(file):
+    return ''.join(file.split('/')[-1])

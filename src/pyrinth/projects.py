@@ -1,6 +1,6 @@
 import requests as r
 import json
-from pyrinth.util import remove_null_values, json_to_query_params
+from pyrinth.util import remove_file_path, remove_null_values, json_to_query_params
 
 
 class Project:
@@ -18,6 +18,7 @@ class Project:
         versions = self.get_versions(loaders, game_versions, featured)
         if versions:
             return versions[0]
+        
         return None
 
     def get_specific_version(self, schematic_versioning):
@@ -32,6 +33,7 @@ class Project:
         versions = self.get_versions(loaders, game_versions, featured)
         if versions:
             return versions[-1]
+        
         return None
     
     def get_id(self):
@@ -43,6 +45,7 @@ class Project:
             'game_versions': game_versions,
             'featured': featured
         }
+
         filters = remove_null_values(filters)
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/version',
@@ -51,34 +54,42 @@ class Project:
                 'authorization': self.auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request")
+            print(f"Invalid Request (get_versions)")
             return None
+        
         response = json.loads(raw_response.content)
         if response == []:
             print("Project has no versions")
             return None
+        
         return [self.Version(version) for version in response]
 
     def get_version(id: str) -> object:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/version/{id}'
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (get_version): {json.loads(raw_response.content)['description']}")
             return None
+        
         response = json.loads(raw_response.content)
         return Project.Version(response)
 
     def create_version(self, auth: str, version_model: object):
         version_model.project_id = self.project_model.id
+
         files = {
             "data": version_model.to_bytes()
         }
+
         # key = name
         # value = path
         for file in version_model.files:
-            files.update({file: open(file, "rb").read()})
+            files.update({remove_file_path(file): open(file, "rb").read()})
+
         raw_response = r.post(
             f'https://api.modrinth.com/v2/version',
             headers={
@@ -86,25 +97,33 @@ class Project:
             },
             files=files
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (create_version): {json.loads(raw_response.content)['description']}")
             return None
+        
         return 1
 
     def change_icon(self, file_path: str, auth: str) -> None:
         raw_response = r.patch(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/icon',
+            
             params={
                 "ext": file_path.split(".")[-1]
             },
+
             headers={
                 "authorization": auth
             },
+
             data=open(file_path, "rb")
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (change_icon): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def delete_icon(self, auth: str):
         raw_response = r.delete(
@@ -113,9 +132,12 @@ class Project:
                 "authorization": auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (delete_icon): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def add_gallery_image(self, auth: str, image):
         raw_response = r.post(
@@ -132,15 +154,19 @@ class Project:
             },
             data=open(image.file_path, "rb")
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (add_gallery_image): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def delete_gallery_image(self, url: str, auth: str):
         if '-raw' in url:
             raise Exception(
                 "Please use cdn.modrinth.com instead of cdn-raw.modrinth.com"
             )
+        
         raw_response = r.delete(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             headers={
@@ -150,22 +176,22 @@ class Project:
                 "url": url
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (delete_gallery_image): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def exists(self) -> bool:
         raw_response = r.get(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/check'
         )
-        if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
-            return None
+
         response = json.loads(raw_response.content)
         return (True if response['id'] else False)
 
     def modify(self, auth, slug=None, title=None, description=None, categories=None, client_side=None, server_side=None, body=None, additional_categories=None, issues_url=None, source_url=None, wiki_url=None, discord_url=None, donation_urls=None, license_id=None, license_url=None, status=None, requested_status=None, moderation_message=None, moderation_message_body=None):
-
         modified_json = {
             'slug': slug,
             'title': title,
@@ -187,9 +213,12 @@ class Project:
             'moderation_message': moderation_message,
             'moderation_message_body': moderation_message_body
         }
+
         modified_json = remove_null_values(modified_json)
+
         if not modified_json:
             raise Exception("Please specify at least 1 optional argument.")
+        
         raw_response = r.patch(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}',
             data=json.dumps(modified_json),
@@ -198,9 +227,12 @@ class Project:
                 'authorization': auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (modify): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def modify_gallery_image(self, auth, url, featured=None, title=None, description=None, ordering=None):
         modified_json = {
@@ -210,9 +242,11 @@ class Project:
             'description': description,
             'ordering': ordering
         }
+
         modified_json = remove_null_values(modified_json)
         if not modified_json:
             raise Exception("Please specify at least 1 optional argument.")
+        
         raw_response = r.patch(
             f'https://api.modrinth.com/v2/project/{self.project_model.slug}/gallery',
             params=modified_json,
@@ -220,9 +254,12 @@ class Project:
                 'authorization': auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (modify_gallery_image): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def delete(self, auth: str) -> None:
         raw_response = r.delete(
@@ -231,9 +268,12 @@ class Project:
                 'authorization': auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request (delete): {json.loads(raw_response.content)['description']}")
             return None
+        
+        return 1
 
     def get_dependencies(self, auth: str = ''):
         raw_response = r.get(
@@ -242,9 +282,11 @@ class Project:
                 'authorization': auth
             }
         )
+
         if not raw_response.ok:
-            print(f"Invalid Request")
+            print(f"Invalid Request (get_dependencies)")
             return None
+        
         response = json.loads(raw_response.content)
         return [Project(dependency) for dependency in response['projects']]
 
