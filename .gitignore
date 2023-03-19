@@ -11,7 +11,7 @@ imgs/
 dist/
 
 # Any folder in the src/dpm directory
-src/dpm/*
+src/dpm/*/
 
 # Any folder that starts with 'private'
 private*/
