@@ -32,10 +32,12 @@ class ProjectModel:
         self.source_url = source_url
         self.wiki_url = wiki_url
         self.discord_url = discord_url
-        self.donation_urls = []
+        self.donation_urls = None
         if donation_urls:
+            self.donation_urls = []
             for donation_url in donation_urls:
-                donation_urls.append(Project.Donation(donation_url['id'], donation_url['platform'], donation_url['url']))
+                self.donation_urls.append(Project.Donation.from_json(donation_url))
+                ...
         self.license_url = license_url
         self.id = None
         self.downloads = None

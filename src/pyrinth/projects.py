@@ -376,6 +376,7 @@ class Project:
             self.url = url
 
         def from_json(json):
+            print('JSON: ' + str(json))
             result = Project.Donation(
                 json['id'],
                 json['platform'],
