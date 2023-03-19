@@ -1,3 +1,4 @@
+import re
 
 def to_sentence_case(sentence):
     return sentence.title().replace('-', ' ').replace('_', ' ')
@@ -27,3 +28,6 @@ def json_to_dependencies(json):
         result.append(dep)
 
     return result
+
+def to_slug(str: str):
+    return str.lower().replace(' ', '-')

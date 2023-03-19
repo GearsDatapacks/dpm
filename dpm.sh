@@ -1,27 +1,41 @@
 #! /usr/bin/bash
 
+ARGS=""
+
+function map () {
+  for ARG in "$@"
+  do
+    case "$ARG" in
+      [iI] | [iI][nN][sS][tT][aA][lL][lL])
+        ARGS="$ARGS --install"
+      ;;
+      
+      [pP][uU][bB][lL][iI][sS][hH])
+        ARGS="$ARGS --publish"
+      ;;
+      *)
+        ARGS="$ARGS $ARG"
+      ;;
+    esac
+  done
+}
+
 BASE_DIR=$(pwd)
 
-cd ~/.local/share/dpm/dpm
+#cd ~/.local/share/dpm/dpm
+cd ~/Desktop/learnweb/python/dpm
 
 DIR=$(pwd)
 
-function installDP() {
-  cd src/dpm
-  python dpm.py --download "$1"
+cd src/dpm
 
-  for FILE in $(ls "$DIR/downloaded")
-  do
-    mv "$DIR/downloaded/$FILE" "$BASE_DIR/$FILE"
-  done
+map "$@"
 
-  rm -rf "$DIR/downloaded"
-}
+python dpm.py "$ARGS"
 
-if [ "$1" == "install" ]
-then
-  installDP "$2"
-else
-  echo "Error: unknown option \"$1\""
-  exit 1
-fi
+for FILE in $(ls "$DIR/downloaded")
+do
+  mv "$DIR/downloaded/$FILE" "$BASE_DIR/$FILE"
+done
+
+rm -rf "$DIR/downloaded"

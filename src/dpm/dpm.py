@@ -8,23 +8,23 @@ import time
 from util import *
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
 import sys
-sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
-# sys.path.append(f"path/to/pyrinth/src") # Testing - Other OS's
+# sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
+sys.path.append(f"../") # Testing - Other OS's
 from pyrinth import *
 # -------------------
 
 
-def download_file(file, folder_name, longest_file_name):
+def download_file(file, longest_file_name):
 
     # Create the full file path by joining the folder path and file name
-    folder_path = folder_name + '/' + file.filename
+    path = f"../../downloaded/{file.filename}"
 
     # Check if the project folder exists
-    if not os.path.exists(folder_name):
+    if not os.path.exists("../../downloaded/"):
         # If it doesn't exist, create it
-        os.mkdir(folder_name)
+        os.mkdir("../../downloaded/")
     # If the download was skipped
-    if os.path.exists(folder_path):
+    if os.path.exists(path):
         print(
             f"{file.filename.ljust(longest_file_name, ' ')} already downloaded... skipping"
         )
@@ -43,7 +43,7 @@ def download_file(file, folder_name, longest_file_name):
     # Keep track of how much data has been downloaded
     progress = 0
 
-    with open(folder_path, 'wb') as f:
+    with open(path, 'wb') as f:
         start_time = time.perf_counter()
 
         # Iterate over the response data in chunks
@@ -102,8 +102,6 @@ def download_project(project_id, auth=''):
     
     project_files = latest.get_files()
     
-    folder_name = remove_file_extension(project_files[0].filename)
-    
     # Get the dependencies of the project
     dependencies = project.get_dependencies()
     
@@ -133,7 +131,7 @@ def download_project(project_id, auth=''):
     downloaded_files = len(downloading_files)
 
     for file in downloading_files:
-        result = download_file(file, folder_name, longest_file_name)
+        result = download_file(file, longest_file_name)
         total_time_taken += result[0]
         skips += result[1]
         downloaded_files -= result[1]
@@ -142,8 +140,8 @@ def download_project(project_id, auth=''):
         print(f"{downloaded_files} file(s) downloaded in {total_time_taken:.2f}s")
     else:
         print("Download no extra files")
-    option = input("Would you like to open the projects modrinth page (y/n)? ")
-    if 'y' in option:
+    option = input("Would you like to open the projects modrinth page (y/N)? ").lower()
+    if option == "y" or option == "yes":
         webbrowser.open(
             f"https://modrinth.com/datapack/{project.project_model.id}"
         )
@@ -244,17 +242,15 @@ def search_project(query):
     download_project(project.project_model.id)
 
 
-def publish_project(folder_name, auth):
-    if not os.path.exists(folder_name):
-        print(f"Could not find '{folder_name}' in the current directory")
+def publish_project(auth):
+    if not os.path.exists(f"project.json"):
+        print(f"Could not find project.json. Please initialise a project to publish")
         return
 
-    if not os.path.exists(f"{folder_name}/project.json"):
-        print(f"Could not find 'project.json' in project '{folder_name}'")
-        return
-
-    project = json.loads(open(f"{folder_name}/project.json", "r").read())
-    slug = project['namespace']
+    with open("project.json", "r") as f:
+        project = f.read()
+    
+    slug = project['namespace'] or to_slug(project['name'])
     title = project['name']
     description = project['description']
     categories = project['categories']
@@ -266,7 +262,7 @@ def publish_project(folder_name, auth):
     project = user.create_project(ProjectModel(
         slug, title, description, categories,
         'optional', 'required', '',
-        'LicenseRef-Unknown', 'mod'
+        'LicenseRef-Unknown', 'datapack'
     ))
     if project:
         print(f"Successfully published project '{title}'")
@@ -311,36 +307,29 @@ def publish_version(folder_name, auth):
 
 
 if __name__ == "__main__":
+    if (sys.argv[1].startswith(' ')):
+        sys.argv[1] = sys.argv[1][1:]
+
+    args = sys.argv[1].split(' ')
+    args.insert(0, sys.argv[0])
+    sys.argv = args
+
     parser = ArgumentParser()
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument('-d',  '--download', metavar="Project ID", help="Download a project", action='append', nargs='+')
-    group.add_argument('-p', '--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
-    group.add_argument('-pv', '--publish-version', metavar="Datapack Folder Name", help="Create a project version on Modrinth")
-    group.add_argument('-s',  '--search', metavar="Search Query", help="Search for a project")
-    group.add_argument('-c',  '--create', metavar="Datapack Namespace", help="Create a datapack", action='append', nargs='+')
+    group.add_argument('-i',  '--install', metavar="Project ID", help="Install a project", action='append', nargs='+')
+    group.add_argument('--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
     parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
 
     args = parser.parse_args()
 
-    if args.download:
-        for download_args in args.download:
+    if args.install:
+        for download_args in args.install:
             for project in download_args:
                 download_project(project, args.auth)
-    if args.search:
-        search_project(args.search)
-    if args.create:
-        for create_args in args.create:
-            for project in create_args:
-                create_project(project)
     if args.publish:
         if args.auth:
-            publish_project(args.publish, args.auth)
+            publish_project(args.auth)
         else:
             print("Please specify --auth to publish a project")
-    if args.publish_version:
-        if args.auth:
-            publish_version(args.publish_version, args.auth)
-        else:
-            print("Please specify --auth to publish a version")

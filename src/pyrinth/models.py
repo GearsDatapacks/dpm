@@ -1,4 +1,3 @@
-from pyrinth.modrinth import Modrinth
 from pyrinth.projects import *
 from pyrinth.util import *
 import json, re
@@ -190,8 +189,6 @@ class VersionModel:
         self.featured = featured
         self.author_id = author_id
         self.files = files
-        for i in range(len(self.files)):
-            self.files[i] = ''.join(self.files[i].split('/')[1])
         self.changelog = changelog
         self.dependencies = dependencies
         self.requested_status = requested_status
@@ -203,7 +200,7 @@ class VersionModel:
 
     def from_json(json: dict) -> object:
         result = VersionModel(
-            json['name'],json['version_number'],json['dependencies'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['files'],json['changelog'],json['status'],json['requested_status']
+            json['name'],json['version_number'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['files'],'',json['changelog'],json['dependencies'],json['requested_status']
         )
         return result
 
@@ -276,40 +273,6 @@ class UserModel:
             'payout_data': self.payout_data,
             'github_id': self.github_id,
             'badges': self.badges
-        }
-        result = remove_null_values(result)
-        return result
-
-    def to_bytes(self) -> bytes:
-        return json.dumps(self.to_json()).encode()
-
-class Dependency:
-    def __init__(self, project_slug, type, version: str = '', operator: str = ''):
-        self.version_id = None
-        self.project_id = Modrinth.get_project(project_slug).project_model.id
-        self.project_slug = project_slug
-        self.version = version
-        self.operator = operator
-        self.file_name = None
-        self.dependency_type = type
-
-    def __repr__(self) -> str:
-        return f"Dependency: {self.project_slug}"
-
-    # Returns DependencyModel
-    def from_json(json):
-        result = Dependency(
-            json['version_id'], json['project_id'],
-            json['file_name'], json['dependency_type']
-        )
-        return result
-
-    def to_json(self) -> dict:
-        result = {
-            'version_id': self.version_id,
-            'project_id': self.project_id,
-            'file_name': self.file_name,
-            'dependency_type': self.dependency_type
         }
         result = remove_null_values(result)
         return result
