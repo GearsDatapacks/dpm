@@ -1,4 +1,4 @@
-import json
+
 
 
 def remove_null_values(json: dict) -> dict:
@@ -17,7 +17,29 @@ def to_image_from_json(json: dict) -> list[object]:
 
 
 def json_to_query_params(json_: dict) -> str:
+    import json
     result = ''
     for key, value in json_.items():
         result += f'{key}={json.dumps(value)}&'
+    return result
+
+def remove_file_path(file):
+    return ''.join(file.split('/')[-1])
+
+def json_to_dependencies(json):
+    from pyrinth.modrinth import Modrinth
+    result = []
+
+    for name, dep_type in json.items():
+        project = Modrinth.get_project(name)
+        if not project:
+            print(f"Dependency '{name}' not found")
+            return None
+        project_id = project.get_id()
+        dep = {
+            "project_id": project_id,
+            "dependency_type": dep_type
+        }
+        result.append(dep)
+
     return result

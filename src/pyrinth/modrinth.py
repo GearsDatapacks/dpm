@@ -31,10 +31,10 @@ class Modrinth:
             }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content}")
             return None
         response = json.loads(raw_response.content)
-        return Project(response)
+        return Project(response, auth)
 
     # Returns list[Project]
     @staticmethod
@@ -59,7 +59,7 @@ class Modrinth:
             f'https://api.modrinth.com/v2/version/{id}'
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content}")
             return None
         response = json.loads(raw_response.content)
         return Project.Version(response)
@@ -73,7 +73,7 @@ class Modrinth:
             }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content}")
             return None
         response = json.loads(raw_response.content)
         return [Project(project) for project in response]
@@ -111,7 +111,7 @@ class Modrinth:
             params=params
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {json.loads(raw_response.content)['description']}")
+            print(f"Invalid Request: {raw_response.content}")
             return None
         response = json.loads(raw_response.content)
         return [Modrinth.SearchResult(project) for project in response['hits']]
