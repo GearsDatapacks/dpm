@@ -1,6 +1,6 @@
 import requests as r
 import json
-from pyrinth.util import remove_file_path, remove_null_values, json_to_query_params
+from pyrinth.util import remove_file_path, remove_null_values, json_to_query_params, to_sentence_case
 
 
 class Project:
@@ -39,6 +39,12 @@ class Project:
     
     def get_id(self):
         return self.project_model.id
+    
+    def get_slug(self):
+        return self.project_model.slug
+    
+    def get_name(self):
+        return to_sentence_case(self.project_model.slug)
 
     def get_versions(self, loaders=None, game_versions=None, featured=None) -> list:
         filters = {
@@ -377,7 +383,6 @@ class Project:
             self.url = url
 
         def from_json(json):
-            print('JSON: ' + str(json))
             result = Project.Donation(
                 json['id'],
                 json['platform'],
