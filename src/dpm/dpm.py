@@ -130,7 +130,7 @@ def download_project(project_id, auth=''):
 
     for file in downloading_files:
         if file.filename not in os.listdir():
-            download_file(file, longest_file_name)
+            download_file(file, main_file.filename, longest_file_name)
         else:
             print(
                 f"{file.filename.ljust('../../downloaded/{longest_file_name}', ' ')} already downloaded... skipping"
