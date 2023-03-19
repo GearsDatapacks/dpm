@@ -256,13 +256,21 @@ def publish_project(dir, auth):
     user = User(
         get_user.username, auth
     )
-    project = user.create_project(ProjectModel(
-        slug, title, description, categories,
-        'optional', 'required', '',
-        license, 'mod'
-    ))
-    if project:
-        print(f"Successfully published project '{title}'")
+
+    modrinth_project: Project = Modrinth.get_project(slug, auth)
+
+    if modrinth_project:
+      modrinth_project.modify(auth=auth, title=title, description=description, categories=categories, client_side='optional', server_side='required', license_id=license)
+    
+    else:
+      project = user.create_project(ProjectModel(
+          slug, title, description, categories,
+          'optional', 'required', '',
+          license, 'mod'
+      ))
+      if project:
+          print(f"Successfully published project '{title}'")
+        
 
 def publish_version(folder_name, auth):
     from util import json_to_dependencies

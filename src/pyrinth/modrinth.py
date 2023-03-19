@@ -31,7 +31,6 @@ class Modrinth:
             }
         )
         if not raw_response.ok:
-            print(f"Invalid Request: {raw_response.content}")
             return None
         response = json.loads(raw_response.content)
         return Project(response, auth)
