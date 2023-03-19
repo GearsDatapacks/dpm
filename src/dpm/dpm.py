@@ -186,16 +186,13 @@ def to_project_json(name, namespace, description):
 
 
 def create_project(namespace):
-    namespace = namespace.lower()
-    if ' ' in namespace:
-        print("Namespace cannot contain spaces")
-        return
+    namespace = to_namespace(namespace)
     name = to_sentence_case(namespace)
-    description = input("Enter the description of the datapack: ")
+    description = input(f"Enter the description of datapack '{name}': ")
     if len(description) < 3:
-        print("Warning! You will not be able to publish this datapack to modrinth if the description is under 3 characters!")
+        print(f"Warning! You will not be able to publish '{name}' to modrinth if the description is under 3 characters!")
     if name == '':
-        print("Name cannot be blank")
+        print("Datapack name cannot be blank")
         return
     tags_functions = f"{name}/data/minecraft/tags/functions"
     functions = f"{name}/data/{namespace}/functions"
@@ -318,21 +315,25 @@ if __name__ == "__main__":
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument('-d',  '--download', metavar="Project ID", help="Download a project")
+    group.add_argument('-d',  '--download', metavar="Project ID", help="Download a project", action='append', nargs='+')
     group.add_argument('-p', '--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
     group.add_argument('-pv', '--publish-version', metavar="Datapack Folder Name", help="Create a project version on Modrinth")
     group.add_argument('-s',  '--search', metavar="Search Query", help="Search for a project")
-    group.add_argument('-c',  '--create', metavar="Datapack Namespace", help="Create a datapack")
+    group.add_argument('-c',  '--create', metavar="Datapack Namespace", help="Create a datapack", action='append', nargs='+')
     parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
 
     args = parser.parse_args()
 
     if args.download:
-        download_project(args.download, args.auth)
+        for download_args in args.download:
+            for project in download_args:
+                download_project(project, args.auth)
     if args.search:
         search_project(args.search)
     if args.create:
-        create_project(args.create)
+        for create_args in args.create:
+            for project in create_args:
+                create_project(project)
     if args.publish:
         if args.auth:
             publish_project(args.publish, args.auth)

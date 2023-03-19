@@ -1,6 +1,11 @@
+
 def to_sentence_case(sentence):
     return sentence.title().replace('-', ' ').replace('_', ' ')
 
+def to_namespace(namespace):
+    namespace = to_sentence_case(namespace)
+    namespace = namespace.replace(' ', '-')
+    return namespace.lower()
 
 def remove_file_extension(file_name):
     return '.'.join(file_name.split('.')[:-1])
