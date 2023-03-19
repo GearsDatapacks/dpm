@@ -5,6 +5,7 @@ import requests as r
 import os
 import sys
 import time
+from util import *
 # TURN OFF YOUR FORMATTER, IT WILL PUT THIS IN THE WRONG ORDER AND IT WILL STOP WORKING!!!
 import sys
 sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
@@ -13,27 +14,21 @@ from pyrinth import *
 # -------------------
 
 
-def to_sentence_case(sentence):
-    return sentence.title().replace('-', ' ').replace('_', ' ')
+def download_file(file, folder_name, longest_file_name):
 
-
-def remove_file_extension(file_name):
-    return '.'.join(file_name.split('.')[:-1])
-
-
-def download_file(file, folder_path, longest_file_name):
     # Create the full file path by joining the folder path and file name
-    file_path = folder_path + '/' + file.filename
+    folder_path = folder_name + '/' + file.filename
 
-    # Check if the specified folder exists
-    if not os.path.exists(folder_path):
+    # Check if the project folder exists
+    if not os.path.exists(folder_name):
         # If it doesn't exist, create it
-        os.mkdir(folder_path)
-    else:
-        if os.path.exists(file_path):
-            print(
-                f"{file.filename.ljust(longest_file_name, ' ')} already exists... skipping")
-            return
+        os.mkdir(folder_name)
+    # If the download was skipped
+    if os.path.exists(folder_path):
+        print(
+            f"{file.filename.ljust(longest_file_name, ' ')} already downloaded... skipping"
+        )
+        return [0.0, 1]
 
     # Send a GET request to the specified file URL and stream the response
     response = r.get(file.url, stream=True)
@@ -44,15 +39,11 @@ def download_file(file, folder_path, longest_file_name):
     # Set the block size for reading data from the response
     block_size = 1024
 
-    # Initialize a variable to keep track of how much data has been downloaded
+
+    # Keep track of how much data has been downloaded
     progress = 0
 
-    # Open a file for writing in binary mode
-    if not os.path.exists('../../downloaded'):
-      os.mkdir('../../downloaded')
-
-
-    with open(f"../../downloaded/{file.filename}", 'wb') as f:
+    with open(folder_path, 'wb') as f:
         start_time = time.perf_counter()
 
         # Iterate over the response data in chunks
@@ -71,6 +62,7 @@ def download_file(file, folder_path, longest_file_name):
             bar_filled = '='*int(bar_length)
             bar_empty = ' '*(20-len(bar_filled))
             bar = bar_filled + bar_empty
+            
             # Print the progress bar and percentage on the same line,
             # moving the cursor back to the beginning of the line using '\r'
             filename = file.filename.ljust(longest_file_name, ' ')
@@ -89,31 +81,37 @@ def download_file(file, folder_path, longest_file_name):
 
     print(f"\n", end='')
 
+    return [float(time_taken), 0]
+
 
 def download_project(project_id, auth=''):
-    # Get information about the specified project from Modrinth
+    
     project = Modrinth.get_project(project_id, auth)
+    
     # If no project is found, print an error message and return None
     if not project:
         return None
-    print(f"Project '{to_sentence_case(project.project_model.title)}' found")
+    
+    print(f"Project '{to_sentence_case(project.get_slug())}' found")
 
     # Get the latest version of the project and its files
     latest = project.get_latest_version(loaders=["datapack"])
+
     if not latest:
         return None
+    
     project_files = latest.get_files()
-    main_file = project_files[0]
+    
+    folder_name = remove_file_extension(project_files[0].filename)
+    
     # Get the dependencies of the project
     dependencies = project.get_dependencies()
-    print(dependencies)
+    
     # Initialize an empty list to keep track of all files that need to be downloaded
     downloading_files = []
 
-    # If there are any files associated with the latest version of the project,
-    # add them to the downloading_files list
-    if project_files:
-        downloading_files.extend(project_files)
+    # Add the project files to the downloading_files list
+    downloading_files.extend(project_files)
 
     # If there are any dependencies, add their latest versions' files to the downloading_files list
     if dependencies:
@@ -122,24 +120,33 @@ def download_project(project_id, auth=''):
                 dependency.get_latest_version().get_files()
             )
 
-    # Calculate the length of the longest filename among all files that need to be downloaded
+    # Calculate the length of the longest filename among all files that need to be downloaded ( for padding )
     longest_file_name = -1
     for file in downloading_files:
         if len(file.filename) > longest_file_name:
             longest_file_name = len(file.filename)
 
-    for file in downloading_files:
-        if file.filename not in os.listdir():
-            download_file(file, main_file.filename, longest_file_name)
-        else:
-            print(
-                f"{file.filename.ljust('../../downloaded/{longest_file_name}', ' ')} already downloaded... skipping"
-            )
+    # Keep track of how much time has taken to download all files
+    # Keep track of how many files are skipped
+    total_time_taken = 0
+    skips = 0
+    downloaded_files = len(downloading_files)
 
+    for file in downloading_files:
+        result = download_file(file, folder_name, longest_file_name)
+        total_time_taken += result[0]
+        skips += result[1]
+        downloaded_files -= result[1]
+
+    if skips != len(downloading_files):
+        print(f"{downloaded_files} file(s) downloaded in {total_time_taken:.2f}s")
+    else:
+        print("Download no extra files")
     option = input("Would you like to open the projects modrinth page (y/n)? ")
     if 'y' in option:
         webbrowser.open(
-            f"https://modrinth.com/datapack/{project.project_model.id}")
+            f"https://modrinth.com/datapack/{project.project_model.id}"
+        )
 
 
 def to_tags_json(namespace, type):
