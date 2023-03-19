@@ -1,5 +1,5 @@
-
-
+def to_sentence_case(sentence):
+    return sentence.title().replace('-', ' ').replace('_', ' ')
 
 def remove_null_values(json: dict) -> dict:
     result = {}
