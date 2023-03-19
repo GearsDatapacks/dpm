@@ -14,15 +14,11 @@ from pyrinth import *
 # -------------------
 
 
-def download_file(file, longest_file_name):
+def download_file(file, dir, longest_file_name):
 
     # Create the full file path by joining the folder path and file name
-    path = f"../../downloaded/{file.filename}"
+    path = f"{dir}/{file.filename}"
 
-    # Check if the project folder exists
-    if not os.path.exists("../../downloaded/"):
-        # If it doesn't exist, create it
-        os.mkdir("../../downloaded/")
     # If the download was skipped
     if os.path.exists(path):
         print(
@@ -84,7 +80,7 @@ def download_file(file, longest_file_name):
     return [float(time_taken), 0]
 
 
-def download_project(project_id, auth=''):
+def download_project(project_id, dir, auth=''):
     
     project = Modrinth.get_project(project_id, auth)
     
@@ -131,7 +127,7 @@ def download_project(project_id, auth=''):
     downloaded_files = len(downloading_files)
 
     for file in downloading_files:
-        result = download_file(file, longest_file_name)
+        result = download_file(file, dir, longest_file_name)
         total_time_taken += result[0]
         skips += result[1]
         downloaded_files -= result[1]
@@ -242,18 +238,19 @@ def search_project(query):
     download_project(project.project_model.id)
 
 
-def publish_project(auth):
-    if not os.path.exists(f"project.json"):
+def publish_project(dir, auth):
+    if not os.path.exists(f"{dir}/project.json"):
         print(f"Could not find project.json. Please initialise a project to publish")
         return
 
-    with open("project.json", "r") as f:
-        project = f.read()
-    
+    with open(f"{dir}/project.json", "r") as f:
+        project = json.loads(f.read())
+
     slug = project['namespace'] or to_slug(project['name'])
     title = project['name']
     description = project['description']
     categories = project['categories']
+    license = project['license']
 
     get_user = User.from_auth(auth)
     user = User(
@@ -262,7 +259,7 @@ def publish_project(auth):
     project = user.create_project(ProjectModel(
         slug, title, description, categories,
         'optional', 'required', '',
-        'LicenseRef-Unknown', 'datapack'
+        license, 'mod'
     ))
     if project:
         print(f"Successfully published project '{title}'")
@@ -307,29 +304,23 @@ def publish_version(folder_name, auth):
 
 
 if __name__ == "__main__":
-    if (sys.argv[1].startswith(' ')):
-        sys.argv[1] = sys.argv[1][1:]
-
-    args = sys.argv[1].split(' ')
-    args.insert(0, sys.argv[0])
-    sys.argv = args
-
     parser = ArgumentParser()
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument('-i',  '--install', metavar="Project ID", help="Install a project", action='append', nargs='+')
+    group.add_argument('--install', metavar="Project ID", help="Install a project", action='append', nargs='+')
     group.add_argument('--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
     parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
+    parser.add_argument('--dir', metavar="Target Directory", help="Specify the target directory", default='')
 
     args = parser.parse_args()
 
     if args.install:
         for download_args in args.install:
             for project in download_args:
-                download_project(project, args.auth)
+                download_project(project, args.dir, args.auth)
     if args.publish:
         if args.auth:
-            publish_project(args.auth)
+            publish_project(args.dir, args.auth)
         else:
             print("Please specify --auth to publish a project")

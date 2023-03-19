@@ -20,22 +20,10 @@ function map () {
   done
 }
 
-BASE_DIR=$(pwd)
-
-#cd ~/.local/share/dpm/dpm
-cd ~/Desktop/learnweb/python/dpm
-
 DIR=$(pwd)
 
-cd src/dpm
+cd ~/.local/share/dpm/src/dpm
 
 map "$@"
 
-python dpm.py "$ARGS"
-
-for FILE in $(ls "$DIR/downloaded")
-do
-  mv "$DIR/downloaded/$FILE" "$BASE_DIR/$FILE"
-done
-
-rm -rf "$DIR/downloaded"
+python dpm.py $ARGS --dir "$DIR"
