@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from zipfile import ZipFile
 import shutil
 import webbrowser
 import requests as r
@@ -248,67 +249,97 @@ def publish_project(dir, auth):
 
     slug = project['namespace'] or to_slug(project['name'])
     title = project['name']
-    description = project['description']
+    description = project['summary']
+    body = project['description']
     categories = project['categories']
     license = project['license']
+    version_number = project['version']
+
+    modrinth_project: Project = Modrinth.get_project(slug, auth)
 
     get_user = User.from_auth(auth)
     user = User(
         get_user.username, auth
     )
 
-    modrinth_project: Project = Modrinth.get_project(slug, auth)
 
     if modrinth_project:
-      modrinth_project.modify(auth=auth, title=title, description=description, categories=categories, client_side='optional', server_side='required', license_id=license)
+      versions = modrinth_project.get_versions() or []
+
+      has_version = False
+
+      for version in versions:
+          if version.version_model.version_number == version_number:
+              has_version = True
+              break
+
+      modrinth_project.modify(auth=auth, title=title, description=description, body=body, categories=categories, client_side='optional', server_side='required', license_id=license)
+
+      if not has_version:
+        publish_version(project, dir, auth)
     
     else:
       project = user.create_project(ProjectModel(
           slug, title, description, categories,
-          'optional', 'required', '',
+          'optional', 'required', body,
           license, 'mod'
       ))
       if project:
           print(f"Successfully published project '{title}'")
         
 
-def publish_version(folder_name, auth):
+def publish_version(metadata, dir, auth):
     from util import json_to_dependencies
-    if not os.path.exists(folder_name):
-        print(f"Could not find '{folder_name}' in the current directory")
-        return
 
-    if not os.path.exists(f"{folder_name}/project.json"):
-        print(f"Could not find 'project.json' in project '{folder_name}'")
-        return
+    slug = metadata['namespace']
+    title = metadata['name']
+    version_number = metadata['version']
+    dependencies = metadata['dependencies']
+    game_versions = metadata['game_versions']
+    version_type = metadata['release_type']
 
-    project_json = json.loads(open(f"{folder_name}/project.json", "r").read())
+    version_title = f"{title}-v{version_number}"
 
-    slug = project_json['namespace']
-    title = project_json['name']
-    version_number = project_json['version']
-    dependencies = project_json['dependencies']
-    game_versions = project_json['game_versions']
-    version_type = project_json['release_type']
+    zip_path = f"{dir}/{version_title}.zip"
 
-    shutil.make_archive(f"{folder_name}", 'zip', folder_name)
+    files_to_zip = ["data", "pack.mcmeta"]
+
+    if os.path.exists(f"{dir}/pack.png"):
+          files_to_zip.append("pack.png")
+
+    for file in files_to_zip:
+        if os.path.isdir(f"{dir}/{file}"):
+          shutil.copytree(f"{dir}/{file}", file)
+        else:
+            shutil.copy(f"{dir}/{file}", file)
+        
+      
+    with ZipFile(zip_path, "w") as zip_file:
+        zip_file.write("data")
+        zip_file.write("pack.mcmeta")
+        if os.path.exists("pack.png"):
+          zip_file.write("pack.png")
+
+    for file in files_to_zip:
+        if os.path.isdir(file):
+          shutil.rmtree(file)
+        else:
+          os.remove(file)
 
     project = Modrinth.get_project(slug, auth)
 
     if not project:
-        print(f"Project '{title}' with namespace/project slug '{slug}' was not found")
+        print(f"Project '{title}' with slug '{slug}' was not found")
         return
     
     version = project.create_version(auth, VersionModel(
-        title, version_number, json_to_dependencies(dependencies),
-        game_versions, version_type, ['datapack'],
-        True, [f"{folder_name}.zip"]
+        name=version_title, version_number=version_number, dependencies=json_to_dependencies(dependencies),
+        game_versions=game_versions, release_type=version_type, loaders=['datapack'],
+        featured=True, files=[zip_path]
     ))
 
-    os.remove(f"{folder_name}.zip")
-
     if version:
-        print(f"Successfully created version '{title}'")
+        print(f"Successfully created version '{version_title}'")
 
 
 if __name__ == "__main__":

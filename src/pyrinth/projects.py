@@ -68,7 +68,7 @@ class Project:
         
         response = json.loads(raw_response.content)
         if response == []:
-            print("Project has no versions")
+            #print("Project has no versions")
             return None
         
         return [self.Version(version) for version in response]
