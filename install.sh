@@ -1,5 +1,5 @@
-cp ./dpm.sh /usr/bin/dpm
-chmod +x /usr/bin/dpm
-mkdir ~/.local/share/dpm
+mkdir -p ~/.local/share/dpm
 rm -rf ~/.local/share/dpm/src
 cp -r ./src ~/.local/share/dpm
+sudo cp ./dpm.sh /usr/bin/dpm
+sudo chmod +x /usr/bin/dpm
