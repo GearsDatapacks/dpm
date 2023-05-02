@@ -174,7 +174,7 @@ class VersionModel:
         self, name: str, version_number: str,
         game_versions: list[str],
         release_type: str, loaders:list[str], featured:bool,
-        files:list[object], author_id:str='', changelog:str='',
+        files:list[object], id:str="", author_id:str='', changelog:str='',
         dependencies:list[object]=[], requested_status:str='unknown'
     ) -> None:
         self.name = name
@@ -192,7 +192,7 @@ class VersionModel:
         self.changelog = changelog
         self.dependencies = dependencies
         self.requested_status = requested_status
-        self.id = None
+        self.id = id
         self.status = None
         self.date_published = None
         self.project_id = None
@@ -200,7 +200,7 @@ class VersionModel:
 
     def from_json(json: dict) -> object:
         result = VersionModel(
-            json['name'],json['version_number'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['files'],'',json['changelog'],json['dependencies'],json['requested_status']
+            json['name'],json['version_number'],json['game_versions'],json['version_type'],json['loaders'],json['featured'],json['files'],json["id"],'',json['changelog'],json['dependencies'],json['requested_status']
         )
         return result
 

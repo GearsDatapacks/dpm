@@ -80,6 +80,35 @@ def download_file(file, dir, longest_file_name):
 
     return [float(time_taken), 0]
 
+def install(projects, dir, auth):
+    download_dir = dir
+
+    if os.path.exists(f'{dir}/project.json'):
+        download_dir = f'{dir}/..'
+
+    for project in projects:
+        download_project(project, download_dir, auth)
+        if os.path.exists(f'{dir}/project.json'):
+          add_dependency(project, dir, auth)
+          
+def add_dependency(dependency, dir, auth):
+  with open(f"{dir}/project.json", "r") as f:
+    project = json.loads(f.read())
+  
+  
+  dependency_project = Modrinth.get_project(dependency, auth)
+  latest_version = dependency_project.get_latest_version().version_model.version_number
+
+  if not project["dependencies"]:
+      project["dependencies"] = {}
+
+  print(dependency)
+
+  project["dependencies"][dependency] = latest_version
+
+  print(project)
+  with open(f"{dir}/project.json", "w") as f:
+      f.write(json.dumps(project, indent=2))
 
 def download_project(project_id, dir, auth=''):
     
@@ -238,6 +267,26 @@ def search_project(query):
     print(f"Selected project: {project.project_model.title}")
     download_project(project.project_model.id)
 
+def format_dependencies(dependencies):
+    result = []
+
+    dependency_array = list(dependencies.items())
+
+    for dependency in dependency_array:
+        slug = dependency[0]
+        version_number = dependency[1]
+
+        dependency_project = Modrinth.get_project(slug)
+        dependency_version = dependency_project.get_specific_version(version_number)
+        formatted = {
+            "project_id": dependency_project.project_model.id,
+            "version_id": dependency_version.version_model.id,
+            "dependency_type": "required"
+        }
+
+        result.append(formatted)
+    
+    return result
 
 def publish_project(dir, auth):
     if not os.path.exists(f"{dir}/project.json"):
@@ -273,7 +322,7 @@ def publish_project(dir, auth):
               has_version = True
               break
 
-      modrinth_project.modify(auth=auth, title=title, description=description, body=body, categories=categories, client_side='optional', server_side='required', license_id=license)
+      modrinth_project.modify(auth=auth, title=title, description=description, body=body,  categories=categories, client_side='optional', server_side='required', license_id=license)
 
       if not has_version:
         publish_version(project, dir, auth)
@@ -294,9 +343,9 @@ def publish_version(metadata, dir, auth):
     slug = metadata['namespace']
     title = metadata['name']
     version_number = metadata['version']
-    dependencies = metadata['dependencies']
     game_versions = metadata['game_versions']
     version_type = metadata['release_type']
+    dependencies = format_dependencies(metadata["dependencies"])
 
     version_title = f"{title}-v{version_number}"
 
@@ -333,7 +382,7 @@ def publish_version(metadata, dir, auth):
         return
     
     version = project.create_version(auth, VersionModel(
-        name=version_title, version_number=version_number, dependencies=json_to_dependencies(dependencies),
+        name=version_title, version_number=version_number, dependencies=dependencies,
         game_versions=game_versions, release_type=version_type, loaders=['datapack'],
         featured=True, files=[zip_path]
     ))
@@ -355,9 +404,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.install:
-        for download_args in args.install:
-            for project in download_args:
-                download_project(project, args.dir, args.auth)
+        install(args.install[0], args.dir, args.auth)
     if args.publish:
         if args.auth:
             publish_project(args.dir, args.auth)
