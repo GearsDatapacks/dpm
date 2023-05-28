@@ -296,7 +296,7 @@ def publish_project(dir, auth):
     with open(f"{dir}/project.json", "r") as f:
         project = json.loads(f.read())
 
-    slug = project['namespace'] or to_slug(project['name'])
+    slug = project['slug'] or to_slug(project['name'])
     title = project['name']
     description = project['summary']
     body = project['description']
@@ -340,7 +340,7 @@ def publish_project(dir, auth):
 def publish_version(metadata, dir, auth):
     from util import json_to_dependencies
 
-    slug = metadata['namespace']
+    slug = metadata['slug']
     title = metadata['name']
     version_number = metadata['version']
     game_versions = metadata['game_versions']
@@ -389,6 +389,34 @@ def publish_version(metadata, dir, auth):
 
     if version:
         print(f"Successfully created version '{version_title}'")
+    
+def init(dir):
+    if os.path.exists(f"{dir}/project.json"):
+        print('File project.json already exists.')
+        return
+
+    title = input("Title of project: ")
+    slug = input(f"Project slug ({to_slug(title)}): ") or to_slug(title)
+    version = input("Current version (0.1.0): ") or "0.1.0"
+    game_versions = input("Enter space separated compatible game versions: ").split(" ")
+    summary = input("Summary of datapack: ")
+    license = input("Project license (GPL): ") or "GPL-3.0"
+
+    project_json = {
+        "name": title,
+        "slug": slug,
+        "version": version,
+        "game_versions": game_versions,
+        "summary": summary,
+        "description": "",
+        "license": license,
+        "categories": [],
+        "dependencies": {},
+        "release_type": "release"
+    }
+
+    with open(f"{dir}/project.json", "w") as f:
+        f.write(json.dumps(project_json, indent=2))
 
 
 if __name__ == "__main__":
@@ -397,7 +425,8 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group()
 
     group.add_argument('--install', metavar="Project ID", help="Install a project", action='append', nargs='+')
-    group.add_argument('--publish', metavar="Datapack Folder Name", help="Create a datapack on Modrinth")
+    group.add_argument('--publish', metavar="Datapack Folder Name", help="Publish your datapack to Modrinth")
+    group.add_argument('--init', help="Initialise a DPM project", default="")
     parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
     parser.add_argument('--dir', metavar="Target Directory", help="Specify the target directory", default='')
 
@@ -410,3 +439,5 @@ if __name__ == "__main__":
             publish_project(args.dir, args.auth)
         else:
             print("Please specify --auth to publish a project")
+    if args.init:
+        init(args.dir)

@@ -9,9 +9,13 @@ function map () {
       [iI] | [iI][nN][sS][tT][aA][lL][lL])
         ARGS="$ARGS --install"
       ;;
+
+      [iI][nN][iI][tT])
+        ARGS="$ARGS --init none"
+      ;;
       
       [pP][uU][bB][lL][iI][sS][hH])
-        ARGS="$ARGS --publish"
+        ARGS="$ARGS --publish none"
       ;;
       *)
         ARGS="$ARGS $ARG"
