@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from parse_args import parse_args
 import json
 from zipfile import ZipFile
 import shutil
@@ -211,7 +211,7 @@ def to_project_json(name, namespace, description):
 
 
 def create_project(namespace):
-    namespace = to_namespace(namespace)
+    namespace = to_slug(namespace)
     name = to_sentence_case(namespace)
     description = input(f"Enter the description of datapack '{name}': ")
     if len(description) < 3:
@@ -397,24 +397,17 @@ def init(dir):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser()
+    args = parse_args(sys.argv[1:])
 
-    group = parser.add_mutually_exclusive_group()
+    match args["action"]:
+      case "init":
+        init(args["dir"])
 
-    group.add_argument('--install', metavar="Project ID", help="Install a project", action='append', nargs='+')
-    group.add_argument('--publish', metavar="Datapack Folder Name", help="Publish your datapack to Modrinth")
-    group.add_argument('--init', help="Initialise a DPM project", default="")
-    parser.add_argument('-a', '--auth', metavar="Authorization Token", help="Specify an authorizaton token to use", default='')
-    parser.add_argument('--dir', metavar="Target Directory", help="Specify the target directory", default='')
-
-    args = parser.parse_args()
-
-    if args.install:
-        install(args.install[0], args.dir, args.auth)
-    if args.publish:
-        if args.auth:
-            publish_project(args.dir, args.auth)
+      case "publish":
+        if args["auth"]:
+          publish_project(args["dir"], args["auth"])
         else:
-            print("Please specify --auth to publish a project")
-    if args.init:
-        init(args.dir)
+          print("Please specify --auth to publish a project")
+
+      case "install":
+        install(args["data"], args["dir"], args["auth"])
