@@ -25,6 +25,8 @@ DPM allows you to publish a datapack without manually uploading it to Modrinth. 
 
 ## Installation
 
+**To use DPM, you must first install python.**
+
 ### Linux
 1. Download the latest version (or any version you desire) from the releases page.
 
