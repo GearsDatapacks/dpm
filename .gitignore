@@ -10,9 +10,6 @@ references/
 imgs/
 dist/
 
-# Any folder in the src/dpm directory
-src/dpm/*/
-
 # Any folder that starts with 'private'
 private*/
 
@@ -23,5 +20,5 @@ private*/
 **/*.egg-info
 
 # Test stuff
-package.json
+project.json
 PRIVATE/
