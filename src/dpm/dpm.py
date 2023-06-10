@@ -12,19 +12,22 @@ from util import *
 import sys
 # sys.path.append(f"C:/Users/{os.getlogin()}/OneDrive/Desktop/Pyrinth/src") # Testing - Windows
 sys.path.append(f"../") # Testing - Other OS's
-from pyrinth import *
+from pyrinth.modrinth import *
+from pyrinth.models import *
+from pyrinth.users import *
+from pyrinth.projects import *
 # -------------------
 
 
 def download_file(file, dir, longest_file_name):
 
     # Create the full file path by joining the folder path and file name
-    path = f"{dir}/{file.filename}"
+    path = f"{dir}/{file.name}"
 
     # If the download was skipped
     if os.path.exists(path):
         print(
-            f"{file.filename.ljust(longest_file_name, ' ')} already downloaded... skipping"
+            f"{file.name.ljust(longest_file_name, ' ')} already downloaded... skipping"
         )
         return [0.0, 1]
 
@@ -63,7 +66,7 @@ def download_file(file, dir, longest_file_name):
             
             # Print the progress bar and percentage on the same line,
             # moving the cursor back to the beginning of the line using '\r'
-            filename = file.filename.ljust(longest_file_name, ' ')
+            filename = file.name.ljust(longest_file_name, ' ')
             print(
                 f'Downloading {filename} [{bar}] / {percent}',
                 end='\r'
@@ -97,23 +100,20 @@ def add_dependency(dependency, dir, auth):
     project = json.loads(f.read())
   
   
-  dependency_project = Modrinth.get_project(dependency, auth)
-  latest_version = dependency_project.get_latest_version().version_model.version_number
+  dependency_project = Project.get(dependency, auth)
+  latest_version = dependency_project.get_latest_version().model.version_number
 
   if not project["dependencies"]:
       project["dependencies"] = {}
 
-  print(dependency)
-
   project["dependencies"][dependency] = latest_version
 
-  print(project)
   with open(f"{dir}/project.json", "w") as f:
       f.write(json.dumps(project, indent=2))
 
 def download_project(project_id, dir, auth=''):
     
-    project = Modrinth.get_project(project_id, auth)
+    project = Project.get(project_id, auth)
     
     # If no project is found, print an error message and return None
     if not project:
@@ -148,8 +148,8 @@ def download_project(project_id, dir, auth=''):
     # Calculate the length of the longest filename among all files that need to be downloaded ( for padding )
     longest_file_name = -1
     for file in downloading_files:
-        if len(file.filename) > longest_file_name:
-            longest_file_name = len(file.filename)
+        if len(file.name) > longest_file_name:
+            longest_file_name = len(file.name)
 
     # Keep track of how much time has taken to download all files
     # Keep track of how many files are skipped
@@ -170,7 +170,7 @@ def download_project(project_id, dir, auth=''):
     option = input("Would you like to open the projects modrinth page (y/N)? ").lower()
     if option == "y" or option == "yes":
         webbrowser.open(
-            f"https://modrinth.com/datapack/{project.project_model.id}"
+            f"https://modrinth.com/datapack/{project.model.id}"
         )
 
 
@@ -200,7 +200,7 @@ def to_project_json(name, namespace, description):
     "release_type": "release",
     "game_versions": [
         
-    ],
+    ],projects
     "categories": [
         
     ],
@@ -248,26 +248,6 @@ def create_project(namespace):
         open(f"{name}/project.json",
              "x").write(to_project_json(name, namespace, description))
 
-
-def search_project(query):
-    projects = Modrinth.search_projects(
-        query, facets=[["categories:datapack"]])
-    for i, project in enumerate(projects):
-        index = str(i+1).ljust(2, ' ')
-        print(f'{index} | ' + project.search_result_model.title)
-    print("If your project is not in this list, please try being more specific with your search query")
-    option = input("Select a project: ")
-    if option == '':
-        return
-    option = int(option)
-    if option > len(projects) or option <= 0:
-        print("Invalid project number.")
-        return
-    project = Modrinth.get_project(
-        projects[option-1].search_result_model.project_id)
-    print(f"Selected project: {project.project_model.title}")
-    download_project(project.project_model.id)
-
 def format_dependencies(dependencies):
     result = []
 
@@ -277,11 +257,11 @@ def format_dependencies(dependencies):
         slug = dependency[0]
         version_number = dependency[1]
 
-        dependency_project = Modrinth.get_project(slug)
+        dependency_project = Project.get(slug)
         dependency_version = dependency_project.get_specific_version(version_number)
         formatted = {
-            "project_id": dependency_project.project_model.id,
-            "version_id": dependency_version.version_model.id,
+            "project_id": dependency_project.model.id,
+            "version_id": dependency_version.model.id,
             "dependency_type": "required"
         }
 
@@ -305,13 +285,9 @@ def publish_project(dir, auth):
     license = project['license']
     version_number = project['version']
 
-    modrinth_project: Project = Modrinth.get_project(slug, auth)
+    modrinth_project: Project = Project.get(slug, auth)
 
-    get_user = User.from_auth(auth)
-    user = User(
-        get_user.username, auth
-    )
-
+    user = User.get_from_auth(auth)
 
     if modrinth_project:
       versions = modrinth_project.get_versions() or []
@@ -319,7 +295,7 @@ def publish_project(dir, auth):
       has_version = False
 
       for version in versions:
-          if version.version_model.version_number == version_number:
+          if version.model.version_number == version_number:
               has_version = True
               break
 
@@ -376,17 +352,17 @@ def publish_version(metadata, dir, auth):
         else:
           os.remove(file)
 
-    project = Modrinth.get_project(slug, auth)
+    project = Project.get(slug, auth)
 
     if not project:
         print(f"Project '{title}' with slug '{slug}' was not found")
         return
-    
-    version = project.create_version(auth, VersionModel(
+
+    version = project.create_version(VersionModel(
         name=version_title, version_number=version_number, dependencies=dependencies,
-        game_versions=game_versions, release_type=version_type, loaders=['datapack'],
-        featured=True, files=[zip_path]
-    ))
+        game_versions=game_versions, version_type=version_type, loaders=['datapack'],
+        featured=True, file_parts=[zip_path]
+    ), auth)
 
     if version:
         print(f"Successfully created version '{version_title}'")
