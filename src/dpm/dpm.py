@@ -101,7 +101,7 @@ def add_dependency(dependency, dir, auth):
   
   
   dependency_project = Project.get(dependency, auth)
-  latest_version = dependency_project.get_latest_version().model.version_number
+  latest_version = dependency_project.get_latest_version().version_model.version_number
 
   if not project["dependencies"]:
       project["dependencies"] = {}
@@ -119,7 +119,7 @@ def download_project(project_id, dir, auth=''):
     if not project:
         return None
     
-    print(f"Project '{to_sentence_case(project.get_slug())}' found")
+    print(f"Project '{to_sentence_case(project.slug)}' found")
 
     # Get the latest version of the project and its files
     latest = project.get_latest_version(loaders=["datapack"])
@@ -127,10 +127,10 @@ def download_project(project_id, dir, auth=''):
     if not latest:
         return None
     
-    project_files = latest.get_files()
+    project_files = latest.files
     
     # Get the dependencies of the project
-    dependencies = project.get_dependencies()
+    dependencies = project.dependencies
     
     # Initialize an empty list to keep track of all files that need to be downloaded
     downloading_files = []
@@ -142,7 +142,7 @@ def download_project(project_id, dir, auth=''):
     if dependencies:
         for dependency in dependencies:
             downloading_files.extend(
-                dependency.get_latest_version().get_files()
+                dependency.get_latest_version().files
             )
 
     # Calculate the length of the longest filename among all files that need to be downloaded ( for padding )
@@ -170,7 +170,7 @@ def download_project(project_id, dir, auth=''):
     option = input("Would you like to open the projects modrinth page (y/N)? ").lower()
     if option == "y" or option == "yes":
         webbrowser.open(
-            f"https://modrinth.com/datapack/{project.model.id}"
+            f"https://modrinth.com/datapack/{project.project_model.id}"
         )
 
 
@@ -260,8 +260,8 @@ def format_dependencies(dependencies):
         dependency_project = Project.get(slug)
         dependency_version = dependency_project.get_specific_version(version_number)
         formatted = {
-            "project_id": dependency_project.model.id,
-            "version_id": dependency_version.model.id,
+            "project_id": dependency_project.project_model.id,
+            "version_id": dependency_version.version_model.id,
             "dependency_type": "required"
         }
 
@@ -295,7 +295,7 @@ def publish_project(dir, auth):
       has_version = False
 
       for version in versions:
-          if version.model.version_number == version_number:
+          if version.version_model.version_number == version_number:
               has_version = True
               break
 
