@@ -1,8 +1,12 @@
+flag_args = []
+value_args = ["auth", "dir"]
+
 def parse_args(args: list[str]):
   result = {
     "action": None,
     "data": None,
-    "auth": None
+    "auth": None,
+    "flags": []
   }
 
   pos = 0
@@ -27,9 +31,14 @@ def parse_args(args: list[str]):
       
       case _:
         if arg.startswith("--"):
-          pos += 1
           arg_name = arg[2:]
-          result[arg_name] = args[pos]
+          if value_args.count(arg_name) != 0:
+            pos += 1
+            result[arg_name] = args[pos]
+          elif flag_args.count(arg_name) != 0:
+            result["flags"].append(arg_name)
+          else:
+            raise Exception(f'Unexpected argument "{arg}"')
         
         else:
           raise Exception(f'Unexpected argument "{arg}"')
