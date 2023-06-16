@@ -19,6 +19,8 @@ DPM also lets you to manage dependencies within your own datapacks. To initialis
 **Installing dependencies**  
 Installing dependencies is as simple as running `dpm install <datapack id/slug>`. This will add an entry to your `project.json`.
 
+If you simply run `dpm install` with no arguments, it will download all dependencies that are stored in your project JSON.
+
 **Publishing**  
 DPM allows you to publish a datapack without manually uploading it to Modrinth. If you run `dpm publish`, it will extract the settings from your project json, zip up your files and upload it directly to Modrinth.  
 **Note: You must give you Modrinth auth token using the --auth flag, otherwise dpm doesn't have permission to upload the pack.**
