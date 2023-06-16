@@ -10,6 +10,8 @@ def parse_args(args: list[str]):
   while pos < len(args):
     arg = args[pos]
 
+    arg = aliases(arg)
+
     match arg:
       case "init":
         result["action"] = "init"
@@ -52,4 +54,10 @@ def parse_install(args: list[str], pos: int):
     "data": installs,
     "pos": i - 1
   }
-  
+
+def aliases(arg):
+  match arg:
+    case "i":
+      return "install"
+    case _:
+      return arg
