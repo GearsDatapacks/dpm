@@ -19,7 +19,7 @@ from pyrinth.projects import *
 # -------------------
 
 
-def download_file(file, dir, longest_file_name):
+def download_file(file, dir,):
 
     # Create the full file path by joining the folder path and file name
     path = f"{dir}/{file.name}"
@@ -27,9 +27,9 @@ def download_file(file, dir, longest_file_name):
     # If the download was skipped
     if os.path.exists(path):
         print(
-            f"{file.name.ljust(longest_file_name, ' ')} already downloaded... skipping"
+            f"{file.name.ljust(3, ' ')} already downloaded... skipping"
         )
-        return [0.0, 1]
+        return 1
 
     # Send a GET request to the specified file URL and stream the response
     response = r.get(file.url, stream=True)
@@ -66,7 +66,7 @@ def download_file(file, dir, longest_file_name):
             
             # Print the progress bar and percentage on the same line,
             # moving the cursor back to the beginning of the line using '\r'
-            filename = file.name.ljust(longest_file_name, ' ')
+            filename = file.name.ljust(3, ' ')
             print(
                 f'Downloading {filename} [{bar}] / {percent}',
                 end='\r'
@@ -82,13 +82,17 @@ def download_file(file, dir, longest_file_name):
 
     print(f"\n", end='')
 
-    return [float(time_taken), 0]
+    return 0
 
 def install(projects, dir, auth):
     download_dir = dir
 
     if os.path.exists(f'{dir}/project.json'):
         download_dir = f'{dir}/..'
+
+    if len(projects) == 0:
+      download_dependencies(dir, auth)
+      return
 
     for project in projects:
         download_project(project, download_dir, auth)
@@ -133,38 +137,29 @@ def download_project(project_id, dir, auth=''):
     dependencies = project.dependencies
     
     # Initialize an empty list to keep track of all files that need to be downloaded
-    downloading_files = []
-
-    # Add the project files to the downloading_files list
-    downloading_files.extend(project_files)
+    downloading_versions = [latest]
 
     # If there are any dependencies, add their latest versions' files to the downloading_files list
     if dependencies:
         for dependency in dependencies:
-            downloading_files.extend(
-                dependency.get_latest_version().files
+            downloading_versions.append(
+                dependency.get_latest_version()
             )
-
-    # Calculate the length of the longest filename among all files that need to be downloaded ( for padding )
-    longest_file_name = -1
-    for file in downloading_files:
-        if len(file.name) > longest_file_name:
-            longest_file_name = len(file.name)
 
     # Keep track of how much time has taken to download all files
     # Keep track of how many files are skipped
-    total_time_taken = 0
-    skips = 0
-    downloaded_files = len(downloading_files)
+    downloaded_files = 0
 
-    for file in downloading_files:
-        result = download_file(file, dir, longest_file_name)
-        total_time_taken += result[0]
-        skips += result[1]
-        downloaded_files -= result[1]
+    start_time = time.perf_counter()
 
-    if skips != len(downloading_files):
-        print(f"{downloaded_files} file(s) downloaded in {total_time_taken:.2f}s")
+    for version in downloading_versions:
+        downloaded_files += download_version(version, dir)
+    
+    end_time = time.perf_counter()
+    time_taken = end_time - start_time
+
+    if downloaded_files != 0:
+        print(f"{downloaded_files} file(s) downloaded in {time_taken:.2f}s")
     else:
         print("Download no extra files")
     option = input("Would you like to open the projects modrinth page (y/N)? ").lower()
@@ -172,6 +167,39 @@ def download_project(project_id, dir, auth=''):
         webbrowser.open(
             f"https://modrinth.com/datapack/{project.project_model.id}"
         )
+
+def download_dependencies(dir, auth):
+  with open(f"{dir}/project.json", "r") as f:
+     project = json.loads(f.read())
+  
+  dependencies = project["dependencies"].items()
+
+  for dependency in dependencies:
+    slug = dependency[0]
+    semantic_version = dependency[1]
+
+    dependency_project = Project.get(slug, auth)
+    required_version = dependency_project.get_specific_version(semantic_version)
+
+    download_version(required_version, f"{dir}/..")
+
+def download_version(version: Project.Version, dir):
+  files = version.files
+
+  dependencies = version.dependencies
+
+  for dependency in dependencies:
+     files.extend(dependency.version.files)
+
+  # skips = 0
+  downloaded_files = len(files)
+
+  for file in files:
+    skipped = download_file(file, dir)
+    # skips += skipped
+    downloaded_files -= skipped
+  
+  return downloaded_files
 
 
 def to_tags_json(namespace, type):
