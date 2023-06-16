@@ -13,9 +13,6 @@ Improved dpm command
 - `dpm install` to download all dependencies
 
 ### Changed
-- Use the pip version of Pyrinth
-
-### Changed
 - Use the Pyrinth pip project instead of source code
 
 ## [0.1.0-alpha-1] - 2023-06-10
