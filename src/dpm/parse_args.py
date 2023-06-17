@@ -1,4 +1,4 @@
-flag_args = []
+flag_args = ["help"]
 value_args = ["auth", "dir"]
 
 def parse_args(args: list[str]):
