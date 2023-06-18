@@ -1,5 +1,3 @@
-import re
-
 def to_sentence_case(sentence):
     return sentence.title().replace('-', ' ').replace('_', ' ')
 
@@ -28,3 +26,38 @@ def json_to_dependencies(json):
         result.append(dep)
 
     return result
+
+def to_tags_json(namespace, type):
+    return f'''{{
+    "values": [
+        "{namespace}:{type}"
+    ]
+}}'''
+
+
+def to_mcmeta_json(description):
+    return f'''{{
+	"pack": {{
+		"pack_format": 13,
+		"description": "{description}"
+	}}
+}}'''
+
+
+def to_project_json(name, namespace, description):
+    return f'''{{
+    "name": "{name}",
+    "namespace": "{namespace}",
+    "version": "1.0.0",
+    "description": "{description}",
+    "release_type": "release",
+    "game_versions": [
+        
+    ],projects
+    "categories": [
+        
+    ],
+    "dependencies": {{
+        
+    }}
+}}'''

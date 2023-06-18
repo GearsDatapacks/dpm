@@ -14,7 +14,7 @@ Options:
 --auth <auth>      Specify a Modrinth authorisation token
 --help             Show information on a specific DPM command""")
 
-  if action == "init":
+  elif action == "init":
     print(
 """Initialise a DPM project
 
