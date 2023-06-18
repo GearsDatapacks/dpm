@@ -8,7 +8,7 @@ from generators import *
 def main():
   args = parse_args(sys.argv[1:])
 
-  if args["flags"].count("help") != 0:
+  if args["flags"].__contains__("help"):
     dpm_help(args)
     return
     

@@ -21,7 +21,9 @@ Options:
 Usage:
 dpm init
 
-Creates a project.json file with information about your datapack""")
+Creates a project.json file with information about your datapack
+
+aliases: initialise, initialize""")
 
   elif action == "install":
      print(

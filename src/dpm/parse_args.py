@@ -1,5 +1,10 @@
 flag_args = ["help"]
 value_args = ["auth", "dir"]
+alias_entries = {
+  "install": [ "i" ],
+  "init": [ "initialise", "initialize" ]
+}
+aliases = {}
 
 def parse_args(args: list[str]):
   result = {
@@ -14,7 +19,8 @@ def parse_args(args: list[str]):
   while pos < len(args):
     arg = args[pos]
 
-    arg = aliases(arg)
+    if aliases.__contains__(arg):
+      arg = aliases[arg]
 
     match arg:
       case "init":
@@ -32,10 +38,10 @@ def parse_args(args: list[str]):
       case _:
         if arg.startswith("--"):
           arg_name = arg[2:]
-          if value_args.count(arg_name) != 0:
+          if value_args.__contains__(arg_name):
             pos += 1
             result[arg_name] = args[pos]
-          elif flag_args.count(arg_name) != 0:
+          elif flag_args.__contains__(arg_name):
             result["flags"].append(arg_name)
           else:
             raise Exception(f'Unexpected argument "{arg}"')
@@ -64,9 +70,10 @@ def parse_install(args: list[str], pos: int):
     "pos": i - 1
   }
 
-def aliases(arg):
-  match arg:
-    case "i":
-      return "install"
-    case _:
-      return arg
+def format_aliases():
+  for entry in alias_entries.items():
+    action = entry[0]
+    for alias in entry[1]:
+      aliases[alias] = action
+
+format_aliases()
