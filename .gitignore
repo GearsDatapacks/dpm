@@ -1,24 +1,6 @@
-# Files
-main*.py
-test.py
+# Buld artifacts
+dpm
+
+# Testing
 *.zip
-test*.*
-
-# Folders
-.vscode/
-references/
-imgs/
-dist/
-
-# Any folder that starts with 'private'
-private*/
-
-# Every '__pycache__' folder
-**/__pycache__
-
-# Any folder that ends with 'egg-info'
-**/*.egg-info
-
-# Test stuff
-project.json
-PRIVATE/
+test-project
