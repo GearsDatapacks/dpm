@@ -1,7 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"os"
+)
 
 func main() {
-	fmt.Println("DPM v0.2.0-alpha.1")
+	args := parseArgs(os.Args[1:])
+
+	if args.action == "install" {
+		// Install datapack
+	} else if args.action == "publish" {
+		// Publish project
+	} else if args.action == "init" {
+		// Initialise project
+	} else {
+		log.Fatalf("Invalid action %q", args.action)
+	}
 }
