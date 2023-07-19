@@ -24,31 +24,31 @@ func downloadProject(project_id string, auth string) {
 
 	latest := project.GetLatestVersion()
 
-	versionsToDownload := []gorinth.Version{latest}
-
-	for _, dependency := range latest.Dependencies {
-		versionsToDownload = append(versionsToDownload, dependency.GetVersion())
-	}
-
-	for _, version := range versionsToDownload {
-		downloadVersion(version)
-	}
+	downloadVersion(latest)
 }
 
 func downloadVersion(version gorinth.Version) {
 	files := version.Files
 
 	for _, file := range files {
-		downloadFile(file)
+		skipped := downloadFile(file)
+
+		if skipped {
+			return
+		}
+	}
+
+	for _, dependency := range version.Dependencies {
+		downloadVersion(dependency.GetVersion())
 	}
 }
 
-func downloadFile(downloadFile gorinth.File) {
+func downloadFile(downloadFile gorinth.File) (skipped bool) {
 	filename := downloadFile.Filename
 
 	if exists(filename) {
 		fmt.Printf("File %s already exists, skipping...\n", filename)
-		return
+		return true
 	}
 
 	fmt.Printf("Downloading file %s... ", filename)
@@ -82,6 +82,8 @@ func downloadFile(downloadFile gorinth.File) {
 	defer file.Close()
 
 	fmt.Printf("%s downloaded in %v.\n", formatSize(size), totalTime.Round(time.Second / 10))
+
+	return false
 }
 
 func formatSize(bytes int64) string {
