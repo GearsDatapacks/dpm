@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -41,4 +42,35 @@ func toSlug(title string) string {
 	lower := strings.ToLower(title)
 	hyphenated := strings.ReplaceAll(lower, " ", "-")
 	return hyphenated
+}
+
+func getProjectJson() projectJson {
+	projectBytes, err := os.ReadFile("project.json")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	project := projectJson{}
+	err = json.Unmarshal(projectBytes, &project)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return project
+}
+
+func setProjectJson(project projectJson) {
+	bytes, err := json.MarshalIndent(project, "", "  ")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile("project.json", bytes, 0666)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }

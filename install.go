@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +12,10 @@ import (
 )
 
 func install(projects []string, auth string) {
+	if len(projects) == 0 {
+		downloadDependencies(auth)
+	}
+	
 	for _, project := range projects {
 		if exists("project.json") {
 			addDependency(project, auth)
@@ -23,15 +26,7 @@ func install(projects []string, auth string) {
 }
 
 func addDependency(dependency string, auth string) {
-	projectBytes, err := os.ReadFile("project.json")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	project := projectJson{}
-
-	json.Unmarshal(projectBytes, &project)
+	project := getProjectJson()
 
 	dependencyProject := gorinth.GetProject(dependency, auth)
 	latestVersion := dependencyProject.GetLatestVersion().VersionNumber
@@ -42,17 +37,7 @@ func addDependency(dependency string, auth string) {
 
 	project.Dependencies[dependency] = latestVersion
 
-	projectBytes, err = json.MarshalIndent(project, "", "  ")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = os.WriteFile("project.json", projectBytes, 0666)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	setProjectJson(project)
 }
 
 func downloadProject(project_id string, auth string) {
@@ -63,6 +48,17 @@ func downloadProject(project_id string, auth string) {
 	latest := project.GetLatestVersion()
 
 	downloadVersion(latest)
+}
+
+func downloadDependencies(auth string) {
+	project := getProjectJson()
+
+	for slug, versionNumber := range project.Dependencies {
+		dependencyProject := gorinth.GetProject(slug, auth)
+		requiredVersion := dependencyProject.GetSpecificVersion(versionNumber)
+
+		downloadVersion(requiredVersion)
+	}
 }
 
 func downloadVersion(version gorinth.Version) {

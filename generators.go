@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"strings"
 )
 
@@ -43,15 +40,5 @@ func initProject() {
 		ReleaseType: "release",
 	}
 
-	byteStream, err := json.MarshalIndent(project, "", "  ")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = os.WriteFile("project.json", byteStream, 0666)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	setProjectJson(project)
 }
