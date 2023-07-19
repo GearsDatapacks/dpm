@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func init() {
+func initProject() {
 	if exists("project.json") {
 		fmt.Println("File project.json already exists.")
 		return

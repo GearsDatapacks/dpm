@@ -19,7 +19,7 @@ func main() {
 	} else if args.action == "publish" {
 		// Publish project
 	} else if args.action == "init" {
-		// Initialise project
+		initProject()
 	} else {
 		log.Fatalf("Invalid action %q", args.action)
 	}
