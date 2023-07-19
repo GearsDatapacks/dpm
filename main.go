@@ -8,8 +8,14 @@ import (
 func main() {
 	args := parseArgs(os.Args[1:])
 
+	auth, ok := args.values["auth"]
+
+	if !ok {
+		auth = ""
+	}
+
 	if args.action == "install" {
-		// Install datapack
+		install(args.data, auth)
 	} else if args.action == "publish" {
 		// Publish project
 	} else if args.action == "init" {

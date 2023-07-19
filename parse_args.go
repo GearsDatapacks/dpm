@@ -46,7 +46,7 @@ func parseArgs(args []string) parsedArgs {
 			result.action = "install"
 			result.data = []string{}
 
-			for !strings.HasPrefix(args[i + 1], "-") {
+			for (i + 1) < len(args) && !strings.HasPrefix(args[i + 1], "-") {
 				result.data = append(result.data, args[i + 1])
 				i++
 			}
@@ -71,14 +71,4 @@ func parseArgs(args []string) parsedArgs {
 	}
 
 	return result
-}
-
-func contains[T comparable] (slice []T, element T) bool {
-	for _, x := range slice {
-		if x == element {
-			return true
-		}
-	}
-
-	return false
 }
