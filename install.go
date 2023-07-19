@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +14,44 @@ import (
 
 func install(projects []string, auth string) {
 	for _, project := range projects {
+		if exists("project.json") {
+			addDependency(project, auth)
+		}
+
 		downloadProject(project, auth)
+	}
+}
+
+func addDependency(dependency string, auth string) {
+	projectBytes, err := os.ReadFile("project.json")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	project := projectJson{}
+
+	json.Unmarshal(projectBytes, &project)
+
+	dependencyProject := gorinth.GetProject(dependency, auth)
+	latestVersion := dependencyProject.GetLatestVersion().VersionNumber
+
+	if project.Dependencies == nil {
+		project.Dependencies = map[string]string{}
+	}
+
+	project.Dependencies[dependency] = latestVersion
+
+	projectBytes, err = json.MarshalIndent(project, "", "  ")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile("project.json", projectBytes, 0666)
+
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
