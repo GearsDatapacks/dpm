@@ -28,7 +28,12 @@ func install(projects []string, auth string) {
 func addDependency(dependency string, auth string) {
 	project := getProjectJson()
 
-	dependencyProject := gorinth.GetProject(dependency, auth)
+	dependencyProject, err := gorinth.GetProject(dependency, auth)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	latestVersion := dependencyProject.GetLatestVersion().VersionNumber
 
 	if project.Dependencies == nil {
@@ -41,7 +46,11 @@ func addDependency(dependency string, auth string) {
 }
 
 func downloadProject(project_id string, auth string) {
-	project := gorinth.GetProject(project_id, auth)
+	project, err := gorinth.GetProject(project_id, auth)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Printf("Project %q found\n", project.Title)
 
@@ -54,7 +63,12 @@ func downloadDependencies(auth string) {
 	project := getProjectJson()
 
 	for slug, versionNumber := range project.Dependencies {
-		dependencyProject := gorinth.GetProject(slug, auth)
+		dependencyProject, err := gorinth.GetProject(slug, auth)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		requiredVersion := dependencyProject.GetSpecificVersion(versionNumber)
 
 		downloadVersion(requiredVersion)

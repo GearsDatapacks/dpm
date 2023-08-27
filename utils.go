@@ -27,6 +27,15 @@ func exists(filename string) bool {
 	return err == nil
 }
 
+func isDir(filename string) bool {
+	info, err := os.Stat(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return info.IsDir()
+}
+
 func prompt(prompt string) string {
 	fmt.Print(prompt)
 	result, err := reader.ReadString('\n')
@@ -45,6 +54,10 @@ func toSlug(title string) string {
 }
 
 func getProjectJson() projectJson {
+	if !exists("project.json") {
+		log.Fatal("Could not find project.json. Please run dpm init to initialise a project.")
+	}
+
 	projectBytes, err := os.ReadFile("project.json")
 
 	if err != nil {

@@ -17,7 +17,7 @@ func main() {
 	if args.action == "install" {
 		install(args.data, auth)
 	} else if args.action == "publish" {
-		// Publish project
+		publish(auth)
 	} else if args.action == "init" {
 		initProject()
 	} else {
