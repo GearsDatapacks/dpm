@@ -14,6 +14,11 @@ func main() {
 		auth = ""
 	}
 
+	if contains(args.flags, "help") {
+		help(args.action)
+		return
+	}
+
 	if args.action == "install" {
 		install(args.data, auth)
 	} else if args.action == "publish" {
