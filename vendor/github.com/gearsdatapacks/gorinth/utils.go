@@ -175,6 +175,10 @@ func removeZeroValues[T Project](object T) map[string]any {
 			continue
 		}
 
+		if _, ok := value.(map[string]any); ok {
+			continue
+		}
+
 		if value == zeroMap[key] {
 			delete(values, key)
 			continue

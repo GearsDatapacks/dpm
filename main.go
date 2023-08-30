@@ -16,6 +16,11 @@ func main() {
 		auth = ""
 	}
 
+	aliases := getAliases()
+	if alias, ok := aliases[auth]; ok {
+		auth = alias
+	}
+
 	if contains(args.flags, "help") {
 		help(args.action)
 		return
@@ -32,6 +37,8 @@ func main() {
 		publish(auth)
 	} else if args.action == "init" {
 		initProject()
+	} else if args.action == "alias" {
+		createAlias(args.data[0], args.data[1])
 	} else {
 		help("")
 	}

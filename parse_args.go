@@ -54,6 +54,17 @@ func parseArgs(args []string) parsedArgs {
 			result.action = "publish"
 		} else if arg == "init" {
 			result.action = "init"
+		} else if arg == "alias" {
+			result.action = "alias"
+			result.data = []string{}
+
+			if i + 2 >= len(args) {
+				log.Fatal("Subcommand 'alias' takes two arguments")
+			}
+
+			result.data = append(result.data, args[i+1], args[i+2])
+
+			i += 2
 		} else if strings.HasPrefix(arg, "--") {
 			argName := arg[2:]
 
