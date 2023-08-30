@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 )
 
@@ -26,6 +25,6 @@ func main() {
 	} else if args.action == "init" {
 		initProject()
 	} else {
-		log.Fatalf("Invalid action %q", args.action)
+		help("")
 	}
 }

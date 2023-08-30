@@ -1,5 +1,5 @@
 # Buld artifacts
-dpm
+dpm*
 
 # Testing
 *.zip

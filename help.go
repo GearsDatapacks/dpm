@@ -8,7 +8,7 @@ import (
 func help(action string) {
 	if action == "" {
 		fmt.Println(
-`usage: dpm <action> [options]
+`Usage: dpm <action> [options]
 Actions:
 init                            Initialise a DPM project
 install <datapacks>             Add datapacks as dependencies
