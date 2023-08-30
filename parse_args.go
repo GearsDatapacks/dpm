@@ -59,6 +59,10 @@ func parseArgs(args []string) parsedArgs {
 			result.data = []string{}
 
 			if i + 2 >= len(args) {
+				if i + 1 < len(args) && strings.HasPrefix(args[i+1], "--") {
+					continue
+				}
+
 				log.Fatal("Subcommand 'alias' takes two arguments")
 			}
 
