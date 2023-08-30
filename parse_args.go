@@ -12,7 +12,7 @@ type parsedArgs struct {
 	values map[string]string
 }
 
-var flagArgs = []string{"help"}
+var flagArgs = []string{"help", "version"}
 var valueArgs = []string{"auth"}
 var aliasEntries = map[string][]string{
 	"install": {"i"},

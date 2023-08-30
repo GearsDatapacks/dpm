@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
 )
+
+const DPM_VERSION = "0.1.0-beta-1"
 
 func main() {
 	args := parseArgs(os.Args[1:])
@@ -15,6 +18,11 @@ func main() {
 
 	if contains(args.flags, "help") {
 		help(args.action)
+		return
+	}
+
+	if contains(args.flags, "version") {
+		fmt.Printf("DPM v%s\n", DPM_VERSION)
 		return
 	}
 
