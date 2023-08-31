@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+var aliasFile = dpmDir + pathSeparator + "aliases.json"
+
 func createAlias(name string, auth string) {
 	if _, err := os.ReadDir(dpmDir); err != nil {
 		err := os.Mkdir(dpmDir, 0777)

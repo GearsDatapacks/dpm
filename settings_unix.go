@@ -4,6 +4,6 @@ package main
 
 import "os"
 
+const pathSeparator = "/"
 var homeDir, _ = os.UserHomeDir()
 var dpmDir = homeDir + "/.local/share/dpm"
-var aliasFile = dpmDir + "/aliases.json"
