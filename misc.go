@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var aliasFile = dpmDir + pathSeparator + "aliases.json"
+var aliasFile = joinPath(dpmDir, "aliases.json")
 
 func createAlias(name string, auth string) {
 	if _, err := os.ReadDir(dpmDir); err != nil {

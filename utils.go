@@ -53,6 +53,10 @@ func toSlug(title string) string {
 	return hyphenated
 }
 
+func toNamespace(title string) string {
+	return strings.ReplaceAll(toSlug(title), "-", "_")
+}
+
 func getProjectJson() projectJson {
 	if !exists("project.json") {
 		log.Fatal("Could not find project.json. Please run dpm init to initialise a project.")
@@ -86,4 +90,8 @@ func setProjectJson(project projectJson) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func joinPath(names ...string) string {
+	return strings.Join(names, pathSeparator)
 }

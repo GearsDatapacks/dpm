@@ -69,6 +69,21 @@ func parseArgs(args []string) parsedArgs {
 			result.data = append(result.data, args[i+1], args[i+2])
 
 			i += 2
+		} else if arg == "create" {
+			result.action = "create"
+			result.data = []string{}
+
+			if i + 2 >= len(args) {
+				if i + 1 < len(args) && strings.HasPrefix(args[i+1], "--") {
+					continue
+				}
+
+				log.Fatal("Subcommand 'create' takes two arguments")
+			}
+
+			result.data = append(result.data, args[i+1], args[i+2])
+
+			i += 2
 		} else if strings.HasPrefix(arg, "--") {
 			argName := arg[2:]
 

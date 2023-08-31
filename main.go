@@ -39,6 +39,8 @@ func main() {
 		initProject()
 	} else if args.action == "alias" {
 		createAlias(args.data[0], args.data[1])
+	} else if args.action == "create" {
+		createTemplate(args.data[0], args.data[1])
 	} else {
 		help("")
 	}

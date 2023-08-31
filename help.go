@@ -10,11 +10,12 @@ func help(action string) {
 		fmt.Println(
 `Usage: dpm <action> [options]
 Actions:
-init                            Initialise a DPM project
-install <datapacks>             Add datapacks as dependencies
-install                         Download all dependencies
-publish                         Publish your DPM project to Modrinth (requires --auth)
-alias <name> <auth>             Create an auth alias
+init                                    Initialise a DPM project
+install <datapacks>                     Add datapacks as dependencies
+install                                 Download all dependencies
+publish                                 Publish your DPM project to Modrinth (requires --auth)
+alias <name> <auth>                     Create an auth alias
+create <template-name> <project-name>   Generate a datapack from a template
 
 Options:
 --auth <auth>      Specify a Modrinth authorisation token
@@ -22,7 +23,7 @@ Options:
 		return
 	}
 
-	if action == "init"{
+	if action == "init" {
     fmt.Println(
 `Initialise a DPM project
 
@@ -49,7 +50,7 @@ aliases: i`)
 		return
 	}
 
-  if action == "publish"{
+  if action == "publish" {
     fmt.Println(
 `Publish your DPM project to Modrinth (requires --auth)
 
@@ -60,7 +61,7 @@ Zips up your datapack files and uses the infromation in the project.json file to
 		return
 	}
 
-	if action == "alias"{
+	if action == "alias" {
     fmt.Println(
 `Create an auth alias
 
@@ -68,6 +69,18 @@ Usage:
 dpm alias gears bar && dpm publish --auth gears
 
 Stores the auth token in ` + aliasFile + ` and replaces the name with the token when used`)
+		return
+	}
+
+	if action == "create" {
+    fmt.Println(
+`Generate a datapack from a template
+
+Usage:
+dpm create <template-name> <project-name>
+
+Templates:
+basic: The minimum required files for a datapack`)
 		return
 	}
 
