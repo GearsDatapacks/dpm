@@ -5,28 +5,39 @@
 ## Usage
 **To use DPM, first you have to [install it](#installation).**
 
-DPM can be used in two ways.
+DPM has a variety of subcommands.
 
-### 1. Installing datapacks in your world
+### Init
+Some DPM functions require an initialised project. To initialise a DPM project, open the terminal in your datapack folder (the one containing pack.mcmeta), and run `dpm init`. This will ask some questions and then generate a file named `project.json`. 
+
+### Install
+Install downloads datapacks into your world or as dependencies of another datapack.
+
 To install a datapck into your world, open the terminal in your `<world_save>/datapacks` folder.  
 Then, simply type `dpm install ` followed by the datapack id or slug on modrinth. (This will usually be an alphanumeric version of the title, e.g. `code-of-copper`).  
 If everything goes correctly, it will download the datapack file alongside any dependencies that it might have.  
 Then, load up your world and enjoy!
 
-### 2. Managing dependencies in your datapack
-DPM also lets you to manage dependencies within your own datapacks. To initialise a DPM project, open the terminal in your datapack folder (the one containing pack.mcmeta), and run `dpm init`. This will ask some questions and then generate a file named `project.json`. 
-
-**Installing dependencies**  
-Installing dependencies is as simple as running `dpm install <datapack id/slug>`. This will add an entry to your `project.json`.
+**If you are in a dpm project,**  
+DPM will add the installed datapack as a dependency.
 
 If you simply run `dpm install` with no arguments, it will download all dependencies that are stored in your project JSON.
 
-**Publishing**  
+### Publish
 DPM allows you to publish a datapack without manually uploading it to Modrinth. If you run `dpm publish`, it will extract the settings from your project json, zip up your files and upload it directly to Modrinth.  
 **Note: You must give you Modrinth auth token using the --auth flag, otherwise dpm doesn't have permission to upload the pack.**
 
-**You can see more information by running `dpm [command] --help`**  
-  
+### Alias
+The alias command allows you to create aliases for auth tokens.  
+This allows you to use your authorisation without having to copy-paste it every time.  
+Run `dpm alias <alias-name> <auth>`, and whenever you use that alias name in `--auth`, it will replace it with the auth you give it.
+
+### Create
+Using `dpm create <template-name> <project-name>`, you can generate a datapack from a selection of templates.  
+Run `dpm create --help` for a list of them.
+
+**You can see more information by running `dpm [command] --help`**
+
 ## Installation
 
 1. Download the corresponding binary for your operating system from the releases page

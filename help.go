@@ -19,7 +19,8 @@ create <template-name> <project-name>   Generate a datapack from a template
 
 Options:
 --auth <auth>      Specify a Modrinth authorisation token
---help             Show information on a specific DPM command`)
+--help             Show information on a specific DPM command
+--version          Output current DPM version`)
 		return
 	}
 
@@ -80,7 +81,8 @@ Usage:
 dpm create <template-name> <project-name>
 
 Templates:
-basic: The minimum required files for a datapack`)
+basic: The minimum required files for a datapack
+simple: Some useful files created`)
 		return
 	}
 
