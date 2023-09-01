@@ -51,20 +51,21 @@ func createProject(project projectJson) projectJson {
 }
 
 const PACK_FORMAT = "17"
+
 func makeMcmeta(desc string) string {
 	return `{
-	"pack": {
-		"pack_format": ` + PACK_FORMAT + `,
-		"description": "` + desc + `"
-	}
+  "pack": {
+    "pack_format": ` + PACK_FORMAT + `,
+    "description": "` + desc + `"
+  }
 }`
 }
 
 func makeTagFile(name string) string {
-return fmt.Sprintf(`{
-	"values": [
-		"%s"
-	]
+	return fmt.Sprintf(`{
+  "values": [
+    "%s"
+  ]
 }`, name)
 }
 
@@ -101,14 +102,14 @@ func createBasic(name string) projectJson {
 	mcmeta := makeMcmeta(fmt.Sprintf("%s v%s", project.Name, project.Version))
 
 	os.WriteFile("pack.mcmeta", []byte(mcmeta), 0666)
-	
+
 	err = os.MkdirAll(joinPath("data", "minecraft", "tags", "functions"), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
-	writeFile(joinPath("data", "minecraft", "tags", "functions", "tick.json"), makeTagFile(namespace + ":tick"))
-	writeFile(joinPath("data", "minecraft", "tags", "functions", "load.json"), makeTagFile(namespace + ":load"))
+
+	writeFile(joinPath("data", "minecraft", "tags", "functions", "tick.json"), makeTagFile(namespace+":tick"))
+	writeFile(joinPath("data", "minecraft", "tags", "functions", "load.json"), makeTagFile(namespace+":load"))
 
 	err = os.MkdirAll(joinPath("data", namespace, "functions"), 0777)
 	if err != nil {
@@ -121,13 +122,11 @@ func createBasic(name string) projectJson {
 	return project
 }
 
-const LOAD_TEXT =
-`function %s:objectives
+const LOAD_TEXT = `function %s:objectives
 function %s:version
 `
 
-const VERSION_TEXT =
-`data modify storage %s:version version set value "%s"
+const VERSION_TEXT = `data modify storage %s:version version set value "%s"
 tellraw @a ["%s v", {"storage":"%s:version","nbt":"version"}]
 `
 

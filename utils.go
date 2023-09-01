@@ -11,7 +11,7 @@ import (
 
 var reader = bufio.NewReader(os.Stdin)
 
-func contains[T comparable] (slice []T, element T) bool {
+func contains[T comparable](slice []T, element T) bool {
 	for _, x := range slice {
 		if x == element {
 			return true

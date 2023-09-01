@@ -23,7 +23,7 @@ func publish(auth string) {
 	}
 
 	modrinthProject, err := gorinth.GetProject(slug, auth)
-	
+
 	body := modrinthProject.Body
 
 	if exists("README.md") {
@@ -48,12 +48,12 @@ func publish(auth string) {
 				break
 			}
 		}
-		
+
 		err := modrinthProject.Modify(gorinth.Project{
-			Title: project.Name,
+			Title:       project.Name,
 			Description: project.Summary,
-			Body: body,
-			Categories: project.Categories,
+			Body:        body,
+			Categories:  project.Categories,
 			License: gorinth.License{
 				Id: project.License,
 			},
@@ -73,17 +73,17 @@ func publish(auth string) {
 	user := gorinth.GetUserFromAuth(auth)
 
 	err = user.CreateProject(gorinth.Project{
-		Slug: slug,
-		Title: project.Name,
-		Description: project.Summary,
-		Categories: project.Categories,
-		ClientSide: "optional",
-		ServerSide: "required",
-		Body: body,
-		ProjectType: "mod",
-		Status: "draft",
+		Slug:         slug,
+		Title:        project.Name,
+		Description:  project.Summary,
+		Categories:   project.Categories,
+		ClientSide:   "optional",
+		ServerSide:   "required",
+		Body:         body,
+		ProjectType:  "mod",
+		Status:       "draft",
 		GameVersions: project.GameVersions,
-		Loaders: []string{"datapack"},
+		Loaders:      []string{"datapack"},
 	})
 
 	if err != nil {
@@ -106,7 +106,7 @@ func publishVersion(metadata projectJson, auth string) {
 	dependencies := formatDependencies(metadata.Dependencies, auth)
 
 	versionTitle := fmt.Sprintf("%s-v%s", title, versionNumber)
-	
+
 	fmt.Println(versionNumber, versionTitle)
 
 	zipPath := versionTitle + ".zip"
@@ -128,13 +128,13 @@ func publishVersion(metadata projectJson, auth string) {
 	}
 
 	version := gorinth.Version{
-		Name: versionTitle,
+		Name:          versionTitle,
 		VersionNumber: versionNumber,
-		Dependencies: dependencies,
-		GameVersions: metadata.GameVersions,
-		VersionType: metadata.ReleaseType,
-		Loaders: []string{ "datapack" },
-		FileParts: []string{ zipPath },
+		Dependencies:  dependencies,
+		GameVersions:  metadata.GameVersions,
+		VersionType:   metadata.ReleaseType,
+		Loaders:       []string{"datapack"},
+		FileParts:     []string{zipPath},
 	}
 
 	err = project.CreateVersion(version, auth)
@@ -156,10 +156,9 @@ func formatDependencies(dependencies map[string]string, auth string) []gorinth.D
 		}
 		version := dependency.GetSpecificVersion(versionNumber)
 
-
 		formatted := gorinth.Dependency{
-			ProjectId: dependency.Id,
-			VersionId: version.Id,
+			ProjectId:      dependency.Id,
+			VersionId:      version.Id,
 			DependencyType: "required",
 		}
 
@@ -167,7 +166,7 @@ func formatDependencies(dependencies map[string]string, auth string) []gorinth.D
 	}
 
 	return result
-} 
+}
 
 func zipFiles(filename string, files []string) {
 	archive, err := os.Create(filename)

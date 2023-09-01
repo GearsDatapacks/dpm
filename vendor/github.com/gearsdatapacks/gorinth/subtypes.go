@@ -40,8 +40,8 @@ type File struct {
 }
 
 type PayoutData struct {
-	Balance string `json:"balance"`
-	PayoutWallet string `json:"payout_wallet"`
+	Balance          string `json:"balance"`
+	PayoutWallet     string `json:"payout_wallet"`
 	PayoutWallerType string `json:"payout_wallet_type"`
-	PayoutAddress string `json:"payout_address"`
+	PayoutAddress    string `json:"payout_address"`
 }

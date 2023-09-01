@@ -7,8 +7,8 @@ import (
 
 type parsedArgs struct {
 	action string
-	data []string
-	flags []string
+	data   []string
+	flags  []string
 	values map[string]string
 }
 
@@ -16,7 +16,7 @@ var flagArgs = []string{"help", "version"}
 var valueArgs = []string{"auth"}
 var aliasEntries = map[string][]string{
 	"install": {"i"},
-	"init": {"initialise", "initialize"},
+	"init":    {"initialise", "initialize"},
 }
 var aliases = map[string]string{}
 
@@ -46,8 +46,8 @@ func parseArgs(args []string) parsedArgs {
 			result.action = "install"
 			result.data = []string{}
 
-			for (i + 1) < len(args) && !strings.HasPrefix(args[i + 1], "-") {
-				result.data = append(result.data, args[i + 1])
+			for (i+1) < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				result.data = append(result.data, args[i+1])
 				i++
 			}
 		} else if arg == "publish" {
@@ -58,8 +58,8 @@ func parseArgs(args []string) parsedArgs {
 			result.action = "alias"
 			result.data = []string{}
 
-			if i + 2 >= len(args) {
-				if i + 1 < len(args) && strings.HasPrefix(args[i+1], "--") {
+			if i+2 >= len(args) {
+				if i+1 < len(args) && strings.HasPrefix(args[i+1], "--") {
 					continue
 				}
 
@@ -73,8 +73,8 @@ func parseArgs(args []string) parsedArgs {
 			result.action = "create"
 			result.data = []string{}
 
-			if i + 2 >= len(args) {
-				if i + 1 < len(args) && strings.HasPrefix(args[i+1], "--") {
+			if i+2 >= len(args) {
+				if i+1 < len(args) && strings.HasPrefix(args[i+1], "--") {
 					continue
 				}
 

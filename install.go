@@ -15,7 +15,7 @@ func install(projects []string, auth string) {
 	if len(projects) == 0 {
 		downloadDependencies(auth)
 	}
-	
+
 	for _, project := range projects {
 		if exists("project.json") {
 			addDependency(project, auth)
@@ -108,13 +108,13 @@ func downloadFile(downloadFile gorinth.File) (skipped bool) {
 
 	client := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-				r.URL.Opaque = r.URL.Path
-				return nil
+			r.URL.Opaque = r.URL.Path
+			return nil
 		},
 	}
 	response, err := client.Get(downloadFile.Url)
 	if err != nil {
-			log.Fatal(err)
+		log.Fatal(err)
 	}
 	defer response.Body.Close()
 
@@ -129,7 +129,7 @@ func downloadFile(downloadFile gorinth.File) (skipped bool) {
 
 	defer file.Close()
 
-	fmt.Printf("%s downloaded in %v.\n", formatSize(size), totalTime.Round(time.Second / 10))
+	fmt.Printf("%s downloaded in %v.\n", formatSize(size), totalTime.Round(time.Second/10))
 
 	return false
 }
@@ -139,9 +139,9 @@ func formatSize(bytes int64) string {
 	const KILOBYTE = 1024
 
 	if bytes > MEGABYTE {
-		return fmt.Sprintf("%vMB", bytes / MEGABYTE)
+		return fmt.Sprintf("%vMB", bytes/MEGABYTE)
 	} else if bytes > KILOBYTE {
-		return fmt.Sprintf("%vKB", bytes / KILOBYTE)
+		return fmt.Sprintf("%vKB", bytes/KILOBYTE)
 	} else {
 		return fmt.Sprintf("%vB", bytes)
 	}

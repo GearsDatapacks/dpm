@@ -22,7 +22,7 @@ func createAlias(name string, auth string) {
 			log.Fatal(err)
 		}
 	}
-	
+
 	contents, err := os.ReadFile(aliasFile)
 	if err != nil {
 		log.Fatal(err)
