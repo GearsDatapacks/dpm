@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/gearsdatapacks/gorinth"
 )
@@ -26,8 +27,8 @@ func publish(auth string) {
 
 	body := modrinthProject.Body
 
-	if exists("README.md") {
-		bytes, err := os.ReadFile("README.md")
+	if filename := findFile(".", "README*"); filename != "" {
+		bytes, err := os.ReadFile(filename)
 
 		if err != nil {
 			log.Fatal(err)
@@ -114,11 +115,33 @@ func publish(auth string) {
 	fmt.Printf("Successfully created project %q\n", project.Name)
 }
 
+func findFile(dir, pattern string) string {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		matched, err := filepath.Match(pattern, file.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+		if matched {
+			return file.Name()
+		}
+	}
+
+	return ""
+}
+
 var includedFiles = []string{
 	"pack.png",
-	"README.md",
-	"CHANGELOG.md",
-	"LICENSE.md",
+	"README*",
+	"CHANGELOG*",
+	"LICENSE*",
 }
 
 func publishVersion(metadata projectJson, auth string) {
@@ -128,15 +151,13 @@ func publishVersion(metadata projectJson, auth string) {
 
 	versionTitle := fmt.Sprintf("%s-v%s", title, versionNumber)
 
-	fmt.Println(versionNumber, versionTitle)
-
 	zipPath := versionTitle + ".zip"
 
 	filesToZip := []string{"data", "pack.mcmeta"}
 
 	for _, file := range includedFiles {
-		if exists(file) {
-			filesToZip = append(filesToZip, file)
+		if filename := findFile(".", file); filename != "" {
+			filesToZip = append(filesToZip, filename)
 		}
 	}
 
