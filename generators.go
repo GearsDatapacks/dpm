@@ -35,6 +35,15 @@ func createProject(project projectJson) projectJson {
 	if project.License == "" {
 		project.License = prompt("Project license (GPL-3.0): ")
 	}
+	if project.ReleaseType == "" {
+		project.ReleaseType = "release"
+	}
+	if project.Categories == nil {
+		project.Categories = []string{}
+	}
+	if project.Dependencies == nil {
+		project.Dependencies = map[string]string{}
+	}
 
 	if project.Slug == "" {
 		project.Slug = toSlug(project.Name)
