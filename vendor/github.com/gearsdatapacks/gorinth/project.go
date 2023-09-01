@@ -103,6 +103,21 @@ func (project Project) CreateVersion(version Version, auth string) error {
 	return fmt.Errorf("unexpected status code %d", status)
 }
 
+func (project Project) ChangeIcon(icon []byte, auth string) error {
+	url := fmt.Sprintf("https://api.modrinth.com/v2/project/%s/icon?ext=%s", project.Id, "png")
+	body, status := patch(url, icon, authHeader(auth))
+
+	if status == 204 {
+		return nil
+	}
+
+	if status == 400 {
+		return fmt.Errorf("invalid request when attempting to modify project icon: %s", string(body))
+	}
+
+	return fmt.Errorf("unexpected response, status code %d", status)
+}
+
 func (project Project) Modify(modified Project, auth string) error {
 	overriddenValues := removeZeroValues(modified)
 
@@ -110,7 +125,11 @@ func (project Project) Modify(modified Project, auth string) error {
 	body, status := patch(url, overriddenValues, authHeader(auth))
 
 	if status == 204 {
-		return nil
+		if modified.Icon == nil {
+			return nil
+		}
+
+		return project.ChangeIcon(modified.Icon, auth)
 	}
 
 	if status == 404 {

@@ -1,6 +1,7 @@
 package gorinth
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -36,7 +37,19 @@ func (user User) CreateProject(project Project) error {
 
 	overriddenValues["license_id"] = project.License.Id
 
-	body, status := post("https://api.modrinth.com/v2/project", overriddenValues, authHeader(user.auth), map[string]io.Reader{})
+	parts := map[string]io.Reader{}
+
+	if project.Icon != nil {
+		parts = map[string]io.Reader{"icon": bytes.NewBuffer(project.Icon)}
+	}
+
+	body, status := post(
+		"https://api.modrinth.com/v2/project",
+		overriddenValues,
+		authHeader(user.auth),
+		parts,
+	)
+
 	if status == 200 {
 		return nil
 	}

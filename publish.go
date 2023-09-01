@@ -36,6 +36,15 @@ func publish(auth string) {
 		body = string(bytes)
 	}
 
+	var icon []byte
+
+	if exists("pack.png") {
+		icon, err = os.ReadFile("pack.png")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	// If the project exists, modify it
 	if err == nil {
 		versions := modrinthProject.GetVersions()
@@ -49,7 +58,7 @@ func publish(auth string) {
 			}
 		}
 
-		err := modrinthProject.Modify(gorinth.Project{
+		modified := gorinth.Project{
 			Title:       project.Name,
 			Description: project.Summary,
 			Body:        body,
@@ -57,7 +66,13 @@ func publish(auth string) {
 			License: gorinth.License{
 				Id: project.License,
 			},
-		}, auth)
+		}
+
+		if icon != nil {
+			modified.Icon = icon
+		}
+
+		err := modrinthProject.Modify(modified, auth)
 
 		if err != nil {
 			log.Fatal(err)
@@ -72,7 +87,7 @@ func publish(auth string) {
 	// Otherwise, make a new one
 	user := gorinth.GetUserFromAuth(auth)
 
-	err = user.CreateProject(gorinth.Project{
+	toPublish := gorinth.Project{
 		Slug:         slug,
 		Title:        project.Name,
 		Description:  project.Summary,
@@ -84,7 +99,13 @@ func publish(auth string) {
 		Status:       "draft",
 		GameVersions: project.GameVersions,
 		Loaders:      []string{"datapack"},
-	})
+	}
+
+	if icon != nil {
+		toPublish.Icon = icon
+	}
+
+	err = user.CreateProject(toPublish)
 
 	if err != nil {
 		log.Fatal(err)
