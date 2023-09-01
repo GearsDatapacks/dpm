@@ -72,12 +72,21 @@ func createTemplate(template string, name string) {
 	switch strings.ToLower(template) {
 	case "basic":
 		createBasic(name)
+	case "simple":
+		createSimple(name)
 	default:
 		log.Fatalf("Unrecognised template name %q", template)
 	}
 }
 
-func createBasic(name string) {
+func writeFile(path string, content string) {
+	err := os.WriteFile(path, []byte(content), 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createBasic(name string) projectJson {
 	err := os.Mkdir(name, 0777)
 	if err != nil {
 		log.Fatal(err)
@@ -98,26 +107,36 @@ func createBasic(name string) {
 		log.Fatal(err)
 	}
 	
-	err = os.WriteFile(joinPath("data", "minecraft", "tags", "functions", "tick.json"), []byte(makeTagFile(namespace + ":tick")), 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = os.WriteFile(joinPath("data", "minecraft", "tags", "functions", "load.json"), []byte(makeTagFile(namespace + ":load")), 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
+	writeFile(joinPath("data", "minecraft", "tags", "functions", "tick.json"), makeTagFile(namespace + ":tick"))
+	writeFile(joinPath("data", "minecraft", "tags", "functions", "load.json"), makeTagFile(namespace + ":load"))
 
 	err = os.MkdirAll(joinPath("data", namespace, "functions"), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile(joinPath("data", namespace, "functions", "tick.mcfunction"), []byte(fmt.Sprintf(`tellraw @a "Loaded %s v%s"`, project.Name, project.Version)), 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = os.Create(joinPath("data", namespace, "functions", "load.mcfunction"))
-	if err != nil {
-		log.Fatal(err)
-	}
+	writeFile(joinPath("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(`tellraw @a "Loaded %s v%s"`, project.Name, project.Version))
+	writeFile(joinPath("data", namespace, "functions", "tick.mcfunction"), "")
+
+	return project
+}
+
+const LOAD_TEXT =
+`function %s:objectives
+function %s:version
+`
+
+const VERSION_TEXT =
+`data modify storage %s:version version set value "%s"
+tellraw @a ["%s v", {"storage":"%s:version","nbt":"version"}]
+`
+
+func createSimple(name string) {
+	project := createBasic(name)
+
+	namespace := toNamespace(name)
+
+	writeFile(joinPath("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(LOAD_TEXT, namespace, namespace))
+	writeFile(joinPath("data", namespace, "functions", "version.mcfunction"), fmt.Sprintf(VERSION_TEXT, namespace, project.Version, project.Name, namespace))
+	writeFile(joinPath("data", namespace, "functions", "objectives.mcfunction"), "")
 }
