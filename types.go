@@ -11,3 +11,8 @@ type projectJson struct {
 	Dependencies map[string]string `json:"dependencies"`
 	ReleaseType  string            `json:"release_type"`
 }
+
+type dpmConfig struct {
+	IncludeFiles []string `json:"include_files"`
+	ExcludeFiles []string `json:"exclude_files"`
+}

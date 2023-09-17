@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +16,17 @@ func createProject(project projectJson) projectJson {
 	if exists("project.json") {
 		log.Fatal("File project.json already exists.")
 		return project
+	}
+
+	config := dpmConfig{
+		IncludeFiles: []string{},
+		ExcludeFiles: []string{},
+	}
+
+	bytes, _ := json.MarshalIndent(config, "", "  ")
+	err := os.WriteFile("dpmconfig.json", bytes, 0666)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	if project.Name == "" {

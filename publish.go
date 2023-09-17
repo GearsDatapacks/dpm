@@ -27,7 +27,7 @@ func publish(auth string) {
 
 	body := modrinthProject.Body
 
-	if filename := findFile(".", "README*"); filename != "" {
+	if filename := findFile(".", "README*", []string{}); filename != "" {
 		bytes, err := os.ReadFile(filename)
 
 		if err != nil {
@@ -115,7 +115,7 @@ func publish(auth string) {
 	fmt.Printf("Successfully created project %q\n", project.Name)
 }
 
-func findFile(dir, pattern string) string {
+func findFile(dir, pattern string, excludeFiles []string) string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
@@ -129,19 +129,28 @@ func findFile(dir, pattern string) string {
 		if err != nil {
 			log.Fatal(err)
 		}
-		if matched {
+
+		if !matched {
+			continue
+		}
+
+		matchedExclude := false
+		for _, exclude := range excludeFiles {
+			matched, err := filepath.Match(exclude, file.Name())
+			if err != nil {
+				log.Fatal(err)
+			}
+			if matched {
+				matchedExclude = true
+			}
+		}
+
+		if !matchedExclude {
 			return file.Name()
 		}
 	}
 
 	return ""
-}
-
-var includedFiles = []string{
-	"pack.png",
-	"README*",
-	"CHANGELOG*",
-	"LICENSE*",
 }
 
 func publishVersion(metadata projectJson, auth string) {
@@ -155,8 +164,23 @@ func publishVersion(metadata projectJson, auth string) {
 
 	filesToZip := []string{"data", "pack.mcmeta"}
 
+	includedFiles := []string{
+		"pack.png",
+		"README*",
+		"CHANGELOG*",
+		"LICENSE*",
+	}
+	excludedFiles := []string{}
+
+	config, hasConfig := getConfig()
+
+	if hasConfig {
+		includedFiles = append(includedFiles, config.IncludeFiles...)
+		excludedFiles = config.ExcludeFiles
+	}
+
 	for _, file := range includedFiles {
-		if filename := findFile(".", file); filename != "" {
+		if filename := findFile(".", file, excludedFiles); filename != "" {
 			filesToZip = append(filesToZip, filename)
 		}
 	}

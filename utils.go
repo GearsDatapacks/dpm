@@ -57,6 +57,27 @@ func toNamespace(title string) string {
 	return strings.ReplaceAll(toSlug(title), "-", "_")
 }
 
+func getConfig() (dpmConfig, bool) {
+	if !exists("dpmconfig.json") {
+		return dpmConfig{}, false
+	}
+
+	projectBytes, err := os.ReadFile("dpmconfig.json")
+
+	if err != nil {
+		return dpmConfig{}, false
+	}
+
+	config := dpmConfig{}
+	err = json.Unmarshal(projectBytes, &config)
+
+	if err != nil {
+		return dpmConfig{}, false
+	}
+
+	return config, true
+}
+
 func getProjectJson() projectJson {
 	if !exists("project.json") {
 		log.Fatal("Could not find project.json. Please run dpm init to initialise a project.")
