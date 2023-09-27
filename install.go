@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gearsdatapacks/gorinth"
@@ -16,36 +17,38 @@ func install(projects []string, auth string) {
 		downloadDependencies(auth)
 	}
 
-	for _, project := range projects {
-		if exists("project.json") {
-			addDependency(project, auth)
+	for _, projectStr := range projects {
+		values := strings.Split(projectStr, "@")
+		id := values[0]
+		version_id := ""
+		if len(values) > 1 {
+			version_id = values[1]
 		}
 
-		downloadProject(project, auth)
+		project, version := getVersion(id, version_id, auth)
+		fmt.Printf("Project %q found\n", project.Title)
+
+		if exists("project.json") {
+			addDependency(version, id, auth)
+		}
+
+		downloadVersion(version)
 	}
 }
 
-func addDependency(dependency string, auth string) {
+func addDependency(dependency gorinth.Version, slug string, auth string) {
 	project := getProjectJson()
-
-	dependencyProject, err := gorinth.GetProject(dependency, auth)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	latestVersion := dependencyProject.GetLatestVersion().VersionNumber
 
 	if project.Dependencies == nil {
 		project.Dependencies = map[string]string{}
 	}
 
-	project.Dependencies[dependency] = latestVersion
+	project.Dependencies[slug] = dependency.VersionNumber
 
 	setProjectJson(project)
 }
 
-func downloadProject(project_id string, auth string) {
+func downloadProject(project_id, version_id, auth string) {
 	project, err := gorinth.GetProject(project_id, auth)
 
 	if err != nil {
@@ -54,9 +57,44 @@ func downloadProject(project_id string, auth string) {
 
 	fmt.Printf("Project %q found\n", project.Title)
 
-	latest := project.GetLatestVersion()
+	var version gorinth.Version
 
-	downloadVersion(latest)
+	if version_id == "" {
+		version = getLatestStable(project)
+	} else if version_id == "latest" {
+		version = project.GetLatestVersion()
+	} else {
+		version = project.GetSpecificVersion(version_id)
+	}
+
+	downloadVersion(version)
+}
+
+func getVersion(project_id, version_id, auth string) (gorinth.Project, gorinth.Version) {
+	project, err := gorinth.GetProject(project_id, auth)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if version_id == "" {
+		return project, getLatestStable(project)
+	} else if version_id == "latest" {
+		return project, project.GetLatestVersion()
+	} else {
+		return project, project.GetSpecificVersion(version_id)
+	}
+}
+
+func getLatestStable(project gorinth.Project) gorinth.Version {
+	for _, version := range project.GetVersions() {
+		if version.VersionType == "release" {
+			return version
+		}
+	}
+
+	log.Printf("Warning: Project %q has no stable versions, defaulting to latest\n", project.Title)
+	return project.GetLatestVersion()
 }
 
 func downloadDependencies(auth string) {
