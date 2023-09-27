@@ -117,11 +117,7 @@ func downloadVersion(version gorinth.Version) {
 	files := version.Files
 
 	for _, file := range files {
-		skipped := downloadFile(file)
-
-		if skipped {
-			return
-		}
+		downloadFile(file)
 	}
 
 	for _, dependency := range version.Dependencies {
@@ -129,12 +125,12 @@ func downloadVersion(version gorinth.Version) {
 	}
 }
 
-func downloadFile(downloadFile gorinth.File) (skipped bool) {
+func downloadFile(downloadFile gorinth.File) {
 	filename := downloadFile.Filename
 
 	if exists(filename) {
 		fmt.Printf("File %s already exists, skipping...\n", filename)
-		return true
+		return
 	}
 
 	fmt.Printf("Downloading file %s... ", filename)
@@ -168,8 +164,6 @@ func downloadFile(downloadFile gorinth.File) (skipped bool) {
 	defer file.Close()
 
 	fmt.Printf("%s downloaded in %v.\n", formatSize(size), totalTime.Round(time.Second/10))
-
-	return false
 }
 
 func formatSize(bytes int64) string {
