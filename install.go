@@ -127,13 +127,16 @@ func downloadVersion(version gorinth.Version) {
 
 func downloadFile(downloadFile gorinth.File) {
 	filename := downloadFile.Filename
+	if exists("project.json") {
+		filename = "../" + filename
+	}
 
 	if exists(filename) {
-		fmt.Printf("File %s already exists, skipping...\n", filename)
+		fmt.Printf("File %s already exists, skipping...\n", downloadFile.Filename)
 		return
 	}
 
-	fmt.Printf("Downloading file %s... ", filename)
+	fmt.Printf("Downloading file %s... ", downloadFile.Filename)
 	startTime := time.Now()
 	file, err := os.Create(filename)
 	if err != nil {
