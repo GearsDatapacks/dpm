@@ -47,6 +47,14 @@ dpm install
 
 If left blank, it will download all dependencies of te current project
 
+You can specify the version of the dependency using the following syntax:
+dpm install moxlib@0.5.5
+The above code installs moxlib version 0.5.5.
+
+By default, if you do not specify the version, it will download the latest stable release. You can override this behaviour like so:
+dpm install code-of-copper@latest
+That downloads the most recent version, regardless of release type.
+
 aliases: i`)
 		return
 	}
