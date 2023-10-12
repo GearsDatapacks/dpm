@@ -9,6 +9,7 @@ DPM has a variety of subcommands.
 
 ### Init
 Some DPM functions require an initialised project. To initialise a DPM project, open the terminal in your datapack folder (the one containing pack.mcmeta), and run `dpm init`. This will ask some questions and then generate a file named `project.json`. 
+It will also create a file named `dpmconfig.json`, which changes some of the functionality of the dppm command. More information [here](#config)
 
 ### Install
 Install downloads datapacks into your world or as dependencies of another datapack.
@@ -20,6 +21,10 @@ Then, load up your world and enjoy!
 
 **If you are in a dpm project,**  
 DPM will add the installed datapack as a dependency.
+
+By default, DPM will install the latest stable release of specified datapacks. You can override this behaviour with the following:  
+`dpm install code-of-copper@0.1.0` - installs the version "0.1.0" of Code of Copper  
+`dpm install code-of-copper@latest` - installs the very latest version of Code of Copper
 
 If you simply run `dpm install` with no arguments, it will download all dependencies that are stored in your project JSON.
 
@@ -37,6 +42,12 @@ Using `dpm create <template-name> <project-name>`, you can generate a datapack f
 Run `dpm create --help` for a list of them.
 
 **You can see more information by running `dpm [command] --help`**
+
+## Config
+At the moment, there are only 2 config options to be found in the `dpmconfig.json` file.
+
+`include_files` - Additional files to include in the datapack when publishing. This supports file match syntax, e.g. `foo.*`
+`exclude_files` - Files to exclude from the datapack when publishing, overriding the default included files. This supports file match syntax, e.g. `*.json`
 
 ## Installation
 
