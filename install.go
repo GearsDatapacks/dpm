@@ -12,7 +12,10 @@ import (
 	"github.com/gearsdatapacks/gorinth"
 )
 
+var downloaded = []string{}
+
 func install(projects []string, auth string) {
+	downloaded = []string{}
 	if len(projects) == 0 {
 		downloadDependencies(auth)
 	}
@@ -114,6 +117,11 @@ func downloadDependencies(auth string) {
 }
 
 func downloadVersion(version gorinth.Version) {
+	if contains(downloaded, version.Id) {
+		return
+	}
+	downloaded = append(downloaded, version.Id)
+
 	files := version.Files
 
 	for _, file := range files {
