@@ -36,6 +36,7 @@ func (user User) CreateProject(project Project) error {
 	overriddenValues := removeNullValues(project)
 
 	overriddenValues["license_id"] = project.License.Id
+	overriddenValues["is_draft"] = true
 
 	parts := map[string]io.Reader{}
 
