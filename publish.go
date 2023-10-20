@@ -116,6 +116,8 @@ func publish(auth string) {
 	}
 
 	fmt.Printf("Successfully created project %q\n", project.Name)
+
+	publishVersion(project, auth)
 }
 
 func findFile(dir, pattern string, excludeFiles []string) string {
