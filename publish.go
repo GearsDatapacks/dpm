@@ -64,7 +64,7 @@ func publish(auth string) {
 			Description: project.Summary,
 			Body:        body,
 			Categories:  project.Categories,
-			License: gorinth.License{
+			License: &gorinth.License{
 				Id: project.License,
 			},
 		}
@@ -100,6 +100,9 @@ func publish(auth string) {
 		Status:       "draft",
 		GameVersions: project.GameVersions,
 		Loaders:      []string{"datapack"},
+		License: &gorinth.License{
+			Id: project.License,
+		},
 	}
 
 	if icon != nil {
