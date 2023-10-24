@@ -129,6 +129,10 @@ func downloadVersion(version gorinth.Version) {
 	}
 
 	for _, dependency := range version.Dependencies {
+		if dependency.DependencyType != "required" {
+			continue
+		}
+
 		downloadVersion(dependency.GetVersion())
 	}
 }
