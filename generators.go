@@ -31,6 +31,11 @@ func createProject(project projectJson) projectJson {
 
 	if project.Name == "" {
 		project.Name = prompt("Title of project: ")
+	} else {
+		name := prompt("Title of project (" + project.Name + "): ")
+		if name != "" {
+			project.Name = name
+		}
 	}
 	if project.Slug == "" {
 		project.Slug = prompt(fmt.Sprintf("Project slug (%s): ", toSlug(project.Name)))
