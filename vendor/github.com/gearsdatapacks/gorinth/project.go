@@ -115,7 +115,7 @@ func (project Project) ChangeIcon(icon []byte, auth string) error {
 		return fmt.Errorf("invalid request when attempting to modify project icon: %s", string(body))
 	}
 
-	return fmt.Errorf("unexpected response, status code %d", status)
+	return fmt.Errorf("unexpected response, status code %d, error %s", status, string(body))
 }
 
 func (project Project) Modify(modified Project, auth string) error {
@@ -147,7 +147,11 @@ func (project Project) Modify(modified Project, auth string) error {
 		return fmt.Errorf("%s: %s", responseSchema.Error, responseSchema.Description)
 	}
 
-	return fmt.Errorf("unexpected response, status code %d", status)
+	if status == 400 {
+		return fmt.Errorf("invalid request when attempting to modify project icon: %s", string(body))
+	}
+
+	return fmt.Errorf("unexpected response, status code %d, error %s", status, string(body))
 }
 
 func validSlug(slug string) bool {

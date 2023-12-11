@@ -64,6 +64,7 @@ func publish(auth string) {
 			Description: project.Summary,
 			Body:        body,
 			Categories:  project.Categories,
+			AdditionalCategories: project.AditionalCategories,
 			License: &gorinth.License{
 				Id: project.License,
 			},
