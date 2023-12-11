@@ -64,6 +64,9 @@ func createProject(project projectJson) projectJson {
 	if project.Dependencies == nil {
 		project.Dependencies = map[string]string{}
 	}
+	if project.Version == "" {
+		project.Version = DPM_VERSION.String()
+	}
 
 	if project.Slug == "" {
 		project.Slug = toSlug(project.Name)

@@ -5,7 +5,14 @@ import (
 	"os"
 )
 
-const DPM_VERSION = "0.1.0-beta-1"
+// 0.1.0-rc-2
+var DPM_VERSION = version{
+	Major: 0,
+	Minor: 1,
+	Patch: 0,
+	Extra: 2,
+	Kind:  "rc",
+}
 
 func main() {
 	args := parseArgs(os.Args[1:])
@@ -27,7 +34,7 @@ func main() {
 	}
 
 	if contains(args.flags, "version") {
-		fmt.Printf("DPM v%s\n", DPM_VERSION)
+		fmt.Printf("DPM v%s\n", DPM_VERSION.String())
 		return
 	}
 

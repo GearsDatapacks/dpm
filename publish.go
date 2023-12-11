@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -17,6 +18,16 @@ func publish(auth string) {
 	}
 
 	project := getProjectJson()
+	projectVersion := ParseVersion(project.DpmVersion)
+	reader := bufio.NewReader(os.Stdin)
+	if projectVersion.Less(DPM_VERSION) {
+		fmt.Print("[Warning] This project was made with an older version of DPM and may use a different project format.\nPress CTRL+C to quit or enter to continue anyway.")
+		reader.ReadLine()
+	}
+	if projectVersion.Greater(DPM_VERSION) {
+		fmt.Println("[Warning] This project was made with an newer version of DPM and may use a different project format. Consider updating DPM.\nPress CTRL+C to quit or enter to continue anyway.")
+		reader.ReadLine()
+	}
 
 	slug := project.Slug
 	if slug == "" {
