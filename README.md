@@ -46,8 +46,8 @@ Run `dpm create --help` for a list of them.
 ## Config
 At the moment, there are only 2 config options to be found in the `dpmconfig.json` file.
 
-`include_files` - Additional files to include in the datapack when publishing. This supports file match syntax, e.g. `foo.*`
-`exclude_files` - Files to exclude from the datapack when publishing, overriding the default included files. This supports file match syntax, e.g. `*.json`
+`include_files` - Additional files to include in the datapack when publishing. This supports file match syntax, e.g. `foo.*`  
+`exclude_files` - Files to exclude from the datapack when publishing, overriding the default included files. This supports file match syntax, e.g. `*.json`  
 
 ## Installation
 
