@@ -5,13 +5,11 @@ import (
 	"os"
 )
 
-// 0.1.0-rc-2
+// 0.1.0
 var DPM_VERSION = version{
 	Major: 0,
 	Minor: 1,
 	Patch: 0,
-	Extra: 2,
-	Kind:  "rc",
 }
 
 func main() {
