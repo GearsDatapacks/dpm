@@ -1,6 +1,13 @@
-# DPM
+<div align="center">
+  <a href="https://github.com/GearsDatapacks/dpm">
+    <img src="logo.png" alt="Logo" height="80">
+  </a>
 
-**DPM (Datapack package manager) is a package manager for Minecraft datapacks, based on npm for node.js.**
+<h1 align="center">DPM</h1>
+  <p align="center">
+    <strong>DPM (Datapack package manager) is a package manager for Minecraft datapacks, based on npm for node.js.</strong>
+  </p>
+</div>
 
 ## Usage
 **To use DPM, first you have to [install it](#installation).**
