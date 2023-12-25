@@ -84,6 +84,20 @@ func parseArgs(args []string) parsedArgs {
 			result.data = append(result.data, args[i+1], args[i+2])
 
 			i += 2
+		} else if arg == "rm-alias" {
+			result.action = "rm-alias"
+			result.data = []string{}
+			if i+1 >= len(args) {
+				log.Fatal("Subcommand 'rm-alias' takes one argument")
+			}
+			
+			if strings.HasPrefix(args[i+1], "--") {
+				continue
+			}
+			
+			result.data = append(result.data, args[i+1])
+
+			i++
 		} else if strings.HasPrefix(arg, "--") {
 			argName := arg[2:]
 

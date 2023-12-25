@@ -15,6 +15,7 @@ install <datapacks>                     Add datapacks as dependencies
 install                                 Download all dependencies
 publish                                 Publish your DPM project to Modrinth (requires --auth)
 alias <name> <auth>                     Create an auth alias
+rm-alias <name>                         Removes an auth alias
 create <template-name> <project-name>   Generate a datapack from a template
 
 Options:
@@ -81,6 +82,16 @@ Stores the auth token in ` + aliasFile + ` and replaces the name with the token 
 		return
 	}
 
+	if action == "rm-alias" {
+		fmt.Println(
+			`Remove an auth alias
+
+Usage:
+dpm rm-alias gears
+
+Removes the given alias from the registry`)
+		return
+	}
 	if action == "create" {
 		fmt.Println(
 			`Generate a datapack from a template

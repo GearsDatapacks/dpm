@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 )
@@ -33,15 +34,24 @@ func createAlias(name string, auth string) {
 
 	aliases[name] = auth
 
-	newAliases, err := json.MarshalIndent(aliases, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
+	setAliases(aliases)
 
-	err = os.WriteFile(aliasFile, newAliases, 0666)
-	if err != nil {
-		log.Fatal(err)
+	fmt.Printf("Created alias %q\n", name)
+}
+
+func removeAlias(name string) {
+	if !exists(aliasFile) {
+		fmt.Printf("Alias %q does not exist\n", name)
+		return
 	}
+	aliases := getAliases()
+	if _, ok := aliases[name]; !ok {
+		fmt.Printf("Alias %q does not exist\n", name)
+		return
+	}
+	fmt.Printf("Removed alias %q\n", name)
+	delete(aliases, name)
+	setAliases(aliases)
 }
 
 func getAliases() map[string]string {
@@ -61,4 +71,16 @@ func getAliases() map[string]string {
 	}
 
 	return aliases
+}
+
+func setAliases(aliases map[string]string) {
+	newAliases, err := json.MarshalIndent(aliases, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile(aliasFile, newAliases, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

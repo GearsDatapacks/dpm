@@ -5,11 +5,13 @@ import (
 	"os"
 )
 
-// 0.1.0
+// 0.1.1-indev-0
 var DPM_VERSION = version{
 	Major: 0,
 	Minor: 1,
 	Patch: 0,
+	Extra: 0,
+	Kind: "indev",
 }
 
 func main() {
@@ -44,6 +46,8 @@ func main() {
 		initProject()
 	} else if args.action == "alias" {
 		createAlias(args.data[0], args.data[1])
+	} else if args.action == "rm-alias" {
+		removeAlias(args.data[0])
 	} else if args.action == "create" {
 		createTemplate(args.data[0], args.data[1])
 	} else {
