@@ -21,7 +21,8 @@ create <template-name> <project-name>   Generate a datapack from a template
 Options:
 --auth <auth>      Specify a Modrinth authorisation token
 --help             Show information on a specific DPM command
---version          Output current DPM version`)
+--version          Output current DPM version
+--dev              Install a dev dependency`)
 		return
 	}
 
@@ -55,6 +56,8 @@ The above code installs moxlib version 0.5.5.
 By default, if you do not specify the version, it will download the latest stable release. You can override this behaviour like so:
 dpm install code-of-copper@latest
 That downloads the most recent version, regardless of release type.
+
+If --dev is passed, it will instead store the projects as dev dependencies (Or download dev dependencies, if left blank). Dev dependencies are libraries only used in development, and are not published to Modrinth.
 
 aliases: i`)
 		return

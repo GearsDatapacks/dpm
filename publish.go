@@ -71,11 +71,11 @@ func publish(auth string) {
 		}
 
 		modified := gorinth.Project{
-			Title:       project.Name,
-			Description: project.Summary,
-			Body:        body,
-			Categories:  project.Categories,
-			AdditionalCategories: project.AditionalCategories,
+			Title:                project.Name,
+			Description:          project.Summary,
+			Body:                 body,
+			Categories:           project.Categories,
+			AdditionalCategories: project.AdditionalCategories,
 			License: &gorinth.License{
 				Id: project.License,
 			},

@@ -58,11 +58,14 @@ func createProject(project projectJson) projectJson {
 	if project.Categories == nil {
 		project.Categories = []string{}
 	}
-	if project.AditionalCategories == nil {
-		project.AditionalCategories = []string{}
+	if project.AdditionalCategories == nil {
+		project.AdditionalCategories = []string{}
 	}
 	if project.Dependencies == nil {
 		project.Dependencies = map[string]string{}
+	}
+	if project.DevDependencies == nil {
+		project.DevDependencies = map[string]string{}
 	}
 	if project.Version == "" {
 		project.Version = DPM_VERSION.String()

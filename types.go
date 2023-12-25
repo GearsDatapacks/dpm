@@ -8,17 +8,18 @@ import (
 )
 
 type projectJson struct {
-	Name                string            `json:"name"`
-	Slug                string            `json:"slug"`
-	Version             string            `json:"version"`
-	GameVersions        []string          `json:"game_versions"`
-	Summary             string            `json:"summary"`
-	License             string            `json:"license"`
-	Categories          []string          `json:"categories"`
-	AditionalCategories []string          `json:"additional_categories"`
-	Dependencies        map[string]string `json:"dependencies"`
-	ReleaseType         string            `json:"release_type"`
-	DpmVersion          string           `json:"dpm_version"`
+	Name                 string            `json:"name"`
+	Slug                 string            `json:"slug"`
+	Version              string            `json:"version"`
+	GameVersions         []string          `json:"game_versions"`
+	Summary              string            `json:"summary"`
+	License              string            `json:"license"`
+	Categories           []string          `json:"categories"`
+	AdditionalCategories []string          `json:"additional_categories"`
+	Dependencies         map[string]string `json:"dependencies"`
+	DevDependencies      map[string]string `json:"dev_dependencies"`
+	ReleaseType          string            `json:"release_type"`
+	DpmVersion           string            `json:"dpm_version"`
 }
 
 type version struct {

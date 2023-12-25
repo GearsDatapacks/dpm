@@ -12,7 +12,7 @@ type parsedArgs struct {
 	values map[string]string
 }
 
-var flagArgs = []string{"help", "version"}
+var flagArgs = []string{"help", "version", "dev"}
 var valueArgs = []string{"auth"}
 var aliasEntries = map[string][]string{
 	"install": {"i"},
@@ -90,7 +90,7 @@ func parseArgs(args []string) parsedArgs {
 			if i+1 >= len(args) {
 				log.Fatal("Subcommand 'rm-alias' takes one argument")
 			}
-			
+
 			if strings.HasPrefix(args[i+1], "--") {
 				continue
 			}
