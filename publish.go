@@ -173,7 +173,9 @@ func findFile(dir, pattern string, excludeFiles []string) string {
 func publishVersion(metadata projectJson, auth string) {
 	title := metadata.Name
 	versionNumber := metadata.Version
-	dependencies := formatDependencies(metadata.Dependencies, auth)
+	dependencies := formatDependencies(metadata.Dependencies, "required", auth)
+	optionalDependencies := formatDependencies(metadata.OptionalDependencies, "optional", auth)
+	dependencies = append(dependencies, optionalDependencies...)
 
 	versionTitle := fmt.Sprintf("%s-v%s", title, versionNumber)
 
@@ -229,7 +231,7 @@ func publishVersion(metadata projectJson, auth string) {
 	fmt.Printf("Successfully created version %q\n", versionTitle)
 }
 
-func formatDependencies(dependencies map[string]string, auth string) []gorinth.Dependency {
+func formatDependencies(dependencies map[string]string, depType string, auth string) []gorinth.Dependency {
 	result := []gorinth.Dependency{}
 
 	for slug, versionNumber := range dependencies {
@@ -242,7 +244,7 @@ func formatDependencies(dependencies map[string]string, auth string) []gorinth.D
 		formatted := gorinth.Dependency{
 			ProjectId:      dependency.Id,
 			VersionId:      version.Id,
-			DependencyType: "required",
+			DependencyType: depType,
 		}
 
 		result = append(result, formatted)

@@ -18,6 +18,7 @@ type projectJson struct {
 	AdditionalCategories []string          `json:"additional_categories"`
 	Dependencies         map[string]string `json:"dependencies"`
 	DevDependencies      map[string]string `json:"dev_dependencies"`
+	OptionalDependencies map[string]string `json:"optional_dependencies"`
 	ReleaseType          string            `json:"release_type"`
 	DpmVersion           string            `json:"dpm_version"`
 }

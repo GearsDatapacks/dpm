@@ -22,7 +22,8 @@ Options:
 --auth <auth>      Specify a Modrinth authorisation token
 --help             Show information on a specific DPM command
 --version          Output current DPM version
---dev              Install a dev dependency`)
+--dev              Install a dev dependency
+--optional         Install an optional dependency`)
 		return
 	}
 
@@ -58,6 +59,8 @@ dpm install code-of-copper@latest
 That downloads the most recent version, regardless of release type.
 
 If --dev is passed, it will instead store the projects as dev dependencies (Or download dev dependencies, if left blank). Dev dependencies are libraries only used in development, and are not published to Modrinth.
+
+If --optional is passed, it will instead store the projects as optional dependencies (Or download optional dependencies, if left blank). Optional dependencies are marked as optional on Modrinth, and not automatically downloaded.
 
 aliases: i`)
 		return

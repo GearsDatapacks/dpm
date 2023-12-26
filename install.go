@@ -14,10 +14,10 @@ import (
 
 var downloaded = []string{}
 
-func install(projects []string, auth string, dev bool) {
+func install(projects []string, auth string, depKind string) {
 	downloaded = []string{}
 	if len(projects) == 0 {
-		downloadDependencies(auth, dev)
+		downloadDependencies(auth, depKind)
 	}
 
 	for _, projectStr := range projects {
@@ -32,21 +32,27 @@ func install(projects []string, auth string, dev bool) {
 		fmt.Printf("Project %q found\n", project.Title)
 
 		if exists("project.json") {
-			addDependency(version, id, auth, dev)
+			addDependency(version, id, auth, depKind)
 		}
 
 		downloadVersion(version)
 	}
 }
 
-func addDependency(dependency gorinth.Version, slug string, auth string, dev bool) {
+func addDependency(dependency gorinth.Version, slug string, auth string, depKind string) {
 	project := getProjectJson()
-	if dev {
+	if depKind == "dev" {
 		if project.DevDependencies == nil {
 			project.DevDependencies = map[string]string{}
 		}
 
 		project.DevDependencies[slug] = dependency.VersionNumber
+	} else if depKind == "optional" {
+		if project.OptionalDependencies == nil {
+			project.OptionalDependencies = map[string]string{}
+		}
+
+		project.OptionalDependencies[slug] = dependency.VersionNumber
 	} else {
 		if project.Dependencies == nil {
 			project.Dependencies = map[string]string{}
@@ -107,11 +113,17 @@ func getLatestStable(project gorinth.Project) gorinth.Version {
 	return project.GetLatestVersion()
 }
 
-func downloadDependencies(auth string, dev bool) {
+func downloadDependencies(auth string, depKind string) {
 	project := getProjectJson()
 	deps := project.Dependencies
-	if dev {
+	if depKind == "dev" {
 		deps = project.DevDependencies
+	} else if depKind == "optional" {
+		deps = project.OptionalDependencies
+	}
+
+	if deps == nil {
+		return
 	}
 
 	for slug, versionNumber := range deps {

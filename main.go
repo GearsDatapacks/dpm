@@ -39,7 +39,13 @@ func main() {
 	}
 
 	if args.action == "install" {
-		install(args.data, auth, contains(args.flags, "dev"))
+		if contains(args.flags, "dev") {
+			install(args.data, auth, "dev")
+		} else if contains(args.flags, "optional") {
+			install(args.data, auth, "optional")
+		} else {
+			install(args.data, auth, "")
+		}
 	} else if args.action == "publish" {
 		publish(auth)
 	} else if args.action == "init" {
