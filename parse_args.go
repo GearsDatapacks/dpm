@@ -15,6 +15,7 @@ type parsedArgs struct {
 var flagArgs = []string{"help", "version", "dev", "optional"}
 var valueArgs = []string{"auth"}
 var aliasEntries = map[string][]string{
+	"uninstall": {"remove","ui"},
 	"install": {"i"},
 	"init":    {"initialise", "initialize"},
 }
@@ -44,6 +45,14 @@ func parseArgs(args []string) parsedArgs {
 
 		if arg == "install" {
 			result.action = "install"
+			result.data = []string{}
+
+			for (i+1) < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				result.data = append(result.data, args[i+1])
+				i++
+			}
+		} else if arg == "uninstall" {
+			result.action = "uninstall"
 			result.data = []string{}
 
 			for (i+1) < len(args) && !strings.HasPrefix(args[i+1], "-") {

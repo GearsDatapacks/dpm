@@ -46,6 +46,14 @@ func main() {
 		} else {
 			install(args.data, auth, "")
 		}
+	} else if args.action == "uninstall" {
+		if contains(args.flags, "dev") {
+			uninstall(args.data, auth, "dev")
+		} else if contains(args.flags, "optional") {
+			uninstall(args.data, auth, "optional")
+		} else {
+			uninstall(args.data, auth, "")
+		}
 	} else if args.action == "publish" {
 		publish(auth)
 	} else if args.action == "init" {

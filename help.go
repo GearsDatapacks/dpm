@@ -13,6 +13,7 @@ Actions:
 init                                    Initialise a DPM project
 install <datapacks>                     Add datapacks as dependencies
 install                                 Download all dependencies
+uninstall <datapacks>                   Remove datapacks from dependencies
 publish                                 Publish your DPM project to Modrinth (requires --auth)
 alias <name> <auth>                     Create an auth alias
 rm-alias <name>                         Removes an auth alias
@@ -23,7 +24,9 @@ Options:
 --help             Show information on a specific DPM command
 --version          Output current DPM version
 --dev              Install a dev dependency
---optional         Install an optional dependency`)
+--optional         Install an optional dependency
+
+For more information on specific actions, run dpm <action> --help`)
 		return
 	}
 
@@ -64,6 +67,21 @@ If --optional is passed, it will instead store the projects as optional dependen
 
 aliases: i`)
 		return
+	}
+
+	if action == "uninstall" {
+		fmt.Println(
+			`Removes specified datapacks from dependencies
+
+Usage:
+dpm uninstall code-of-copper item-utils
+dpm uninstall moxlib --dev
+
+If --dev is passed, it will instead remove the project from dev dependencies.
+
+If --optional is passed, it will instead remove the project from optional dependencies.
+
+aliases: remove, ui`)
 	}
 
 	if action == "publish" {
