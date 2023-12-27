@@ -8,8 +8,7 @@ import (
 type parsedArgs struct {
 	action string
 	data   []string
-	flags  []string
-	values map[string]string
+	flags map[string][]string
 }
 
 var actions = map[string]int{
@@ -21,8 +20,13 @@ var actions = map[string]int{
 	"create":    2,
 	"rm-alias":  1,
 }
-var flagArgs = []string{"help", "version", "dev", "optional"}
-var valueArgs = []string{"auth"}
+var flags = map[string]int{
+	"help":     0,
+	"version":  0,
+	"dev":      0,
+	"optional": 0,
+	"auth":     1,
+}
 var aliasEntries = map[string][]string{
 	"uninstall": {"remove", "ui"},
 	"install":   {"i"},
@@ -42,7 +46,7 @@ func formatAliases(unformatted map[string][]string) map[string]string {
 
 func parseArgs(args []string) parsedArgs {
 	result := parsedArgs{
-		values: map[string]string{},
+		flags: map[string][]string{},
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -54,29 +58,34 @@ func parseArgs(args []string) parsedArgs {
 
 		if strings.HasPrefix(arg, "--") {
 			argName := arg[2:]
+			argCount, ok := flags[argName]
 
-			if contains(flagArgs, argName) {
-				result.flags = append(result.flags, argName)
-				} else if contains(valueArgs, argName) {
-					i++
-					result.values[argName] = args[i]
-			} else {
+			if !ok {
 				log.Fatalf("Unexpected argument %q", arg)
 			}
+			result.flags[argName] = []string{}
+			for count := 0; count < argCount; count++ {
+				i++
+				if i >= len(args) || strings.HasPrefix(args[i], "--") {
+					log.Fatalf("Flag %q takes %d arguments", arg, argCount)
+				}
+				result.flags[argName] = append(result.flags[argName], args[i])
+			}
+
 			continue
 		}
-		
+
 		argCount, ok := actions[arg]
 		if !ok {
 			log.Fatalf("Unexpected argument %q", arg)
 		}
-		
+
 		if result.action != "" {
 			log.Fatalf("Unexpected argument %q", arg)
 		}
 		result.action = arg
 		result.data = []string{}
-		
+
 		if argCount == 0 {
 			continue
 		}

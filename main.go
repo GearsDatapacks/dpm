@@ -11,16 +11,18 @@ var DPM_VERSION = version{
 	Minor: 1,
 	Patch: 0,
 	Extra: 0,
-	Kind: "indev",
+	Kind:  "indev",
 }
 
 func main() {
 	args := parseArgs(os.Args[1:])
 
-	auth, ok := args.values["auth"]
+	var auth string
+	
+	authVal, ok := args.flags["auth"]
 
-	if !ok {
-		auth = ""
+	if ok {
+		auth = authVal[0]
 	}
 
 	aliases := getAliases()
@@ -28,28 +30,28 @@ func main() {
 		auth = alias
 	}
 
-	if contains(args.flags, "help") {
+	if _, ok := args.flags["help"]; ok {
 		help(args.action)
 		return
 	}
 
-	if contains(args.flags, "version") {
+	if _, ok := args.flags["version"]; ok {
 		fmt.Printf("DPM v%s\n", DPM_VERSION.String())
 		return
 	}
 
 	if args.action == "install" {
-		if contains(args.flags, "dev") {
+		if _, ok := args.flags["dev"]; ok {
 			install(args.data, auth, "dev")
-		} else if contains(args.flags, "optional") {
+		} else if _, ok := args.flags["optional"]; ok {
 			install(args.data, auth, "optional")
 		} else {
 			install(args.data, auth, "")
 		}
 	} else if args.action == "uninstall" {
-		if contains(args.flags, "dev") {
+		if _, ok := args.flags["dev"]; ok {
 			uninstall(args.data, auth, "dev")
-		} else if contains(args.flags, "optional") {
+		} else if _, ok := args.flags["optional"]; ok {
 			uninstall(args.data, auth, "optional")
 		} else {
 			uninstall(args.data, auth, "")
