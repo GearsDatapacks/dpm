@@ -11,37 +11,10 @@ type parsedArgs struct {
 	flags map[string][]string
 }
 
-var actions = map[string]int{
-	"install":   -1,
-	"uninstall": -1,
-	"publish":   0,
-	"init":      0,
-	"alias":     2,
-	"create":    2,
-	"rm-alias":  1,
-}
-var flags = map[string]int{
-	"help":     0,
-	"version":  0,
-	"dev":      0,
-	"optional": 0,
-	"auth":     1,
-}
-var aliasEntries = map[string][]string{
-	"uninstall": {"remove", "ui"},
-	"install":   {"i"},
-	"init":      {"initialise", "initialize"},
-}
-var aliases = formatAliases(aliasEntries)
-
-func formatAliases(unformatted map[string][]string) map[string]string {
-	aliases := map[string]string{}
-	for command, aliasArray := range unformatted {
-		for _, alias := range aliasArray {
-			aliases[alias] = command
-		}
-	}
-	return aliases
+type action struct {
+	argCount int
+	helpMessage string
+	aliases []string
 }
 
 func parseArgs(args []string) parsedArgs {
@@ -75,7 +48,7 @@ func parseArgs(args []string) parsedArgs {
 			continue
 		}
 
-		argCount, ok := actions[arg]
+		action, ok := actions[arg]
 		if !ok {
 			log.Fatalf("Unexpected argument %q", arg)
 		}
@@ -85,6 +58,7 @@ func parseArgs(args []string) parsedArgs {
 		}
 		result.action = arg
 		result.data = []string{}
+		argCount := action.argCount
 
 		if argCount == 0 {
 			continue
