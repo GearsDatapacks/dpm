@@ -35,6 +35,14 @@ By default, DPM will install the latest stable release of specified datapacks. Y
 
 If you simply run `dpm install` with no arguments, it will download all dependencies that are stored in your project JSON.
 
+Additionally, you can pass a flag that tells DPM which dependency type to install/uninstall.  
+Dev dependencies, specified with `--dev`, are datapacks that are only used in development, such as benchmarks or testing libraries.  
+Optional dependencies, specified with `--optional`, are datapacks that are not necessary for the pack to run properly, such as addons.  
+
+### Uninstall
+Dependencies can be uninstalled using `dpm uninstall ...`  
+This removes the given dependencies from the relevant dependency registry, and delete their files.  
+
 ### Publish
 DPM allows you to publish a datapack without manually uploading it to Modrinth. If you run `dpm publish`, it will extract the settings from your project json, zip up your files and upload it directly to Modrinth.  
 **Note: You must give you Modrinth auth token using the --auth flag, otherwise dpm doesn't have permission to upload the pack.**
@@ -43,6 +51,7 @@ DPM allows you to publish a datapack without manually uploading it to Modrinth. 
 The alias command allows you to create aliases for auth tokens.  
 This allows you to use your authorisation without having to copy-paste it every time.  
 Run `dpm alias <alias-name> <auth>`, and whenever you use that alias name in `--auth`, it will replace it with the auth you give it.
+Run `dpm rm-alias <alias-name>` to remove an alias
 
 ### Create
 Using `dpm create <template-name> <project-name>`, you can generate a datapack from a selection of templates.  

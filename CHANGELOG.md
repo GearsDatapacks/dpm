@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2023-12-31
+Better dependency management
+
+### Added
+- `rm-alias` action to remove unwanted aliases
+- Dev dependencies
+  - Libraries only used in development (benchmarks, test libraries, etc.)
+  - Not published to Modrinth
+  - Can be installed using `dpm install ... --dev`
+- Optional dependencies
+  - Dependencies not required to run properly (addons)
+  - Marked as Optional on Modrinth
+  - Can be installed using `dpm install ... --optional`
+- Removal of dependencies
+  - Dependencies can now be removed using `dpm uninstall ...`
+  - Only works inside a DPM project
+
 ## [0.1.0] - 2023-12-24
 First full release!
 

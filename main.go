@@ -5,13 +5,11 @@ import (
 	"os"
 )
 
-// 0.1.1-indev-0
+// 0.1.1
 var DPM_VERSION = version{
 	Major: 0,
 	Minor: 1,
-	Patch: 0,
-	Extra: 0,
-	Kind:  "indev",
+	Patch: 1,
 }
 
 func main() {
