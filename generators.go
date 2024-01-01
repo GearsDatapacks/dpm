@@ -29,13 +29,21 @@ func createProject(project projectJson) projectJson {
 		log.Fatal(err)
 	}
 
-	if project.Name == "" {
-		project.Name = prompt("Title of project: ")
-	} else {
+	if project.Name != "" {
 		name := prompt("Title of project (" + project.Name + "): ")
 		if name != "" {
 			project.Name = name
 		}
+	}
+	project = setProjectValues(project)
+
+	setProjectJson(project)
+	return project
+}
+
+func setProjectValues(project projectJson) projectJson {
+	if project.Name == "" {
+		project.Name = prompt("Title of project: ")
 	}
 	if project.Slug == "" {
 		project.Slug = prompt(fmt.Sprintf("Project slug (%s): ", toSlug(project.Name)))
@@ -84,8 +92,14 @@ func createProject(project projectJson) projectJson {
 		project.License = "GPL-3.0"
 	}
 
-	setProjectJson(project)
 	return project
+}
+
+func fixProjectJson() {
+	project := getProjectJson()
+	project = setProjectValues(project)
+	project.DpmVersion = DPM_VERSION.String()
+	setProjectJson(project)
 }
 
 const PACK_FORMAT = "17"

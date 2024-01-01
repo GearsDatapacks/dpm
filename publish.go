@@ -21,7 +21,7 @@ func publish(auth string) {
 	projectVersion := ParseVersion(project.DpmVersion)
 	reader := bufio.NewReader(os.Stdin)
 	if projectVersion.Less(DPM_VERSION) {
-		fmt.Print("[Warning] This project was made with an older version of DPM and may use a different project format.\nPress CTRL+C to quit or enter to continue anyway.")
+		fmt.Print("[Warning] This project was made with an older version of DPM and may use a different project format. Consider running dpm update to update it.\nPress CTRL+C to quit or enter to continue anyway.")
 		reader.ReadLine()
 	}
 	if projectVersion.Greater(DPM_VERSION) {

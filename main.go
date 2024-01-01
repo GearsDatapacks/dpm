@@ -5,18 +5,20 @@ import (
 	"os"
 )
 
-// 0.1.1
+// 0.1.2-indev-0
 var DPM_VERSION = version{
 	Major: 0,
 	Minor: 1,
-	Patch: 1,
+	Patch: 2,
+	Extra: 0,
+	Kind:  "indev",
 }
 
 func main() {
 	args := parseArgs(os.Args[1:])
 
 	var auth string
-	
+
 	authVal, ok := args.flags["auth"]
 
 	if ok {
@@ -58,6 +60,8 @@ func main() {
 		publish(auth)
 	} else if args.action == "init" {
 		initProject()
+	} else if args.action == "fix" {
+		fixProjectJson()
 	} else if args.action == "alias" {
 		createAlias(args.data[0], args.data[1])
 	} else if args.action == "rm-alias" {

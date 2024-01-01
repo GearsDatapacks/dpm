@@ -32,6 +32,11 @@ var actions = map[string]action{
 		argCount:    1,
 		helpMessage: rmAliasText,
 	},
+	"fix": {
+		argCount:    0,
+		helpMessage: updateText,
+		aliases: []string{"update"},
+	},
 }
 
 var flags = map[string]int{
@@ -124,9 +129,18 @@ Templates:
 basic: The minimum required files for a datapack
 simple: Some useful files created`
 
+const updateText = `Fix your DPM project files
+
+Usage:
+dpm fix
+
+Fixed project.json if fields have been deleted.
+Also helpful for updating an old project to the latest format`
+
 const helpText = `Usage: dpm <action> [options]
 Actions:
 init                                    Initialise a DPM project
+fix                                     Fix/update a DPM project
 install <datapacks>                     Add datapacks as dependencies
 install                                 Download all dependencies
 uninstall <datapacks>                   Remove datapacks from dependencies
