@@ -40,7 +40,8 @@ func main() {
 		return
 	}
 
-	if args.action == "install" {
+	switch args.action {
+	case "install":
 		if _, ok := args.flags["dev"]; ok {
 			install(args.data, auth, "dev")
 		} else if _, ok := args.flags["optional"]; ok {
@@ -48,7 +49,7 @@ func main() {
 		} else {
 			install(args.data, auth, "")
 		}
-	} else if args.action == "uninstall" {
+	case "uninstall":
 		if _, ok := args.flags["dev"]; ok {
 			uninstall(args.data, auth, "dev")
 		} else if _, ok := args.flags["optional"]; ok {
@@ -56,19 +57,19 @@ func main() {
 		} else {
 			uninstall(args.data, auth, "")
 		}
-	} else if args.action == "publish" {
+	case "publish":
 		publish(auth)
-	} else if args.action == "init" {
+	case "init":
 		initProject()
-	} else if args.action == "fix" {
+	case "fix":
 		fixProjectJson()
-	} else if args.action == "alias" {
+	case "alias":
 		createAlias(args.data[0], args.data[1])
-	} else if args.action == "rm-alias" {
+	case "rm-alias":
 		removeAlias(args.data[0])
-	} else if args.action == "create" {
+	case "create":
 		createTemplate(args.data[0], args.data[1])
-	} else {
+	default:
 		help("")
 	}
 }
