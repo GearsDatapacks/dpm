@@ -35,6 +35,7 @@ func (v *version) Greater(other version) bool {
 	return v.Major > other.Major ||
 		v.Minor > other.Minor ||
 		v.Patch > other.Patch ||
+		v.Kind == "" ||
 		v.Extra > other.Extra
 }
 
@@ -42,6 +43,7 @@ func (v *version) Less(other version) bool {
 	return v.Major < other.Major ||
 		v.Minor < other.Minor ||
 		v.Patch < other.Patch ||
+		other.Kind == "" ||
 		v.Extra < other.Extra
 }
 
