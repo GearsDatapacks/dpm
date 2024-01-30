@@ -69,6 +69,8 @@ func main() {
 		removeAlias(args.data[0])
 	case "create":
 		createTemplate(args.data[0], args.data[1])
+	case "fetch":
+		fetch(args.data[0], auth)
 	default:
 		help("")
 	}

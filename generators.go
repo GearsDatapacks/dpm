@@ -12,24 +12,31 @@ func initProject() {
 	createProject(projectJson{})
 }
 
-func createProject(project projectJson) projectJson {
+func createProject(project projectJson, noPrompt ...bool) projectJson {
+  shouldPrompt := true
+  if len(noPrompt) > 0 {
+    shouldPrompt = !noPrompt[0]
+  }
+
 	if exists("project.json") {
-		log.Fatal("File project.json already exists.")
+		fmt.Println("File project.json already exists.")
 		return project
 	}
 
-	config := dpmConfig{
-		IncludeFiles: []string{},
-		ExcludeFiles: []string{},
+	if !exists("dpmconfig.json") {
+		config := dpmConfig{
+			IncludeFiles: []string{},
+			ExcludeFiles: []string{},
+		}
+
+		bytes, _ := json.MarshalIndent(config, "", "  ")
+		err := os.WriteFile("dpmconfig.json", bytes, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
-	bytes, _ := json.MarshalIndent(config, "", "  ")
-	err := os.WriteFile("dpmconfig.json", bytes, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if project.Name != "" {
+  if project.Name != "" && shouldPrompt {
 		name := prompt("Title of project (" + project.Name + "): ")
 		if name != "" {
 			project.Name = name

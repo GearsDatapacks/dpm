@@ -21,18 +21,11 @@ func install(projects []string, auth string, depKind string) {
 	}
 
 	for _, projectStr := range projects {
-		values := strings.Split(projectStr, "@")
-		id := values[0]
-		version_id := ""
-		if len(values) > 1 {
-			version_id = values[1]
-		}
-
-		project, version := getVersion(id, version_id, auth)
+		project, version := getVersion(projectStr, auth)
 		fmt.Printf("Project %q found\n", project.Title)
 
 		if exists("project.json") {
-			addDependency(version, id, auth, depKind)
+			addDependency(version, project.Slug, auth, depKind)
 		}
 
 		downloadVersion(version)
@@ -64,19 +57,25 @@ func addDependency(dependency gorinth.Version, slug string, auth string, depKind
 	setProjectJson(project)
 }
 
-func getVersion(project_id, version_id, auth string) (gorinth.Project, gorinth.Version) {
-	project, err := gorinth.GetProject(project_id, auth)
+func getVersion(projectStr, auth string) (gorinth.Project, gorinth.Version) {
+	values := strings.Split(projectStr, "@")
+	projectId := values[0]
+	versionId := ""
+	if len(values) > 1 {
+		versionId = values[1]
+	}
+	project, err := gorinth.GetProject(projectId, auth)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if version_id == "" {
+	if versionId == "" {
 		return project, getLatestStable(project)
-	} else if version_id == "latest" {
+	} else if versionId == "latest" {
 		return project, project.GetLatestVersion()
 	} else {
-		return project, project.GetSpecificVersion(version_id)
+		return project, project.GetSpecificVersion(versionId)
 	}
 }
 

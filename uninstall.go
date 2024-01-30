@@ -31,7 +31,7 @@ func uninstall(projects []string, auth string, depKind string) {
 			continue
 		}
 		delete(deps, slug)
-		project, version := getVersion(slug, versionNumber, auth)
+		project, version := getVersion(slug + "@" + versionNumber, auth)
 		fmt.Printf("Uninstalling project %s\n", project.Title)
 		uninstallVersion(version)
 	}

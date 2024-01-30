@@ -35,7 +35,12 @@ var actions = map[string]action{
 	"fix": {
 		argCount:    0,
 		helpMessage: updateText,
-		aliases: []string{"update"},
+		aliases:     []string{"update"},
+	},
+	"fetch": {
+		argCount:    1,
+		helpMessage: fetchText,
+		aliases:     []string{"f"},
 	},
 }
 
@@ -137,6 +142,16 @@ dpm fix
 Fixed project.json if fields have been deleted.
 Also helpful for updating an old project to the latest format`
 
+const fetchText = `Fetch a project from modrinth
+
+Usage:
+dpm fetch code-of-copper
+dpm fetch moxlib@0.5.3
+
+Downloads the latest version of the given datapack, or the specified version.
+Creates a new folder for that project, and unzips the contents of it there.
+If not included in the datapack, it also generates project.json and dpmconfig.json.`
+
 const helpText = `Usage: dpm <action> [options]
 Actions:
 init                                    Initialise a DPM project
@@ -145,6 +160,7 @@ install <datapacks>                     Add datapacks as dependencies
 install                                 Download all dependencies
 uninstall <datapacks>                   Remove datapacks from dependencies
 publish                                 Publish your DPM project to Modrinth (requires --auth)
+fetch                                   Fetch a project from Modrtinh 
 alias <name> <auth>                     Create an auth alias
 rm-alias <name>                         Removes an auth alias
 create <template-name> <project-name>   Generate a datapack from a template
