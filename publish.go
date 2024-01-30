@@ -139,9 +139,6 @@ func findFile(dir, pattern string, excludeFiles []string) string {
 	}
 
 	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
 		matched, err := filepath.Match(pattern, file.Name())
 		if err != nil {
 			log.Fatal(err)
