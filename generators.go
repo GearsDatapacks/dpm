@@ -85,8 +85,8 @@ func setProjectValues(project projectJson) projectJson {
 	if project.OptionalDependencies == nil {
 		project.OptionalDependencies = map[string]string{}
 	}
-	if project.Version == "" {
-		project.Version = DPM_VERSION.String()
+	if project.DpmVersion == "" {
+		project.DpmVersion = DPM_VERSION.String()
 	}
 
 	if project.Slug == "" {
