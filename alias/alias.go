@@ -1,36 +1,40 @@
-package main
+package alias
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/gearsdatapacks/dpm/settings"
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 )
 
-var aliasFile = joinPath(dpmDir, "aliases.json")
-
-func createAlias(name string, auth string) {
-	if _, err := os.ReadDir(dpmDir); err != nil {
-		err := os.Mkdir(dpmDir, 0777)
+func CreateAlias(context types.Context) {
+	if _, err := os.ReadDir(settings.DpmDir); err != nil {
+		err := os.Mkdir(settings.DpmDir, 0777)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	if !exists(aliasFile) {
-		_, err := os.Create(aliasFile)
+	if !utils.Exists(utils.AliasFile) {
+		_, err := os.Create(utils.AliasFile)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	contents, err := os.ReadFile(aliasFile)
+	contents, err := os.ReadFile(utils.AliasFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	aliases := map[string]string{}
 	json.Unmarshal(contents, &aliases)
+
+	name, auth := context.Values[0], context.Values[1]
 
 	aliases[name] = auth
 
@@ -39,12 +43,14 @@ func createAlias(name string, auth string) {
 	fmt.Printf("Created alias %q\n", name)
 }
 
-func removeAlias(name string) {
-	if !exists(aliasFile) {
+func RemoveAlias(context types.Context) {
+	name := context.Values[0]
+
+	if !utils.Exists(utils.AliasFile) {
 		fmt.Printf("Alias %q does not exist\n", name)
 		return
 	}
-	aliases := getAliases()
+	aliases := GetAliases()
 	if _, ok := aliases[name]; !ok {
 		fmt.Printf("Alias %q does not exist\n", name)
 		return
@@ -54,12 +60,12 @@ func removeAlias(name string) {
 	setAliases(aliases)
 }
 
-func getAliases() map[string]string {
-	if !exists(aliasFile) {
+func GetAliases() map[string]string {
+	if !utils.Exists(utils.AliasFile) {
 		return map[string]string{}
 	}
 
-	contents, err := os.ReadFile(aliasFile)
+	contents, err := os.ReadFile(utils.AliasFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,7 +85,7 @@ func setAliases(aliases map[string]string) {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile(aliasFile, newAliases, 0666)
+	err = os.WriteFile(utils.AliasFile, newAliases, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}

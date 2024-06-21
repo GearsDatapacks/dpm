@@ -1,4 +1,4 @@
-package main
+package modrinth
 
 import (
 	"archive/zip"
@@ -9,20 +9,23 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gearsdatapacks/dpm/project"
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 	"github.com/gearsdatapacks/gorinth"
 )
 
-func fetch(name string, auth string) {
-	project, version := getVersion(name, auth)
+func Fetch(context types.Context) {
+	modrinthProject, version := getVersion(context.Values[0], context.Auth)
 
-  err := os.MkdirAll(project.Title, os.ModePerm)
-  if err != nil {
-    log.Fatal(err)
-  }
-  err = os.Chdir(project.Title)
-  if err != nil {
-    log.Fatal(err)
-  }
+	err := os.MkdirAll(modrinthProject.Title, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Chdir(modrinthProject.Title)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, file := range version.Files {
 		downloadFile(file)
@@ -34,20 +37,20 @@ func fetch(name string, auth string) {
 		log.Fatal(err)
 	}
 
-  // Only generate project.json if it the datapack doesn't include it
-	var projectData projectJson
-	if exists("project.json") {
-		projectData = getProjectJson()
+	// Only generate project.json if it the datapack doesn't include it
+	var projectData types.Project
+	if utils.Exists("project.json") {
+		projectData = utils.GetProjectJson()
 	} else {
-		projectData = projectJson{
-			Name:                 project.Title,
-			Slug:                 project.Slug,
+		projectData = types.Project{
+			Name:                 modrinthProject.Title,
+			Slug:                 modrinthProject.Slug,
 			Version:              version.VersionNumber,
 			GameVersions:         version.GameVersions,
-			Summary:              project.Description,
-			License:              project.License.Id,
-			Categories:           project.Categories,
-			AdditionalCategories: project.AdditionalCategories,
+			Summary:              modrinthProject.Description,
+			License:              modrinthProject.License.Id,
+			Categories:           modrinthProject.Categories,
+			AdditionalCategories: modrinthProject.AdditionalCategories,
 			Dependencies:         map[string]string{},
 			DevDependencies:      map[string]string{},
 			OptionalDependencies: map[string]string{},
@@ -56,7 +59,7 @@ func fetch(name string, auth string) {
 
 		for _, dep := range version.Dependencies {
 			depVersion := dep.GetVersion()
-			depProject, err := gorinth.GetProject(dep.ProjectId, auth)
+			depProject, err := gorinth.GetProject(dep.ProjectId, context.Auth)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -68,7 +71,7 @@ func fetch(name string, auth string) {
 			}
 		}
 
-		createProject(projectData, true)
+		project.CreateProject(projectData, true)
 	}
 }
 

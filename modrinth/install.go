@@ -1,4 +1,4 @@
-package main
+package modrinth
 
 import (
 	"fmt"
@@ -6,34 +6,37 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 	"github.com/gearsdatapacks/gorinth"
 )
 
 var downloaded = []string{}
 
-func install(projects []string, auth string, depKind string) {
+func Install(context types.Context, depKind string) {
 	downloaded = []string{}
-	if len(projects) == 0 {
-		downloadDependencies(auth, depKind)
+	if len(context.Values) == 0 {
+		downloadDependencies(context.Auth, depKind)
 	}
 
-	for _, projectStr := range projects {
-		project, version := getVersion(projectStr, auth)
+	for _, projectStr := range context.Values {
+		project, version := getVersion(projectStr, context.Auth)
 		fmt.Printf("Project %q found\n", project.Title)
 
-		if exists("project.json") {
-			addDependency(version, project.Slug, auth, depKind)
+		if utils.Exists("project.json") {
+			addDependency(version, project.Slug, depKind)
 		}
 
 		downloadVersion(version)
 	}
 }
 
-func addDependency(dependency gorinth.Version, slug string, auth string, depKind string) {
-	project := getProjectJson()
+func addDependency(dependency gorinth.Version, slug string, depKind string) {
+	project := utils.GetProjectJson()
 	if depKind == "dev" {
 		if project.DevDependencies == nil {
 			project.DevDependencies = map[string]string{}
@@ -54,7 +57,7 @@ func addDependency(dependency gorinth.Version, slug string, auth string, depKind
 		project.Dependencies[slug] = dependency.VersionNumber
 	}
 
-	setProjectJson(project)
+	utils.SetProjectJson(project)
 }
 
 func getVersion(projectStr, auth string) (gorinth.Project, gorinth.Version) {
@@ -91,7 +94,7 @@ func getLatestStable(project gorinth.Project) gorinth.Version {
 }
 
 func downloadDependencies(auth string, depKind string) {
-	project := getProjectJson()
+	project := utils.GetProjectJson()
 	deps := project.Dependencies
 	if depKind == "dev" {
 		deps = project.DevDependencies
@@ -117,7 +120,7 @@ func downloadDependencies(auth string, depKind string) {
 }
 
 func downloadVersion(version gorinth.Version) {
-	if contains(downloaded, version.Id) {
+	if slices.Contains(downloaded, version.Id) {
 		return
 	}
 	downloaded = append(downloaded, version.Id)
@@ -139,11 +142,11 @@ func downloadVersion(version gorinth.Version) {
 
 func downloadFile(downloadFile gorinth.File) {
 	filename := downloadFile.Filename
-	if exists("project.json") {
+	if utils.Exists("project.json") {
 		filename = "../" + filename
 	}
 
-	if exists(filename) {
+	if utils.Exists(filename) {
 		fmt.Printf("File %s already exists, skipping...\n", downloadFile.Filename)
 		return
 	}

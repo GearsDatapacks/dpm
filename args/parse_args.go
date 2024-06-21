@@ -1,31 +1,31 @@
-package main
+package args
 
 import (
 	"log"
 	"strings"
 )
 
-type parsedArgs struct {
-	action string
-	data   []string
-	flags map[string][]string
+type ParsedArgs struct {
+	Action string
+	Data   []string
+	Flags  map[string][]string
 }
 
 type action struct {
-	argCount int
-	helpMessage string
-	aliases []string
+	ArgCount    int
+	HelpMessage string
+	Aliases     []string
 }
 
-func parseArgs(args []string) parsedArgs {
-	result := parsedArgs{
-		flags: map[string][]string{},
+func ParseArgs(args []string) ParsedArgs {
+	result := ParsedArgs{
+		Flags: map[string][]string{},
 	}
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 
-		if alias, ok := aliases[arg]; ok {
+		if alias, ok := Aliases[arg]; ok {
 			arg = alias
 		}
 
@@ -36,29 +36,29 @@ func parseArgs(args []string) parsedArgs {
 			if !ok {
 				log.Fatalf("Unexpected argument %q", arg)
 			}
-			result.flags[argName] = []string{}
+			result.Flags[argName] = []string{}
 			for count := 0; count < argCount; count++ {
 				i++
 				if i >= len(args) || strings.HasPrefix(args[i], "--") {
 					log.Fatalf("Flag %q takes %d arguments", arg, argCount)
 				}
-				result.flags[argName] = append(result.flags[argName], args[i])
+				result.Flags[argName] = append(result.Flags[argName], args[i])
 			}
 
 			continue
 		}
 
-		action, ok := actions[arg]
+		action, ok := Actions[arg]
 		if !ok {
 			log.Fatalf("Unexpected argument %q", arg)
 		}
 
-		if result.action != "" {
+		if result.Action != "" {
 			log.Fatalf("Unexpected argument %q", arg)
 		}
-		result.action = arg
-		result.data = []string{}
-		argCount := action.argCount
+		result.Action = arg
+		result.Data = []string{}
+		argCount := action.ArgCount
 
 		if argCount == 0 {
 			continue
@@ -66,7 +66,7 @@ func parseArgs(args []string) parsedArgs {
 
 		if argCount == -1 {
 			for (i+1) < len(args) && !strings.HasPrefix(args[i+1], "--") {
-				result.data = append(result.data, args[i+1])
+				result.Data = append(result.Data, args[i+1])
 				i++
 			}
 			continue
@@ -81,7 +81,7 @@ func parseArgs(args []string) parsedArgs {
 			if i >= len(args) || strings.HasPrefix(args[i], "--") {
 				log.Fatalf("Subcommand %q takes %d arguments", arg, argCount)
 			}
-			result.data = append(result.data, args[i])
+			result.Data = append(result.Data, args[i])
 		}
 		continue
 	}

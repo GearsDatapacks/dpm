@@ -1,46 +1,48 @@
-package main
+package args
 
-var actions = map[string]action{
+import "github.com/gearsdatapacks/dpm/utils"
+
+var Actions = map[string]action{
 	"install": {
-		argCount:    -1,
-		aliases:     []string{"i"},
-		helpMessage: installText,
+		ArgCount:    -1,
+		Aliases:     []string{"i"},
+		HelpMessage: installText,
 	},
 	"uninstall": {
-		argCount:    -1,
-		aliases:     []string{"remove", "ui"},
-		helpMessage: uninstallText,
+		ArgCount:    -1,
+		Aliases:     []string{"remove", "ui"},
+		HelpMessage: uninstallText,
 	},
 	"publish": {
-		argCount:    0,
-		helpMessage: publishText,
+		ArgCount:    0,
+		HelpMessage: publishText,
 	},
 	"init": {
-		argCount:    0,
-		aliases:     []string{"initialise", "initialize"},
-		helpMessage: initText,
+		ArgCount:    0,
+		Aliases:     []string{"initialise", "initialize"},
+		HelpMessage: initText,
 	},
 	"alias": {
-		argCount:    2,
-		helpMessage: aliasText,
+		ArgCount:    2,
+		HelpMessage: aliasText,
 	},
 	"create": {
-		argCount:    2,
-		helpMessage: createText,
+		ArgCount:    2,
+		HelpMessage: createText,
 	},
 	"rm-alias": {
-		argCount:    1,
-		helpMessage: rmAliasText,
+		ArgCount:    1,
+		HelpMessage: rmAliasText,
 	},
 	"fix": {
-		argCount:    0,
-		helpMessage: updateText,
-		aliases:     []string{"update"},
+		ArgCount:    0,
+		HelpMessage: updateText,
+		Aliases:     []string{"update"},
 	},
 	"fetch": {
-		argCount:    1,
-		helpMessage: fetchText,
-		aliases:     []string{"f"},
+		ArgCount:    1,
+		HelpMessage: fetchText,
+		Aliases:     []string{"f"},
 	},
 }
 
@@ -52,15 +54,15 @@ var flags = map[string]int{
 	"auth":     1,
 }
 
-var aliases = formatAliases(actions)
+var Aliases = formatAliases(Actions)
 
 func formatAliases(actions map[string]action) map[string]string {
 	aliases := map[string]string{}
 	for command, action := range actions {
-		if action.aliases == nil {
+		if action.Aliases == nil {
 			continue
 		}
-		for _, alias := range action.aliases {
+		for _, alias := range action.Aliases {
 			aliases[alias] = command
 		}
 	}
@@ -116,7 +118,7 @@ var aliasText = `Create an auth alias
 Usage:
 dpm alias gears bar && dpm publish --auth gears
 
-Stores the auth token in ` + aliasFile + ` and replaces the name with the token when used`
+Stores the auth token in ` + utils.AliasFile + ` and replaces the name with the token when used`
 
 const createText = `Remove an auth alias
 
@@ -152,7 +154,7 @@ Downloads the latest version of the given datapack, or the specified version.
 Creates a new folder for that project, and unzips the contents of it there.
 If not included in the datapack, it also generates project.json and dpmconfig.json.`
 
-const helpText = `Usage: dpm <action> [options]
+const HelpText = `Usage: dpm <action> [options]
 Actions:
 init                                    Initialise a DPM project
 fix                                     Fix/update a DPM project

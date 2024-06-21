@@ -1,30 +1,35 @@
-package main
+package project
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"strings"
+
+	"github.com/gearsdatapacks/dpm/settings"
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 )
 
-func initProject() {
-	createProject(projectJson{})
+func InitProject() {
+	CreateProject(types.Project{})
 }
 
-func createProject(project projectJson, noPrompt ...bool) projectJson {
-  shouldPrompt := true
-  if len(noPrompt) > 0 {
-    shouldPrompt = !noPrompt[0]
-  }
+func CreateProject(project types.Project, noPrompt ...bool) types.Project {
+	shouldPrompt := true
+	if len(noPrompt) > 0 {
+		shouldPrompt = !noPrompt[0]
+	}
 
-	if exists("project.json") {
+	if utils.Exists("project.json") {
 		fmt.Println("File project.json already exists.")
 		return project
 	}
 
-	if !exists("dpmconfig.json") {
-		config := dpmConfig{
+	if !utils.Exists("dpmconfig.json") {
+		config := types.Config{
 			IncludeFiles: []string{},
 			ExcludeFiles: []string{},
 		}
@@ -36,36 +41,36 @@ func createProject(project projectJson, noPrompt ...bool) projectJson {
 		}
 	}
 
-  if project.Name != "" && shouldPrompt {
-		name := prompt("Title of project (" + project.Name + "): ")
+	if project.Name != "" && shouldPrompt {
+		name := utils.Prompt("Title of project (" + project.Name + "): ")
 		if name != "" {
 			project.Name = name
 		}
 	}
 	project = setProjectValues(project)
 
-	setProjectJson(project)
+	utils.SetProjectJson(project)
 	return project
 }
 
-func setProjectValues(project projectJson) projectJson {
+func setProjectValues(project types.Project) types.Project {
 	if project.Name == "" {
-		project.Name = prompt("Title of project: ")
+		project.Name = utils.Prompt("Title of project: ")
 	}
 	if project.Slug == "" {
-		project.Slug = prompt(fmt.Sprintf("Project slug (%s): ", toSlug(project.Name)))
+		project.Slug = utils.Prompt(fmt.Sprintf("Project slug (%s): ", utils.ToSlug(project.Name)))
 	}
 	if project.Version == "" {
-		project.Version = prompt("Current version (0.1.0): ")
+		project.Version = utils.Prompt("Current version (0.1.0): ")
 	}
 	if project.GameVersions == nil {
-		project.GameVersions = strings.Split(prompt("Enter space separated compatible game versions: "), " ")
+		project.GameVersions = strings.Split(utils.Prompt("Enter space separated compatible game versions: "), " ")
 	}
 	if project.Summary == "" {
-		project.Summary = prompt("Summary of datapack: ")
+		project.Summary = utils.Prompt("Summary of datapack: ")
 	}
 	if project.License == "" {
-		project.License = prompt("Project license (GPL-3.0): ")
+		project.License = utils.Prompt("Project license (GPL-3.0): ")
 	}
 	if project.ReleaseType == "" {
 		project.ReleaseType = "release"
@@ -86,11 +91,11 @@ func setProjectValues(project projectJson) projectJson {
 		project.OptionalDependencies = map[string]string{}
 	}
 	if project.DpmVersion == "" {
-		project.DpmVersion = DPM_VERSION.String()
+		project.DpmVersion = settings.DPM_VERSION.String()
 	}
 
 	if project.Slug == "" {
-		project.Slug = toSlug(project.Name)
+		project.Slug = utils.ToSlug(project.Name)
 	}
 	if project.Version == "" {
 		project.Version = "0.1.0"
@@ -102,11 +107,11 @@ func setProjectValues(project projectJson) projectJson {
 	return project
 }
 
-func fixProjectJson() {
-	project := getProjectJson()
+func FixProjectJson() {
+	project := utils.GetProjectJson()
 	project = setProjectValues(project)
-	project.DpmVersion = DPM_VERSION.String()
-	setProjectJson(project)
+	project.DpmVersion = settings.DPM_VERSION.String()
+	utils.SetProjectJson(project)
 }
 
 const PACK_FORMAT = "17"
@@ -128,7 +133,9 @@ func makeTagFile(name string) string {
 }`, name)
 }
 
-func createTemplate(template string, name string) {
+func CreateTemplate(context types.Context) {
+	template, name := context.Values[0], context.Values[1]
+
 	switch strings.ToLower(template) {
 	case "basic":
 		createBasic(name)
@@ -146,7 +153,7 @@ func writeFile(path string, content string) {
 	}
 }
 
-func createBasic(name string) projectJson {
+func createBasic(name string) types.Project {
 	err := os.Mkdir(name, 0777)
 	if err != nil {
 		log.Fatal(err)
@@ -156,27 +163,27 @@ func createBasic(name string) projectJson {
 		log.Fatal(err)
 	}
 
-	project := createProject(projectJson{Name: name})
-	namespace := toNamespace(name)
+	project := CreateProject(types.Project{Name: name})
+	namespace := utils.ToNamespace(name)
 	mcmeta := makeMcmeta(fmt.Sprintf("%s v%s", project.Name, project.Version))
 
 	os.WriteFile("pack.mcmeta", []byte(mcmeta), 0666)
 
-	err = os.MkdirAll(joinPath("data", "minecraft", "tags", "functions"), 0777)
+	err = os.MkdirAll(path.Join("data", "minecraft", "tags", "functions"), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	writeFile(joinPath("data", "minecraft", "tags", "functions", "tick.json"), makeTagFile(namespace+":tick"))
-	writeFile(joinPath("data", "minecraft", "tags", "functions", "load.json"), makeTagFile(namespace+":load"))
+	writeFile(path.Join("data", "minecraft", "tags", "functions", "tick.json"), makeTagFile(namespace+":tick"))
+	writeFile(path.Join("data", "minecraft", "tags", "functions", "load.json"), makeTagFile(namespace+":load"))
 
-	err = os.MkdirAll(joinPath("data", namespace, "functions"), 0777)
+	err = os.MkdirAll(path.Join("data", namespace, "functions"), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	writeFile(joinPath("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(`tellraw @a "Loaded %s v%s"`, project.Name, project.Version))
-	writeFile(joinPath("data", namespace, "functions", "tick.mcfunction"), "")
+	writeFile(path.Join("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(`tellraw @a "Loaded %s v%s"`, project.Name, project.Version))
+	writeFile(path.Join("data", namespace, "functions", "tick.mcfunction"), "")
 
 	return project
 }
@@ -192,9 +199,9 @@ tellraw @a ["%s v", {"storage":"%s:version","nbt":"version"}]
 func createSimple(name string) {
 	project := createBasic(name)
 
-	namespace := toNamespace(name)
+	namespace := utils.ToNamespace(name)
 
-	writeFile(joinPath("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(LOAD_TEXT, namespace, namespace))
-	writeFile(joinPath("data", namespace, "functions", "version.mcfunction"), fmt.Sprintf(VERSION_TEXT, namespace, project.Version, project.Name, namespace))
-	writeFile(joinPath("data", namespace, "functions", "objectives.mcfunction"), "")
+	writeFile(path.Join("data", namespace, "functions", "load.mcfunction"), fmt.Sprintf(LOAD_TEXT, namespace, namespace))
+	writeFile(path.Join("data", namespace, "functions", "version.mcfunction"), fmt.Sprintf(VERSION_TEXT, namespace, project.Version, project.Name, namespace))
+	writeFile(path.Join("data", namespace, "functions", "objectives.mcfunction"), "")
 }

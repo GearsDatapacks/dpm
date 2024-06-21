@@ -1,4 +1,4 @@
-package main
+package types
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type projectJson struct {
+type Project struct {
 	Name                 string            `json:"name"`
 	Slug                 string            `json:"slug"`
 	Version              string            `json:"version"`
@@ -23,7 +23,7 @@ type projectJson struct {
 	DpmVersion           string            `json:"dpm_version"`
 }
 
-type version struct {
+type Version struct {
 	Major uint64
 	Minor uint64
 	Patch uint64
@@ -31,7 +31,7 @@ type version struct {
 	Kind  string
 }
 
-func (v *version) Greater(other version) bool {
+func (v *Version) Greater(other Version) bool {
 	return v.Major > other.Major ||
 		v.Minor > other.Minor ||
 		v.Patch > other.Patch ||
@@ -39,7 +39,7 @@ func (v *version) Greater(other version) bool {
 		v.Extra > other.Extra
 }
 
-func (v *version) Less(other version) bool {
+func (v *Version) Less(other Version) bool {
 	return v.Major < other.Major ||
 		v.Minor < other.Minor ||
 		v.Patch < other.Patch ||
@@ -47,20 +47,20 @@ func (v *version) Less(other version) bool {
 		v.Extra < other.Extra
 }
 
-func (v *version) String() string {
+func (v *Version) String() string {
 	if v.Kind == "" {
 		return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 	}
 	return fmt.Sprintf("%d.%d.%d-%s-%d", v.Major, v.Minor, v.Patch, v.Kind, v.Extra)
 }
 
-func ParseVersion(input string) version {
+func ParseVersion(input string) Version {
 	bits := strings.Split(input, "-")
 	parts := strings.Split(bits[0], ".")
 	if len(parts) < 3 {
 		log.Fatal("Invalid version string")
 	}
-	ver := version{}
+	ver := Version{}
 
 	var err error
 	ver.Major, err = strconv.ParseUint(parts[0], 10, 32)
@@ -89,7 +89,12 @@ func ParseVersion(input string) version {
 	return ver
 }
 
-type dpmConfig struct {
+type Config struct {
 	IncludeFiles []string `json:"include_files"`
 	ExcludeFiles []string `json:"exclude_files"`
+}
+
+type Context struct {
+	Auth   string
+	Values []string
 }

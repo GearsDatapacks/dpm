@@ -3,75 +3,78 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/gearsdatapacks/dpm/alias"
+	"github.com/gearsdatapacks/dpm/args"
+	"github.com/gearsdatapacks/dpm/modrinth"
+	"github.com/gearsdatapacks/dpm/project"
+	"github.com/gearsdatapacks/dpm/settings"
+	"github.com/gearsdatapacks/dpm/types"
 )
 
-// 0.1.2-indev-0
-var DPM_VERSION = version{
-	Major: 0,
-	Minor: 1,
-	Patch: 2,
-	Extra: 0,
-	Kind:  "indev",
-}
-
 func main() {
-	args := parseArgs(os.Args[1:])
+	arguments := args.ParseArgs(os.Args[1:])
 
 	var auth string
 
-	authVal, ok := args.flags["auth"]
+	authVal, ok := arguments.Flags["auth"]
 
 	if ok {
 		auth = authVal[0]
 	}
 
-	aliases := getAliases()
+	aliases := alias.GetAliases()
 	if alias, ok := aliases[auth]; ok {
 		auth = alias
 	}
 
-	if _, ok := args.flags["help"]; ok {
-		help(args.action)
+	if _, ok := arguments.Flags["help"]; ok {
+		args.Help(arguments.Action)
 		return
 	}
 
-	if _, ok := args.flags["version"]; ok {
-		fmt.Printf("DPM v%s\n", DPM_VERSION.String())
+	if _, ok := arguments.Flags["version"]; ok {
+		fmt.Printf("DPM v%s\n", settings.DPM_VERSION.String())
 		return
 	}
 
-	switch args.action {
+	context := types.Context{
+		Auth: auth,
+	}
+
+	switch arguments.Action {
 	case "install":
-		if _, ok := args.flags["dev"]; ok {
-			install(args.data, auth, "dev")
-		} else if _, ok := args.flags["optional"]; ok {
-			install(args.data, auth, "optional")
+		if _, ok := arguments.Flags["dev"]; ok {
+			modrinth.Install(context, "dev")
+		} else if _, ok := arguments.Flags["optional"]; ok {
+			modrinth.Install(context, "optional")
 		} else {
-			install(args.data, auth, "")
+			modrinth.Install(context, "")
 		}
 	case "uninstall":
-		if _, ok := args.flags["dev"]; ok {
-			uninstall(args.data, auth, "dev")
-		} else if _, ok := args.flags["optional"]; ok {
-			uninstall(args.data, auth, "optional")
+		if _, ok := arguments.Flags["dev"]; ok {
+			modrinth.Uninstall(context, "dev")
+		} else if _, ok := arguments.Flags["optional"]; ok {
+			modrinth.Uninstall(context, "optional")
 		} else {
-			uninstall(args.data, auth, "")
+			modrinth.Uninstall(context, "")
 		}
+
 	case "publish":
-		publish(auth)
+		modrinth.Publish(auth)
 	case "init":
-		initProject()
+		project.InitProject()
 	case "fix":
-		fixProjectJson()
+		project.FixProjectJson()
 	case "alias":
-		createAlias(args.data[0], args.data[1])
+		alias.CreateAlias(context)
 	case "rm-alias":
-		removeAlias(args.data[0])
+		alias.RemoveAlias(context)
 	case "create":
-		createTemplate(args.data[0], args.data[1])
+		project.CreateTemplate(context)
 	case "fetch":
-		fetch(args.data[0], auth)
+		modrinth.Fetch(context)
 	default:
-		help("")
+		args.Help("")
 	}
 }

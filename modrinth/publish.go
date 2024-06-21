@@ -1,4 +1,4 @@
-package main
+package modrinth
 
 import (
 	"archive/zip"
@@ -9,29 +9,33 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gearsdatapacks/dpm/settings"
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 	"github.com/gearsdatapacks/gorinth"
 )
 
-func publish(auth string) {
+func Publish(auth string) {
 	if auth == "" {
 		log.Fatal("Please specify --auth to publish a project")
 	}
 
-	project := getProjectJson()
-	projectVersion := ParseVersion(project.DpmVersion)
+	project := utils.GetProjectJson()
+	projectVersion := types.ParseVersion(project.DpmVersion)
 	reader := bufio.NewReader(os.Stdin)
-	if projectVersion.Less(DPM_VERSION) {
+	if projectVersion.Less(settings.DPM_VERSION) {
 		fmt.Print("[Warning] This project was made with an older version of DPM and may use a different project format. Consider running dpm update to update it.\nPress CTRL+C to quit or enter to continue anyway.")
 		reader.ReadLine()
 	}
-	if projectVersion.Greater(DPM_VERSION) {
+
+	if projectVersion.Greater(settings.DPM_VERSION) {
 		fmt.Println("[Warning] This project was made with an newer version of DPM and may use a different project format. Consider updating DPM.\nPress CTRL+C to quit or enter to continue anyway.")
 		reader.ReadLine()
 	}
 
 	slug := project.Slug
 	if slug == "" {
-		slug = toSlug(project.Name)
+		slug = utils.ToSlug(project.Name)
 	}
 
 	modrinthProject, err := gorinth.GetProject(slug, auth)
@@ -50,7 +54,7 @@ func publish(auth string) {
 
 	var icon []byte
 
-	if exists("pack.png") {
+	if utils.Exists("pack.png") {
 		icon, err = os.ReadFile("pack.png")
 		if err != nil {
 			log.Fatal(err)
@@ -167,14 +171,14 @@ func findFile(dir, pattern string, excludeFiles []string) string {
 	return ""
 }
 
-func publishVersion(metadata projectJson, auth string) {
+func publishVersion(metadata types.Project, auth string) {
 	title := metadata.Name
 	versionNumber := metadata.Version
 	dependencies := formatDependencies(metadata.Dependencies, "required", auth)
 	optionalDependencies := formatDependencies(metadata.OptionalDependencies, "optional", auth)
 	dependencies = append(dependencies, optionalDependencies...)
 
-	versionTitle := fmt.Sprintf("%s-v%s", title, versionNumber)
+	versionTitle := fmt.Sprintf("%s v%s", title, versionNumber)
 
 	zipPath := versionTitle + ".zip"
 
@@ -188,7 +192,7 @@ func publishVersion(metadata projectJson, auth string) {
 	}
 	excludedFiles := []string{}
 
-	config, hasConfig := getConfig()
+	config, hasConfig := utils.GetConfig()
 
 	if hasConfig {
 		includedFiles = append(includedFiles, config.IncludeFiles...)
@@ -261,7 +265,7 @@ func zipFiles(filename string, files []string) {
 	defer zipWriter.Close()
 
 	for _, fileToZip := range files {
-		if isDir(fileToZip) {
+		if utils.IsDir(fileToZip) {
 			zipDir(zipWriter, fileToZip)
 		} else {
 			zipFile(zipWriter, fileToZip)

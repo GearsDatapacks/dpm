@@ -1,22 +1,24 @@
-package main
+package modrinth
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/gearsdatapacks/dpm/types"
+	"github.com/gearsdatapacks/dpm/utils"
 	"github.com/gearsdatapacks/gorinth"
 )
 
-func uninstall(projects []string, auth string, depKind string) {
-	if !exists("project.json") {
+func Uninstall(context types.Context, depKind string) {
+	if !utils.Exists("project.json") {
 		fmt.Println("Must be in an intitialised project to uninstall dependencies")
 		return
 	}
-	projectJson := getProjectJson()
+	projectJson := utils.GetProjectJson()
 	deps := projectJson.Dependencies
 	if depKind == "dev" {
 		deps = projectJson.DevDependencies
-	} else	if depKind == "optional" {
+	} else if depKind == "optional" {
 		deps = projectJson.OptionalDependencies
 	}
 
@@ -24,27 +26,27 @@ func uninstall(projects []string, auth string, depKind string) {
 		return
 	}
 
-	for _, slug := range projects {
+	for _, slug := range context.Values {
 		versionNumber, hasDep := deps[slug]
 		if !hasDep {
 			fmt.Printf("Project %s is not installed\n", slug)
 			continue
 		}
 		delete(deps, slug)
-		project, version := getVersion(slug + "@" + versionNumber, auth)
+		project, version := getVersion(slug+"@"+versionNumber, context.Auth)
 		fmt.Printf("Uninstalling project %s\n", project.Title)
 		uninstallVersion(version)
 	}
 
 	if depKind == "dev" {
 		projectJson.DevDependencies = deps
-	} else	if depKind == "optional" {
+	} else if depKind == "optional" {
 		projectJson.OptionalDependencies = deps
 	} else {
 		projectJson.Dependencies = deps
 	}
 
-	setProjectJson(projectJson)
+	utils.SetProjectJson(projectJson)
 }
 
 func uninstallVersion(version gorinth.Version) {
