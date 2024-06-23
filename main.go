@@ -15,53 +15,53 @@ import (
 func main() {
 	arguments := args.ParseArgs(os.Args[1:])
 
-	var auth string
-
-	authVal, ok := arguments.Flags["auth"]
-
-	if ok {
-		auth = authVal[0]
-	}
+	auth := arguments.FlagValue("auth")
+	noModify := arguments.FlagValue("no-modify")
 
 	aliases := alias.GetAliases()
 	if alias, ok := aliases[auth]; ok {
 		auth = alias
 	}
 
-	if _, ok := arguments.Flags["help"]; ok {
+	if arguments.HasFlag("help") {
 		args.Help(arguments.Action)
 		return
 	}
 
-	if _, ok := arguments.Flags["version"]; ok {
+	if arguments.HasFlag("version") {
 		fmt.Printf("DPM v%s\n", settings.DPM_VERSION.String())
 		return
 	}
 
 	context := types.Context{
-		Auth: auth,
+		Auth:   auth,
+		Values: arguments.Data,
+		Flags: types.ContextFlags{
+			ModifyProject: noModify != "project",
+			ModifyVersion: noModify != "version",
+		},
 	}
 
 	switch arguments.Action {
 	case "install":
-		if _, ok := arguments.Flags["dev"]; ok {
+		if arguments.HasFlag("dev") {
 			modrinth.Install(context, "dev")
-		} else if _, ok := arguments.Flags["optional"]; ok {
+		} else if arguments.HasFlag("optional") {
 			modrinth.Install(context, "optional")
 		} else {
 			modrinth.Install(context, "")
 		}
 	case "uninstall":
-		if _, ok := arguments.Flags["dev"]; ok {
+		if arguments.HasFlag("dev") {
 			modrinth.Uninstall(context, "dev")
-		} else if _, ok := arguments.Flags["optional"]; ok {
+		} else if arguments.HasFlag("optional") {
 			modrinth.Uninstall(context, "optional")
 		} else {
 			modrinth.Uninstall(context, "")
 		}
 
 	case "publish":
-		modrinth.Publish(auth)
+		modrinth.Publish(context)
 	case "init":
 		project.InitProject()
 	case "fix":

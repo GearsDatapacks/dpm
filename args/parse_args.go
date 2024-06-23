@@ -87,3 +87,15 @@ func ParseArgs(args []string) ParsedArgs {
 	}
 	return result
 }
+
+func (p *ParsedArgs) FlagValue(flag string) string {
+	if value, ok := p.Flags[flag]; ok {
+		return value[0]
+	}
+	return ""
+}
+
+func (p *ParsedArgs) HasFlag(flag string) bool {
+	_, ok := p.Flags[flag]
+	return ok
+}

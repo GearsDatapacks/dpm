@@ -52,6 +52,7 @@ var flags = map[string]int{
 	"dev":      0,
 	"optional": 0,
 	"auth":     1,
+	"no-modify": 1,
 }
 
 var Aliases = formatAliases(Actions)
@@ -168,10 +169,11 @@ rm-alias <name>                         Removes an auth alias
 create <template-name> <project-name>   Generate a datapack from a template
 
 Options:
---auth <auth>      Specify a Modrinth authorisation token
---help             Show information on a specific DPM command
---version          Output current DPM version
---dev              Install a dev dependency
---optional         Install an optional dependency
+--auth <auth>                  Specify a Modrinth authorisation token
+--help                         Show information on a specific DPM command
+--version                      Output current DPM version
+--dev                          Install a dev dependency
+--optional                     Install an optional dependency
+--no-modify (project|version)  Stop DPM modifying either the project or version when publishing
 
 For more information on specific actions, run dpm <action> --help`

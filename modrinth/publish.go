@@ -16,8 +16,8 @@ import (
 	"github.com/gearsdatapacks/gorinth"
 )
 
-func Publish(auth string) {
-	if auth == "" {
+func Publish(context types.Context) {
+	if context.Auth == "" {
 		log.Fatal("Please specify --auth to publish a project")
 	}
 
@@ -42,7 +42,7 @@ func Publish(auth string) {
 		slug = utils.ToSlug(project.Name)
 	}
 
-	modrinthProject, err := gorinth.GetProject(slug, auth)
+	modrinthProject, err := gorinth.GetProject(slug, context.Auth)
 
 	body := modrinthProject.Body
 
@@ -78,35 +78,38 @@ func Publish(auth string) {
 			}
 		}
 
-		modified := gorinth.Project{
-			Title:                project.Name,
-			Description:          project.Summary,
-			Body:                 body,
-			Categories:           project.Categories,
-			AdditionalCategories: project.AdditionalCategories,
-			License: &gorinth.License{
-				Id: project.License,
-			},
+		if context.Flags.ModifyProject {
+			modified := gorinth.Project{
+				Title:                project.Name,
+				Description:          project.Summary,
+				Body:                 body,
+				Categories:           project.Categories,
+				AdditionalCategories: project.AdditionalCategories,
+				License: &gorinth.License{
+					Id: project.License,
+				},
+			}
+
+			if icon != nil {
+				modified.Icon = icon
+			}
+
+			err := modrinthProject.Modify(modified, context.Auth)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("Successfully updated project %s\n", modrinthProject.Title)
 		}
 
-		if icon != nil {
-			modified.Icon = icon
-		}
-
-		err := modrinthProject.Modify(modified, auth)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Printf("Successfully updated project %s\n", modrinthProject.Title)
-		if !hasVersion {
-			publishVersion(project, auth)
+		if !hasVersion && context.Flags.ModifyVersion {
+			publishVersion(project, context.Auth)
 		}
 		return
 	}
 	// Otherwise, make a new one
-	user := gorinth.GetUserFromAuth(auth)
+	user := gorinth.GetUserFromAuth(context.Auth)
 
 	toPublish := gorinth.Project{
 		Slug:         slug,
@@ -137,7 +140,9 @@ func Publish(auth string) {
 
 	fmt.Printf("Successfully created project %q\n", project.Name)
 
-	publishVersion(project, auth)
+	if context.Flags.ModifyVersion {
+		publishVersion(project, context.Auth)
+	}
 }
 
 func findFile(dir, pattern string, excludeFiles []string) string {
@@ -234,7 +239,7 @@ func publishVersion(metadata types.Project, auth string) {
 		VersionType:   metadata.ReleaseType,
 		Loaders:       []string{"datapack"},
 		FileParts:     []string{zipPath},
-		Changelog: changelogText,
+		Changelog:     changelogText,
 	}
 
 	err = project.CreateVersion(version, auth)

@@ -96,4 +96,10 @@ type Config struct {
 type Context struct {
 	Auth   string
 	Values []string
+	Flags  ContextFlags
+}
+
+type ContextFlags struct {
+	ModifyProject bool
+	ModifyVersion bool
 }
