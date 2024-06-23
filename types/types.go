@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -54,39 +53,39 @@ func (v *Version) String() string {
 	return fmt.Sprintf("%d.%d.%d-%s-%d", v.Major, v.Minor, v.Patch, v.Kind, v.Extra)
 }
 
-func ParseVersion(input string) Version {
+func ParseVersion(input string) (*Version, error) {
 	bits := strings.Split(input, "-")
 	parts := strings.Split(bits[0], ".")
 	if len(parts) < 3 {
-		log.Fatal("Invalid version string")
+		return nil, fmt.Errorf("Invalid version string %q", input)
 	}
 	ver := Version{}
 
 	var err error
 	ver.Major, err = strconv.ParseUint(parts[0], 10, 32)
 	if err != nil {
-		log.Fatal("Invalid version string")
+		return nil, fmt.Errorf("Invalid version string %q", input)
 	}
 
 	ver.Minor, err = strconv.ParseUint(parts[1], 10, 32)
 	if err != nil {
-		log.Fatal("Invalid version string")
+		return nil, fmt.Errorf("Invalid version string %q", input)
 	}
 
 	ver.Patch, err = strconv.ParseUint(parts[2], 10, 32)
 	if err != nil {
-		log.Fatal("Invalid version string")
+		return nil, fmt.Errorf("Invalid version string %q", input)
 	}
 
 	if len(bits) == 3 {
 		ver.Kind = bits[1]
 		ver.Extra, err = strconv.ParseUint(bits[2], 10, 32)
 		if err != nil {
-			log.Fatal("Invalid version string")
+			return nil, fmt.Errorf("Invalid version string %q", input)
 		}
 	}
 
-	return ver
+	return &ver, nil
 }
 
 type Config struct {

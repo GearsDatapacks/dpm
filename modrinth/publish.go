@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gearsdatapacks/dpm/changelog"
 	"github.com/gearsdatapacks/dpm/settings"
 	"github.com/gearsdatapacks/dpm/types"
 	"github.com/gearsdatapacks/dpm/utils"
@@ -21,7 +22,10 @@ func Publish(auth string) {
 	}
 
 	project := utils.GetProjectJson()
-	projectVersion := types.ParseVersion(project.DpmVersion)
+	projectVersion, err := types.ParseVersion(project.DpmVersion)
+	if err != nil {
+		log.Fatal(err)
+	}
 	reader := bufio.NewReader(os.Stdin)
 	if projectVersion.Less(settings.DPM_VERSION) {
 		fmt.Print("[Warning] This project was made with an older version of DPM and may use a different project format. Consider running dpm update to update it.\nPress CTRL+C to quit or enter to continue anyway.")
@@ -192,6 +196,15 @@ func publishVersion(metadata types.Project, auth string) {
 	}
 	excludedFiles := []string{}
 
+	var changelogText string
+
+	if filename := findFile(".", "CHANGELOG*", []string{}); filename != "" {
+		version, err := types.ParseVersion(metadata.Version)
+		if err == nil {
+			changelogText = changelog.ParseChangelog(filename, *version)
+		}
+	}
+
 	config, hasConfig := utils.GetConfig()
 
 	if hasConfig {
@@ -221,6 +234,7 @@ func publishVersion(metadata types.Project, auth string) {
 		VersionType:   metadata.ReleaseType,
 		Loaders:       []string{"datapack"},
 		FileParts:     []string{zipPath},
+		Changelog: changelogText,
 	}
 
 	err = project.CreateVersion(version, auth)
