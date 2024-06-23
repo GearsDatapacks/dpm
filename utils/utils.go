@@ -108,3 +108,42 @@ func SetProjectJson(project types.Project) {
 		log.Fatal(err)
 	}
 }
+
+var cacheFile = path.Join(settings.DpmDir, "cache.json")
+
+func GetCache() types.Cache {
+	if Exists(cacheFile) {
+		bytes, err := os.ReadFile(cacheFile)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		cache := types.Cache{}
+		err = json.Unmarshal(bytes, &cache)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return cache
+	}
+
+	return types.Cache{
+		PackFormats: map[string]int{},
+	}
+}
+
+func SetCache(cache types.Cache) {
+	bytes, err := json.MarshalIndent(cache, "", "  ")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile(cacheFile, bytes, 0666)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}

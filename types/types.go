@@ -103,3 +103,7 @@ type ContextFlags struct {
 	ModifyProject bool
 	ModifyVersion bool
 }
+
+type Cache struct {
+	PackFormats map[string]int `json:"pack_formats"`
+}

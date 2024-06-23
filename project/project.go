@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/gearsdatapacks/dpm/settings"
@@ -114,15 +115,19 @@ func FixProjectJson() {
 	utils.SetProjectJson(project)
 }
 
-const PACK_FORMAT = "17"
+func makeMcmeta(versions []string, desc string) string {
+	supportedFormats := make([]int, 0, len(versions))
+	for _, version := range versions {
+		supportedFormats = append(supportedFormats, utils.GetPackFormat(version))
+	}
 
-func makeMcmeta(desc string) string {
-	return `{
+	return fmt.Sprintf(`{
   "pack": {
-    "pack_format": ` + PACK_FORMAT + `,
-    "description": "` + desc + `"
+    "pack_format": %d,
+    "description": "%s",
+		"supported_fomats": [%d, %d]
   }
-}`
+}`, slices.Max(supportedFormats), desc, slices.Min(supportedFormats), slices.Max(supportedFormats))
 }
 
 func makeTagFile(name string) string {
@@ -165,7 +170,7 @@ func createBasic(name string) types.Project {
 
 	project := CreateProject(types.Project{Name: name})
 	namespace := utils.ToNamespace(name)
-	mcmeta := makeMcmeta(fmt.Sprintf("%s v%s", project.Name, project.Version))
+	mcmeta := makeMcmeta(project.GameVersions, fmt.Sprintf("%s v%s", project.Name, project.Version))
 
 	os.WriteFile("pack.mcmeta", []byte(mcmeta), 0666)
 
