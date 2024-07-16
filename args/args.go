@@ -44,6 +44,11 @@ var Actions = map[string]action{
 		HelpMessage: fetchText,
 		Aliases:     []string{"f"},
 	},
+	"link": {
+		ArgCount:    1,
+		HelpMessage: linkText,
+		Aliases:     []string{"l"},
+	},
 }
 
 var flags = map[string]int{
@@ -105,7 +110,7 @@ const publishText = `Publish your DPM project to Modrinth (requires --auth)
 Usage:
 dpm publish --auth foo
 
-Zips up your datapack files and uses the infromation in the project.json file to create a version for the datapack on Modrinth`
+Zips up your datapack files and uses the information in the project.json file to create a version for the datapack on Modrinth`
 
 const initText = `Initialise a DPM project
 
@@ -155,6 +160,14 @@ Downloads the latest version of the given datapack, or the specified version.
 Creates a new folder for that project, and unzips the contents of it there.
 If not included in the datapack, it also generates project.json and dpmconfig.json.`
 
+const linkText = `Links an existing datapack with a Modrinth project
+
+Usage:
+dpm link item-utils
+
+Creates project.json in the current directory based on metadata from the specified project.
+Note: This doesn't look for project.json in the version files. For that, use dpm fetch.`
+
 const HelpText = `Usage: dpm <action> [options]
 Actions:
 init                                    Initialise a DPM project
@@ -163,7 +176,8 @@ install <datapacks>                     Add datapacks as dependencies
 install                                 Download all dependencies
 uninstall <datapacks>                   Remove datapacks from dependencies
 publish                                 Publish your DPM project to Modrinth (requires --auth)
-fetch                                   Fetch a project from Modrtinh 
+fetch                                   Fetch a project from Modrinth
+link                                    Link an existing project with Modrinth
 alias <name> <auth>                     Create an auth alias
 rm-alias <name>                         Removes an auth alias
 create <template-name> <project-name>   Generate a datapack from a template

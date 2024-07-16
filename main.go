@@ -74,6 +74,8 @@ func main() {
 		project.CreateTemplate(context)
 	case "fetch":
 		modrinth.Fetch(context)
+	case "link":
+		modrinth.Link(context)
 	default:
 		args.Help("")
 	}
