@@ -14,11 +14,11 @@
 
 DPM has a variety of subcommands.
 
-### Init
+### `init`
 Some DPM functions require an initialised project. To initialise a DPM project, open the terminal in your datapack folder (the one containing pack.mcmeta), and run `dpm init`. This will ask some questions and then generate a file named `project.json`. 
 It will also create a file named `dpmconfig.json`, which changes some of the functionality of the dppm command. More information [here](#config)
 
-### Install
+### `install`
 Install downloads datapacks into your world or as dependencies of another datapack.
 
 To install a datapck into your world, open the terminal in your `<world_save>/datapacks` folder.  
@@ -39,23 +39,37 @@ Additionally, you can pass a flag that tells DPM which dependency type to instal
 Dev dependencies, specified with `--dev`, are datapacks that are only used in development, such as benchmarks or testing libraries.  
 Optional dependencies, specified with `--optional`, are datapacks that are not necessary for the pack to run properly, such as addons.  
 
-### Uninstall
+### `uninstall`
 Dependencies can be uninstalled using `dpm uninstall ...`  
 This removes the given dependencies from the relevant dependency registry, and delete their files.  
 
-### Publish
+### `publish`
 DPM allows you to publish a datapack without manually uploading it to Modrinth. If you run `dpm publish`, it will extract the settings from your project json, zip up your files and upload it directly to Modrinth.  
 **Note: You must give you Modrinth auth token using the --auth flag, otherwise dpm doesn't have permission to upload the pack.**
 
-### Alias
+### `alias`
 The alias command allows you to create aliases for auth tokens.  
 This allows you to use your authorisation without having to copy-paste it every time.  
 Run `dpm alias <alias-name> <auth>`, and whenever you use that alias name in `--auth`, it will replace it with the auth you give it.
 Run `dpm rm-alias <alias-name>` to remove an alias
 
-### Create
+### `create`
 Using `dpm create <template-name> <project-name>`, you can generate a datapack from a selection of templates.  
 Run `dpm create --help` for a list of them.
+
+### `fix`
+The `fix` subcommand allows you to fix or update your `project.json` file.  
+The project format changes between DPM versions, and so if you have an old config file all you need to do is run `dpm fix`, and it migrates to the newest version, prompting you for any additional fields which have been added.
+
+### `fetch`
+The `fetch` subcommand downloads a project from Modrinth and extracts it, ready for development locally.  
+If the project's developer has included DPM files in the Modrinth project, it uses those. Otherwise, it generates files based on the Modrinth project.  
+You can fetch a specific version of a project, or just the latest version, just like with `dpm install`.
+
+### `link`
+`dpm link` is similar to `dpm fetch`, linking a local project with a Modrinth one.  
+`dpm link` generates `project.json` and `dpmconfig.json` based on the Modrinth project, but keeps all datapack files the same as the local ones.  
+Useful for setting up DPM projects in existing datapacks, without having to manually configure project files.
 
 **You can see more information by running `dpm [command] --help`**
 
